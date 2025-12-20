@@ -1,0 +1,544 @@
+Here’s how I’d prep you for Minishell.
+
+---
+
+## 1. Allowed external functions
+
+According to the subject, **these are the only external functions you can call** in your Minishell. 
+I’ll group them by purpose and explain what they’re for and how you’ll typically use them in this project.
+
+### A. Readline & history (libreadline)
+
+**`char *readline(const char *prompt);`**
+Reads one line from the terminal with line-editing and history support.
+
+* **Use for:** Getting the user’s command line in interactive mode.
+* **Typical pattern:**
+
+  ```c
+  char *line = readline("minishell$ ");
+  if (!line) {
+      // EOF (Ctrl-D) -> exit shell
+  }
+  ```
+* The returned string is **malloc’d**: you must `free(line)` after using it.
+
+---
+
+**`void add_history(const char *line);`**
+Adds `line` to readline’s history.
+
+* **Use for:** Implementing “working history” (up/down arrows).
+* Call after a successful `readline`, if the line is not empty.
+
+---
+
+**`void rl_clear_history(void);`**
+Clears readline’s in-memory history.
+
+* **Use for:** Optional cleanup when exiting the shell.
+
+---
+
+**`void rl_on_new_line(void);`**
+Tells readline that you’ve moved to a new line.
+
+* **Use for:** Signal handling (e.g. on `SIGINT` you print a newline and reset the prompt).
+
+---
+
+**`void rl_replace_line(const char *text, int clear_undo);`**
+Replaces the current input line with `text`.
+
+* **Typical in SIGINT handler:** `rl_replace_line("", 0);` to clear the current typed command.
+
+---
+
+**`void rl_redisplay(void);`**
+Reprints the prompt and current line.
+
+* **Typical in SIGINT handler:** After `rl_on_new_line()` and `rl_replace_line()` to show a fresh prompt.
+
+---
+
+### B. Standard I/O & memory
+
+**`int printf(const char *fmt, ...);`**
+Formatted output to `stdout`.
+
+* **Use for:** Error messages for builtins, debugging, etc.
+* Be careful with Norm (wrap in your own `ft_printf` if you prefer consistent style).
+
+---
+
+**`void *malloc(size_t size);` / `void free(void *ptr);`**
+
+* **Use for:** All dynamic allocations (tokens, AST nodes, env list, etc.).
+* Make sure **every malloc has a free** in your exit/error paths to avoid leaks (readline’s internal leaks are allowed, yours are not).
+
+---
+
+**`ssize_t write(int fd, const void *buf, size_t count);`**
+
+* **Use for:** Low-level writes (e.g. error messages to `stderr`, `fd = 2`), or when `printf` is overkill / not allowed in signal handlers.
+
+---
+
+### C. File & descriptor operations
+
+**`int access(const char *path, int mode);`**
+
+* **Use for:** Checking if a command is executable when searching `$PATH` (`F_OK`, `X_OK`).
+
+---
+
+**`int open(const char *path, int flags, ...);`**
+
+* **Use for:** Implementing redirections
+
+  * `>` : `open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644)`
+  * `>>`: `open(path, O_WRONLY | O_CREAT | O_APPEND, 0644)`
+  * `<` : `open(path, O_RDONLY)`
+
+---
+
+**`ssize_t read(int fd, void *buf, size_t count);`**
+
+* **Use for:** Reading from file descriptors (here mainly for heredocs or when you need manual IO).
+
+---
+
+**`int close(int fd);`**
+
+* **Use for:** Closing any file descriptor you’ve opened or duplicated (`pipe` ends, `open`ed files, etc.). Essential to avoid FD leaks.
+
+---
+
+**`int dup(int oldfd);` / `int dup2(int oldfd, int newfd);`**
+
+* **Use for:** Redirecting `stdin`/`stdout`:
+
+  * Save original `STDOUT_FILENO` with `dup`.
+  * After `open`ing a file for `>`, do `dup2(file_fd, STDOUT_FILENO)` so the command’s output goes to that file.
+  * Restore later using the saved fd.
+
+---
+
+**`int pipe(int pipefd[2]);`**
+
+* **Use for:** Implementing `|` pipelines.
+
+  * `pipefd[0]` = read end, `pipefd[1]` = write end.
+
+---
+
+### D. Process creation & execution
+
+**`pid_t fork(void);`**
+
+* **Use for:** Spawning child processes to run external commands and pipeline stages.
+* Parent gets child PID, child gets 0. You branch on that.
+
+---
+
+**`int execve(const char *path, char *const argv[], char *const envp[]);`**
+
+* **Use for:** Running external programs (`/bin/ls`, etc.) in the child after `fork`.
+* On success it **never returns**. On failure it returns `-1` and sets `errno`.
+
+---
+
+**`pid_t wait(int *wstatus);` /
+`pid_t waitpid(pid_t pid, int *wstatus, int options);` /
+`pid_t wait3(...)`, `pid_t wait4(...)`**
+
+* **Use for:** Reaping children and getting their exit status (needed for `$?`).
+* `waitpid(pid, &status, 0)` is the usual tool. Extract exit code with `WEXITSTATUS(status)`.
+
+---
+
+### E. Signals
+
+**`void (*signal(int signum, void (*handler)(int)))(int);`**
+**`int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact);`**
+
+* **Use for:** Setting handlers for `SIGINT`, `SIGQUIT`, etc.
+* `sigaction` is the robust way; `signal` is simpler but less portable.
+
+---
+
+**`int sigemptyset(sigset_t *set);` / `int sigaddset(sigset_t *set, int signum);`**
+
+* **Use for:** Preparing signal masks in `struct sigaction`, e.g. to block certain signals while you’re handling one.
+
+---
+
+**`int kill(pid_t pid, int sig);`**
+
+* **Use for:** Sending signals to processes, if needed (often you don’t need it for basic Minishell).
+
+---
+
+**`_Noreturn void exit(int status);`**
+
+* **Use for:** Exiting the shell or child processes with a given status code.
+
+---
+
+### F. Current directory & paths
+
+**`char *getcwd(char *buf, size_t size);`**
+
+* **Use for:** Implementing `pwd`, updating `PWD` and `OLDPWD`.
+
+---
+
+**`int chdir(const char *path);`**
+
+* **Use for:** Implementing the `cd` builtin.
+
+---
+
+### G. File metadata & links
+
+**`int stat(const char *path, struct stat *st);`**
+**`int lstat(const char *path, struct stat *st);`**
+**`int fstat(int fd, struct stat *st);`**
+
+* **Use for:** Checking if something is a directory, regular file, etc. Often useful when resolving paths.
+
+---
+
+**`int unlink(const char *path);`**
+
+* **Use for:** Removing files (not heavily needed for basic Minishell, but allowed).
+
+---
+
+### H. Directories
+
+**`DIR *opendir(const char *name);`**
+**`struct dirent *readdir(DIR *dirp);`**
+**`int closedir(DIR *dirp);`**
+
+* **Use for:** Directory iteration; mainly useful for bonus wildcard expansion `*`.
+
+---
+
+### I. Errors & TTY detection
+
+**`char *strerror(int errnum);`**
+
+* **Use for:** Converting `errno` to an error string if you want to format your own messages.
+
+---
+
+**`void perror(const char *s);`**
+
+* **Use for:** Printing an error message with `s: <system message>` to `stderr`.
+
+---
+
+**`int isatty(int fd);`**
+
+* **Use for:** Detecting interactive mode (e.g. `isatty(STDIN_FILENO)`).
+
+---
+
+**`char *ttyname(int fd);`**
+
+* **Use for:** Getting terminal device name (rarely needed for Minishell).
+
+---
+
+**`int ttyslot(void);`**
+
+* **Use for:** Getting terminal slot index (also rarely needed here).
+
+---
+
+**`int ioctl(int fd, unsigned long request, ...);`**
+
+* **Use for:** Low-level terminal io control. Many Minishells don’t need it explicitly.
+
+---
+
+### J. Environment & termios / termcap
+
+**`char *getenv(const char *name);`**
+
+* **Use for:** Getting environment variable values (`PATH`, `HOME`, etc.) for internal logic.
+  (You still need your own env structure for `export`/`unset`/`env`, since you can’t use `setenv`/`unsetenv`.)
+
+---
+
+**`int tcgetattr(int fd, struct termios *termios_p);`**
+**`int tcsetattr(int fd, int act, const struct termios *termios_p);`**
+
+* **Use for:** Getting/setting terminal attributes (canonical mode, echo, etc.). Often you just use them for advanced line handling, but readline usually hides this for you.
+
+---
+
+**`int tgetent(char *bp, const char *name);`**
+**`int tgetflag(const char *id);`**
+**`int tgetnum(const char *id);`**
+**`char *tgetstr(const char *id, char **area);`**
+**`char *tgoto(const char *cap, int col, int row);`**
+**`int tputs(const char *str, int affcnt, int (*putc)(int));`**
+
+* **Use for:** Termcap capabilities – low-level cursor movement, clearing lines, etc.
+* Most 42 Minishells use only basic readline and don’t need to dive deep into termcap, but you *can* use these to better control display if you want.
+
+---
+
+## 2. What you need to achieve for each requested feature
+
+Now, for the concrete features you mentioned: **history, double quotes, `>` & `>>`, pipes `|`, `cd`, `export`, `env`** — here are goals and implementation tips.
+
+---
+
+### 2.1 History
+
+**Goal:** up/down arrows show previous commands; commands you type get added to that list.
+
+**Key ideas:**
+
+* `readline()` already handles in-memory history navigation **if you call `add_history()`** on each non-empty command.
+* You are **not required** to save history to a file between sessions.
+
+**Implementation sketch:**
+
+```c
+while (1) {
+    char *line = readline("minishell$ ");
+    if (!line)           // Ctrl-D
+        break;
+    if (*line)
+        add_history(line);
+    // parse & execute line
+    free(line);
+}
+```
+
+You usually don’t need to do anything else for arrows; readline does it.
+
+---
+
+### 2.2 Double quotes (`"..."`) and single quotes (`'...'`)
+
+**Goal:**
+
+* `'...'` → take the content **literally** (no variable expansion, no special character interpretation).
+* `"..."` → still group as one token, but **expand `$VAR` and `$?` inside**; other meta-characters are protected from splitting.
+
+**Key ideas:**
+
+* Implement a **lexer** that scans the input once and keeps a **quote state**:
+
+  * `STATE_NORMAL`
+  * `STATE_IN_SINGLE_QUOTE`
+  * `STATE_IN_DOUBLE_QUOTE`
+* In `STATE_IN_SINGLE_QUOTE`:
+
+  * Only `'` ends the quote; everything else is copied as-is.
+* In `STATE_IN_DOUBLE_QUOTE`:
+
+  * Only `"` ends the quote.
+  * When you see `$`, perform env expansion and `$?` expansion.
+  * `*`, `|`, spaces etc. should not be treated as separators inside quotes.
+
+**Suggested steps:**
+
+1. First pass: tokenize into **words** and **operators** (`|`, `<`, `>`, `>>`, `<<`) while respecting quotes.
+2. During or after tokenization, perform **expansion**:
+
+   * Only expand `$VAR` and `$?` in NORMAL and DOUBLE_QUOTE states.
+   * Never in SINGLE_QUOTE state.
+
+---
+
+### 2.3 Redirections `>` and `>>`
+
+**Goal:**
+
+* `cmd > file` → redirect stdout to `file` (truncate / create).
+* `cmd >> file` → redirect stdout to `file` in append mode.
+
+**Key ideas:**
+
+* In your parsed command structure, keep a list of redirections:
+
+  ```c
+  typedef enum e_redir_type { R_IN, R_OUT, R_OUT_APPEND, R_HEREDOC } t_redir_type;
+
+  typedef struct s_redir {
+      t_redir_type type;
+      char         *filename;
+  } t_redir;
+  ```
+* For each command node, before executing it:
+
+  1. Loop over its redirections.
+  2. For `R_OUT`:
+
+     ```c
+     fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+     dup2(fd, STDOUT_FILENO);
+     close(fd);
+     ```
+  3. For `R_OUT_APPEND`:
+
+     ```c
+     fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
+     dup2(fd, STDOUT_FILENO);
+     close(fd);
+     ```
+
+**Important details:**
+
+* Handle **errors**: if `open` fails, print something like `minishell: file: <errmsg>` using `perror` and set exit status.
+* Redirections are applied **inside the child** (after `fork` and before `execve`) or inside the parent if executing a builtin without forking.
+
+---
+
+### 2.4 Pipes `|`
+
+**Goal:** `cmd1 | cmd2 | cmd3` → stdout of each command goes into stdin of the next.
+
+**Core pattern:**
+
+For a simple `cmd1 | cmd2`:
+
+1. `pipe(pipefd);`
+2. `fork()` → child1:
+
+   * `dup2(pipefd[1], STDOUT_FILENO);`
+   * `close(pipefd[0]); close(pipefd[1]);`
+   * apply redirections for cmd1
+   * `execve(...)`
+3. `fork()` → child2:
+
+   * `dup2(pipefd[0], STDIN_FILENO);`
+   * `close(pipefd[0]); close(pipefd[1]);`
+   * apply redirections for cmd2
+   * `execve(...)`
+4. Parent:
+
+   * `close(pipefd[0]); close(pipefd[1]);`
+   * `waitpid(child1, ...)`, `waitpid(child2, ...)`.
+
+For N commands, you chain multiple pipes, usually in a loop.
+
+**Important points:**
+
+* Close unused pipe ends in both parent and children to avoid deadlocks.
+* Builtins **in a pipeline** usually run in child processes (so they don’t affect the parent’s env or cwd).
+* The overall `$?` for a pipeline is the exit status of the **last** command in the pipe.
+
+---
+
+### 2.5 `cd` builtin
+
+**Goal:** Change the current working directory of the shell process.
+
+**Essential behaviour for the subject:**
+
+* `cd <path>` where `<path>` is relative or absolute.
+
+**Implementation:**
+
+1. Validate argument count (too many args → error & non-zero exit status).
+2. Call `chdir(path)`.
+3. On success, update internal `PWD` and `OLDPWD` if you implement them:
+
+   * Use `getcwd(buf, size)` to get new directory.
+4. On failure, print an error:
+
+   ```c
+   perror("minishell: cd");
+   ```
+
+Note: subject doesn’t force you to handle `cd` without arguments or with `~`, but you can mimic bash by using `getenv("HOME")`.
+
+---
+
+### 2.6 `export` builtin
+
+**Goal:** Set or list environment variables used by your shell and passed to `execve`.
+
+**Big picture:**
+
+* Keep your own representation of the environment (e.g. a `char **env` array or a linked list of `key/value` pairs).
+* `export` modifies this internal structure; when you run `execve`, you pass `env_to_array()`.
+
+**Typical behaviour:**
+
+* `export` with **no arguments**: print all exported variables (often sorted), e.g.
+
+  ```
+  declare -x PATH=/usr/bin:...
+  declare -x HOME=/home/you
+  ```
+* `export VAR=value`:
+
+  * If `VAR` exists, replace its value.
+  * If not, add a new entry.
+* `export VAR` (no `=`): mark as exported but not necessarily assigned (depends on how closely you mimic bash).
+
+**Validation:**
+
+* Variable name must start with a letter or `_`, then letters, digits, or `_`.
+* If invalid identifier, print something like:
+
+  ```text
+  minishell: export: `1VAR': not a valid identifier
+  ```
+
+---
+
+### 2.7 `env` builtin
+
+**Goal:** Print the current environment variables (only those with a value).
+
+**Implementation:**
+
+* Iterate through your env structure and print `NAME=value` for each entry that has `value != NULL`.
+* No arguments or options required by the subject; if extra args are given, usually you print an error and set exit status to 1.
+
+**Interaction with `export`/`unset`:**
+
+* `env` shows the result of whatever `export`/`unset` have done to your internal env.
+
+---
+
+## 3. Suggested next steps for you
+
+If you want to progress in good order:
+
+1. **Core loop + history**
+
+   * Implement main loop with `readline` + `add_history`.
+   * Handle `Ctrl-D` properly → exit cleanly.
+2. **Lexer with quotes & operators**
+
+   * Build tokenizer that handles `'` and `"` correctly and recognizes `|`, `<`, `>`, `>>`, `<<`.
+3. **Parser / command structure**
+
+   * Represent a pipeline: list of commands, each with argv and redirections.
+4. **Execution engine**
+
+   * Start with single commands (no pipes, no redirections).
+   * Then add redirections using `open` + `dup2`.
+   * Then add pipelines using `pipe` + `fork` + `execve`.
+5. **Environment representation**
+
+   * Copy `envp` into your own structure.
+   * Implement `env`, `export`, and later `unset`.
+6. **Builtins**
+
+   * Implement `cd`, `pwd`, `echo -n`, `exit` in the parent when there are no pipes.
+7. **Signals**
+
+   * Set `sigaction` handlers for `SIGINT`/`SIGQUIT` using readline helpers to match bash’s behaviour.
+
+If you’d like, next we can zoom into **one** of these (for example, “design my env structure and export/env builtins”) and I can help you sketch concrete data structures and functions.
