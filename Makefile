@@ -6,7 +6,7 @@
 #    By: marapovi <marapovi@student.42vienna.c      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2025/12/20 21:46:50 by marapovi         ###   ########.fr        #
+#    Updated: 2025/12/20 21:54:51 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,7 +31,7 @@ CFLAGS		:=	-Wall -Wextra -Werror
 LDFLAGS		:=	-L libft
 
 # Libraries to pass to the linker
-LDLIBS 		:=	-lft 
+LDLIBS 		:=	-lft -lreadline
 
 # set RM to remove directories and containing files recursiveley
 RM			:=	rm -rf
