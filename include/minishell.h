@@ -159,4 +159,4 @@ size_t		ms_str_arr_len(char **arr);
 void		ms_free_str_array(char **arr);
 char		*ms_str_join_three(char *a, char *b, char *c);
 
-#endif
+#endif //!MINISHELL_H

@@ -132,7 +132,7 @@ char	**ms_env_to_array(t_env_var *env_list)
 	char	**arr;
 	int		len;
 	int		i;
-	char	*tmp;
+//	char	*tmp;
 
 	len = 0;
 	while (env_list)

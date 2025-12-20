@@ -6,7 +6,7 @@
 #    By: marapovi <marapovi@student.42vienna.c      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2025/12/20 21:38:39 by marapovi         ###   ########.fr        #
+#    Updated: 2025/12/20 21:46:50 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,7 @@ HEADER		:=	./include/minishell.h
 CC			:=	cc
 
 # C PreProcessor flags - exclusively needed when compiling src files
-CPPFLAGS	:=	-I inc -I libft
+CPPFLAGS	:=	-I include -I libft
 
 # C compiler flags - needed for compiling src files AND for linking
 # CFLAGS		:=	-Wall -Wextra -Werror -O2 -march=native -g
@@ -53,6 +53,22 @@ LIBFT_DIR		:=		libft
 LIBFT			:=		$(LIBFT_DIR)/libft.a
 
 SRC				:=		main.c\
+						builtin_cd.c\
+						builtin_env_export_unset.c\
+						builtin_exit.c\
+						builtins.c\
+						builtins_echo.c\
+						builtins_pwd.c\
+						env_list.c\
+						executor.c\
+						init.c\
+						lexer.c\
+						loop.c\
+						parser.c\
+						redirections.c\
+						signals.c\
+						utils.c
+
 
 SRC				:=		$(addprefix $(SRC_DIR)/,$(SRC))
 OBJ				:=		$(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(SRC)))
