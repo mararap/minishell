@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: marapovi <marapovi@student.42vienna.c      +#+  +:+       +#+         #
+#    By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2025/12/20 21:54:51 by marapovi         ###   ########.fr        #
+#    Updated: 2025/12/21 20:21:47 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -62,9 +62,9 @@ SRC				:=		main.c\
 						env_list.c\
 						executor.c\
 						init.c\
-						lexer.c\
+						lexer/lexer.c\
 						loop.c\
-						parser.c\
+						parser/parser.c\
 						redirections.c\
 						signals.c\
 						utils.c
@@ -84,9 +84,9 @@ all: libft_always $(NAME)
 libft_always:
 	@$(MAKE) --no-print-directory -C $(LIBFT_DIR);
 
-vpath %.c $(SRC_DIR) ..
+vpath %.c $(SRC_DIR) $(SRC_DIR)/lexer $(SRC_DIR)/parser
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+$(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(OBJ_DIR)
 	@$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 

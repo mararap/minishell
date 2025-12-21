@@ -19,8 +19,8 @@
 ** Macros
 */
 
-# define SHELL_NAME "minishell"
-# define PROMPT_STR "minishell$ "
+# define SHELL_NAME "jumanshe"
+# define PROMPT_STR "jumanshe$ "
 # define HEREDOC_PROMPT "> "
 
 # define REDIR_IN 0
