@@ -85,6 +85,7 @@ static char	*ms_collect_word(t_shell *shell, char *str, int *idx)
 			ch = str[*idx];
 			*idx = *idx + 1;
 		}
+		// be aware: '"' not yet fully implemented (nested, unclosed...)
 		else if (str[*idx] == '"')
 		{
 			*idx = *idx + 1;
