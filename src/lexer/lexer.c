@@ -89,9 +89,14 @@ static char	*ms_collect_word(t_shell *shell, char *str, int *idx)
 		{
 			*idx = *idx + 1;
 			start = *idx;
-			while (str[*idx] && str[*idx] != '"')
-				*idx = *idx + 1;
-			tmp = ft_substr(str, start, *idx - start);
+			if (str[*idx] == '$')
+				tmp = ms_expand_variable(shell, str, idx);
+			else
+			{
+				while (str[*idx] && str[*idx] != '"')
+					*idx = *idx + 1;
+				tmp = ft_substr(str, start, *idx - start);
+			}
 			if (str[*idx] == '"')
 				*idx = *idx + 1;
 		}
