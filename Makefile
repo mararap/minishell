@@ -6,7 +6,7 @@
 #    By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2026/01/07 23:21:03 by marapovi         ###   ########.fr        #
+#    Updated: 2026/01/08 21:00:47 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -59,10 +59,9 @@ define MONKEY
        | | |_| | | | | | | (_| | || | | || \__ \ | | |  __/ 
        | |\__,_|_| |_| |_|\__,_| ||_| |_|| |___/_| |_|\___|
       _/ |                     |___|   |___|               
-     |__/                                                 
+     |__/                                                  
 
       Minishell 'juma[n]she' by Juliyan and Maria is ready.
-
 
 endef
 export MONKEY
@@ -89,7 +88,7 @@ RM			:=	rm -rf
 # c to explicitly create the library and silence warning if its not there
 # r to replace existing symbols (functions) in the library and/or add new
 # s to create an index for the library so linker will find symbols quickly
-#AR		:=	ar crs
+# AR		:=	ar crs
 
 
 # **************************************************************************** #
@@ -126,9 +125,15 @@ OBJ				:=		$(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(SRC)))
 #                                   RULES                                      #
 # **************************************************************************** #
 
-all: libft_always $(NAME)
+all: libft_always print_compile $(NAME)
 
-.PHONY: libft_always
+.PHONY: libft_always print_compile print_done
+
+print_compile:
+	@echo "     🛠️  Compiling sources..."
+
+print_done:
+	@echo "     ✅ Compilation finished."
 
 libft_always:
 	@$(MAKE) --no-print-directory -C $(LIBFT_DIR);
@@ -136,15 +141,13 @@ libft_always:
 vpath %.c $(SRC_DIR) $(SRC_DIR)/lexer $(SRC_DIR)/parser
 
 $(OBJ_DIR)/%.o: %.c
-	@echo "     Compiling sources..."
 	@mkdir -p $(OBJ_DIR)
 	@$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
-	@echo "    ✅ Compilation finished."
 
 $(OBJ): %.o: $(HEADER)
 
-$(NAME): $(OBJ) $(LIBFT)
-	@echo "     Linking executable..."
+$(NAME): print_done $(OBJ) $(LIBFT)
+	@echo "     🛠️  Linking executable..."
 	@$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) $(LDLIBS) -o $(NAME)
 	@printf "%b\n" "$$MONKEY"
 
@@ -162,4 +165,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re%  
+.PHONY: all clean fclean re 
