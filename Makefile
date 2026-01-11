@@ -6,7 +6,7 @@
 #    By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2026/01/08 21:00:47 by marapovi         ###   ########.fr        #
+#    Updated: 2026/01/11 20:26:14 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -61,7 +61,7 @@ define MONKEY
       _/ |                     |___|   |___|               
      |__/                                                  
 
-      Minishell 'juma[n]she' by Juliyan and Maria is ready.
+   ✅ Minishell 'juma[n]she' by Juliyan and Maria is now ready.
 
 endef
 export MONKEY
