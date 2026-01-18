@@ -78,7 +78,8 @@ int	ms_pipeline_error(pid_t *pids, int prev_read)
 	return (1);
 }
 
-//keep in executor
+//To check for memory leaks
+//what is pipe_fd and how it is working
 int	ms_execute_pipeline(t_shell *shell, t_command *cmds)
 {
 	int			i;

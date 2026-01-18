@@ -1,5 +1,6 @@
 #include "minishell.h"
 
+//Juliyan to look here
 static t_env_var	*ms_env_new_node(char *name, char *value)
 {
 	t_env_var	*node;
@@ -11,6 +12,7 @@ static t_env_var	*ms_env_new_node(char *name, char *value)
 	return (node);
 }
 
+//
 t_env_var	*ms_env_from_environ(char **envp)
 {
 	t_env_var	*head;

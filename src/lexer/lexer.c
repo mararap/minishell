@@ -144,6 +144,7 @@ static void	ms_add_redir_token(t_token **tokens, char *str, int *idx)
 	}
 }
 
+//Maria to check for memory leaks
 t_token	*ms_lex_line(t_shell *shell, char *line)
 {
 	t_token	*tokens;

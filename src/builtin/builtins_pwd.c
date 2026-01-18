@@ -2,11 +2,10 @@
 
 int	ms_builtin_pwd(t_shell *shell)
 {
-	char	buffer[4096];
 	char	*cwd;
 
 	(void)shell;
-	cwd = getcwd(buffer, sizeof(buffer));
+	cwd = getcwd(NULL, 0);
 	if (!cwd)
 	{
 		ms_perror("getcwd");
@@ -14,5 +13,6 @@ int	ms_builtin_pwd(t_shell *shell)
 	}
 	write(STDOUT_FILENO, cwd, ft_strlen(cwd));
 	write(STDOUT_FILENO, "\n", 1);
+	free(cwd);
 	return (0);
 }
