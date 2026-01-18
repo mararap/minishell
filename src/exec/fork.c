@@ -107,6 +107,7 @@ static void	ms_execute_child(t_shell *shell, t_command *cmd,
 	exit(127);
 }
 
+//Juliyan to check pipe_fd
 int	ms_fork_and_execute(t_shell *shell, t_command *cmd,
 	int prev_read, int pipe_fd[2])
 {

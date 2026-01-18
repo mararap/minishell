@@ -57,6 +57,7 @@ typedef enum e_token_type
 	TOKEN_HEREDOC
 }	t_token_type;
 
+//Maria to check if we can combine the next two structures into one
 typedef struct s_token
 {
 	char			*value;

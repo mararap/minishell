@@ -27,7 +27,9 @@ int	main(int argc, char **argv, char **envp)
 {
 	t_shell	shell;
 
+	//Maria to check if this is needed
 	(void)argc;
+	
 	ms_init_shell(&shell, envp);
 	ms_detect_interactive(&shell);
 	ms_main_loop(&shell);
