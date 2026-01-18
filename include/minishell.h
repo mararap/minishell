@@ -33,7 +33,8 @@
 ** The rest of the state stays inside t_shell.
 */
 
-extern int	g_signal_number;
+//extern int	g_signal_number;
+extern volatile sig_atomic_t	g_signal_number;
 
 /*
 ** Data structures
@@ -134,6 +135,8 @@ int			ms_is_builtin(char *cmd_name);
 int			ms_run_builtin_parent(t_shell *shell, t_command *cmd);
 int			ms_run_builtin_child(t_shell *shell, char **argv);
 int			ms_apply_redirections(t_redir *redirections, t_shell *shell);
+int			ms_fork_and_execute(t_shell *shell, t_command *cmd,
+	int prev_read, int pipe_fd[2]);
 
 /*
 ** builtins

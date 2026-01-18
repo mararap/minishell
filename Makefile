@@ -108,7 +108,8 @@ SRC				:=		main.c\
 						builtins_echo.c\
 						builtins_pwd.c\
 						env_list.c\
-						executor.c\
+						exec/executor.c\
+						exec/fork.c\
 						init.c\
 						lexer/lexer.c\
 						loop.c\
@@ -138,7 +139,7 @@ print_done:
 libft_always:
 	@$(MAKE) --no-print-directory -C $(LIBFT_DIR);
 
-vpath %.c $(SRC_DIR) $(SRC_DIR)/lexer $(SRC_DIR)/parser
+vpath %.c $(SRC_DIR) $(SRC_DIR)/lexer $(SRC_DIR)/parser $(SRC_DIR)/exec
 
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(OBJ_DIR)

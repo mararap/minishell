@@ -14,32 +14,23 @@
 
 char	*ft_strdup(const char *s)
 {
-	char	*s2;
-	int		i;
+	size_t	len;
+	char	*ptr;
+	size_t	i;
 
 	i = 0;
-	if (!s)
+	len = 0;
+	while (s[len] != '\0')
+		len++;
+	len++;
+	ptr = (char *)ft_calloc(len, sizeof(char));
+	if (ptr == NULL)
 		return (NULL);
-	s2 = (char *)ft_calloc(ft_strlen(s) + 1, 1);
-	if (s2 == NULL)
-		return (NULL);
-	while (s[i])
+	while (i < len - 1)
 	{
-		s2[i] = s[i];
+		ptr[i] = s[i];
 		i++;
 	}
-	s2[i] = '\0';
-	return (s2);
+	ptr[i] = '\0';
+	return (ptr);
 }
-/*
-#include <stdio.h>
-
-int	main(void)
-{
-	const char s[42] = "testing my function";
-	char *result = ft_strdup(s);
-
-	printf("my function: %p\n", result);
-	free(result);
-	return (0);
-}*/
