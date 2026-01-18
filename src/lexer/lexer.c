@@ -1,3 +1,16 @@
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: marapovi <marapovi@student.42vienna.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/21 21:16:48 by marapovi          #+#    #+#             */
+/*   Updated: 2025/12/21 21:16:48 by marapovi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 static t_token	*ms_token_new(t_token_type type, char *value)
@@ -72,13 +85,19 @@ static char	*ms_collect_word(t_shell *shell, char *str, int *idx)
 			ch = str[*idx];
 			*idx = *idx + 1;
 		}
+		// be aware: '"' not yet fully implemented (nested, unclosed...)
 		else if (str[*idx] == '"')
 		{
 			*idx = *idx + 1;
 			start = *idx;
-			while (str[*idx] && str[*idx] != '"')
-				*idx = *idx + 1;
-			tmp = ft_substr(str, start, *idx - start);
+			if (str[*idx] == '$')
+				tmp = ms_expand_variable(shell, str, idx);
+			else
+			{
+				while (str[*idx] && str[*idx] != '"')
+					*idx = *idx + 1;
+				tmp = ft_substr(str, start, *idx - start);
+			}
 			if (str[*idx] == '"')
 				*idx = *idx + 1;
 		}

@@ -19,8 +19,8 @@
 ** Macros
 */
 
-# define SHELL_NAME "minishell"
-# define PROMPT_STR "minishell$ "
+# define SHELL_NAME "jumanshe"
+# define PROMPT_STR "jumanshe$ "
 # define HEREDOC_PROMPT "> "
 
 # define REDIR_IN 0
@@ -159,4 +159,4 @@ size_t		ms_str_arr_len(char **arr);
 void		ms_free_str_array(char **arr);
 char		*ms_str_join_three(char *a, char *b, char *c);
 
-#endif
+#endif //!MINISHELL_H
