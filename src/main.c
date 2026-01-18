@@ -6,13 +6,13 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/11 20:32:50 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/05 16:29:10 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/06 15:21:46 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	g_signal_number = 0;
+volatile sig_atomic_t	g_signal_number = 0;
 
 static void	ms_detect_interactive(t_shell *shell)
 {
@@ -23,12 +23,11 @@ static void	ms_detect_interactive(t_shell *shell)
 		shell->is_interactive = 0;
 }
 
-int	main(int ac, char **av, char **envp)
+int	main(int argc, char **argv, char **envp)
 {
 	t_shell	shell;
 
-	(void)ac;
-	(void)av;
+	(void)argc;
 	ms_init_shell(&shell, envp);
 	ms_detect_interactive(&shell);
 	ms_main_loop(&shell);

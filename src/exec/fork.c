@@ -79,109 +79,54 @@ static void	ms_exec_external_command(t_shell *shell, char **argv)
 	exit(126);
 }
 
-static int	ms_execute_child(t_shell *shell, t_command *cmd,
+static void	ms_dup_and_close(int from, int to)
+{
+	if (from != to)
+	{
+		if (dup2(from, to) < 0)
+		{
+			ms_perror("dup2");
+			exit(1);
+		}
+		close(from);
+	}
+}
+
+static void	ms_execute_child(t_shell *shell, t_command *cmd,
 			int in_fd, int out_fd)
 {
-	if (in_fd != STDIN_FILENO)
-	{
-		dup2(in_fd, STDIN_FILENO);
-		close(in_fd);
-	}
-	if (out_fd != STDOUT_FILENO)
-	{
-		dup2(out_fd, STDOUT_FILENO);
-		close(out_fd);
-	}
+	ms_dup_and_close(in_fd, STDIN_FILENO);
+	ms_dup_and_close(out_fd, STDOUT_FILENO);
 	if (ms_apply_redirections(cmd->redirections, shell) < 0)
 		exit(1);
 	if (!cmd->argv || !cmd->argv[0])
 		exit(0);
 	if (ms_is_builtin(cmd->argv[0]))
-	{
 		exit(ms_run_builtin_child(shell, cmd->argv));
-	}
 	ms_exec_external_command(shell, cmd->argv);
-	return (0);
+	exit(127);
 }
 
-static int	ms_wait_for_children(pid_t *pids, int count)
+int	ms_fork_and_execute(t_shell *shell, t_command *cmd,
+	int prev_read, int pipe_fd[2])
 {
-	int		i;
-	int		status;
-	int		last_status;
+	pid_t	pid;
 
-	i = 0;
-	last_status = 0;
-	while (i < count)
+	pid = fork();
+	if (pid < 0)
 	{
-		if (waitpid(pids[i], &status, 0) > 0)
-		{
-			if (WIFEXITED(status))
-				last_status = WEXITSTATUS(status);
-			else if (WIFSIGNALED(status))
-				last_status = 128 + WTERMSIG(status);
-		}
-		i++;
+		ms_perror("fork");
+		return (-1);
 	}
-	return (last_status);
-}
-
-int	ms_execute_pipeline(t_shell *shell, t_command *command_list)
-{
-	int			cmd_count;
-	t_command	*cmd;
-	int			prev_read;
-	int			pipe_fd[2];
-	pid_t		*pids;
-	int			i;
-
-	cmd_count = 0;
-	cmd = command_list;
-	while (cmd)
+	if (pid == 0)
 	{
-		cmd_count++;
-		cmd = cmd->next;
-	}
-	if (cmd_count == 1 && command_list->argv
-		&& ms_is_builtin(command_list->argv[0]))
-		return (ms_run_builtin_parent(shell, command_list));
-	pids = (pid_t *)ms_xmalloc(sizeof(pid_t) * cmd_count);
-	prev_read = STDIN_FILENO;
-	cmd = command_list;
-	i = 0;
-	while (cmd)
-	{
-		if (cmd->next)
-		{
-			if (pipe(pipe_fd) < 0)
-			{
-				ms_perror("pipe");
-				return (1);
-			}
-		}
-		else
-		{
-			pipe_fd[0] = STDIN_FILENO;
-			pipe_fd[1] = STDOUT_FILENO;
-		}
 		ms_setup_child_signals();
-		pids[i] = fork();
-		if (pids[i] == 0)
-		{
-			if (cmd->next)
-				close(pipe_fd[0]);
-			ms_execute_child(shell, cmd, prev_read, cmd->next
-				? pipe_fd[1] : STDOUT_FILENO);
-		}
-		if (prev_read != STDIN_FILENO)
-			close(prev_read);
 		if (cmd->next)
-		{
-			close(pipe_fd[1]);
-			prev_read = pipe_fd[0];
-		}
-		cmd = cmd->next;
-		i++;
+			close(pipe_fd[0]);
+		ms_execute_child(shell, cmd, prev_read,
+			cmd->next ? pipe_fd[1] : STDOUT_FILENO);
 	}
-	return (ms_wait_for_children(pids, cmd_count));
+	return (pid);
 }
+
+
