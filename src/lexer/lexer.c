@@ -114,7 +114,9 @@ static char	*ms_collect_word(t_shell *shell, char *str, int *idx)
 				*idx = *idx + 1;
 			tmp = ft_substr(str, start, *idx - start);
 		}
+		char *old_buf = buf;
 		buf = ft_strjoin(buf, tmp);
+		free(old_buf);
 		free(tmp);
 	}
 	return (buf);
