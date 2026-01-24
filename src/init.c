@@ -5,6 +5,7 @@ void	ms_init_shell(t_shell *shell, char **envp)
 	shell->env_list = ms_env_from_environ(envp);
 	shell->last_exit_status = 0;
 	shell->is_interactive = 0;
+	rl_signal_event_hook = ms_rl_event_hook;
 }
 
 void	ms_free_shell(t_shell *shell)
