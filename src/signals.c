@@ -18,19 +18,23 @@
 **  - g_signal_number tracks last received signal
 */
 
-
 static void	ms_sigint_interactive(int signo)
 {
-	int	saved_errno;
-
 	(void)signo;
-	saved_errno = errno;
 	g_signal_number = SIGINT;
 	write(STDOUT_FILENO, "\n", 1);
-	rl_on_new_line();
-	rl_replace_line("", 0);
-	rl_redisplay();
-	errno = saved_errno;
+}
+
+int	ms_rl_event_hook(void)
+{
+	if (g_signal_number == SIGINT)
+	{
+		g_signal_number = 0;
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+	return (0);
 }
 
 void	ms_setup_interactive_signals(void)

@@ -110,6 +110,8 @@ int			ms_env_unset(t_env_var **env_list, char *name);
 
 void		ms_main_loop(t_shell *shell);
 void		ms_handle_line(t_shell *shell, char *line);
+void	ms_setup_interactive_signals(void);
+int	ms_rl_event_hook(void);
 
 /*
 ** signals
