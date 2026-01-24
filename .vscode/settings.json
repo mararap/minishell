@@ -1,0 +1,11 @@
+
+{
+    "editor.minimap.enabled": false,           // turn on minimap
+    "editor.minimap.scale": 3,                // increase size of text in minimap
+    "editor.minimap.maxColumn": 120,         // show more columns
+    "editor.minimap.renderCharacters": true, // show letters instead of just blocks
+    "editor.minimap.showSlider": "always",   // keep the slider visible
+    "editor.minimap.side": "right",          // default side
+    "editor.fontSize": 14,                    // slightly larger editor font for readability
+    "editor.lineHeight": 22                   // ensures spacing matches font
+}
