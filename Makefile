@@ -6,7 +6,7 @@
 #    By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2026/01/24 19:47:10 by marapovi         ###   ########.fr        #
+#    Updated: 2026/01/25 20:55:39 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -115,6 +115,7 @@ SRC				:=		main.c\
 						lexer/token_utils.c\
 						loop.c\
 						parser/parser.c\
+						parser/fill_command.c\
 						redirections.c\
 						signals.c\
 						utils.c
