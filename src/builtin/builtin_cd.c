@@ -95,8 +95,8 @@ static int	ms_update_pwd_vars(t_shell *shell, char *old_pwd)
 	if (!cwd)
 		return (1);
 	if (old_pwd)
-		ms_env_set(&shell->env_list, "OLDPWD", old_pwd);
-	ms_env_set(&shell->env_list, "PWD", cwd);
+		ms_env_set(&shell->env_list, "OLDPWD", old_pwd, 1);
+	ms_env_set(&shell->env_list, "PWD", cwd, 1);
 	free(cwd);
 	return (0);
 }
