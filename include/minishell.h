@@ -45,6 +45,7 @@ typedef struct s_env_var
 	char				*name;
 	char				*value;
 	struct s_env_var	*next;
+	int 				exported;
 }	t_env_var;
 
 typedef enum e_token_type
@@ -98,10 +99,11 @@ void		ms_free_shell(t_shell *shell);
 */
 
 t_env_var	*ms_env_from_environ(char **envp);
-void		ms_env_free_list(t_env_var *env_list);
+void	ms_env_free_list(t_env_var **env_list);
 char		**ms_env_to_array(t_env_var *env_list);
 char		*ms_env_get_value(t_env_var *env_list, char *name);
-int			ms_env_set(t_env_var **env_list, char *name, char *value);
+int			ms_env_set(t_env_var **env_list, char *name, char *value,
+	int exported);
 int			ms_env_unset(t_env_var **env_list, char *name);
 
 /*

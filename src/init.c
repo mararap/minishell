@@ -22,6 +22,6 @@ void	ms_init_shell(t_shell *shell, char **envp)
 
 void	ms_free_shell(t_shell *shell)
 {
-	ms_env_free_list(shell->env_list);
+	ms_env_free_list(&shell->env_list);
 	shell->env_list = NULL;
 }
