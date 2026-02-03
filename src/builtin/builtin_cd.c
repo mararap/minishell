@@ -68,7 +68,7 @@ This is the main implementation of the `cd` builtin command.
 This file provides a robust and modular implementation of the `cd` builtin by:
 
 * Handling argument validation
-* Reporting meaningful error messages
+* Reporting meaningful eimprovmentsrror messages
 * Safely managing memory
 * Keeping environment variables in sync with the current directory
 * Following expected shell behavior
