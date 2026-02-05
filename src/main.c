@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/11 20:32:50 by marapovi          #+#    #+#             */
-/*   Updated: 2026/01/12 16:49:07 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/05 16:29:10 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ int	g_signal_number = 0;
 static void	ms_detect_interactive(t_shell *shell)
 {
 	if (isatty(STDIN_FILENO))
-		//system function to check if STDIN is "at tty"/connected to a terminal
+		//system function to check if STDIN is "at tty" aka connected to a terminal
 		shell->is_interactive = 1;
 	else
 		shell->is_interactive = 0;
