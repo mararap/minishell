@@ -47,6 +47,7 @@ static void	ms_lex_tokens(t_token **tokens, char *line, int *i)
 		ms_add_redir_token(tokens, line, i);
 }
 
+//Maria to check for memory leaks
 t_token	*ms_lex_line(t_shell *shell, char *line)
 {
 	t_token	*tokens;
