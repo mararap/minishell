@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/11 20:32:50 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/06 15:21:46 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/06 15:31:18 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ int	main(int argc, char **argv, char **envp)
 
 	//Maria to check if this is needed
 	(void)argc;
+	(void)argv;
 	
 	ms_init_shell(&shell, envp);
 	ms_detect_interactive(&shell);
