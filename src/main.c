@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/11 20:32:50 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/06 15:31:18 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/06 15:57:37 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,8 @@
 
 volatile sig_atomic_t	g_signal_number = 0;
 
-static void	ms_detect_interactive(t_shell *shell, char **argv)
+static void	ms_detect_interactive(t_shell *shell)
 {
-	(void)argv;
 	if (isatty(STDIN_FILENO))
 		//system function to check if STDIN is "at tty" aka connected to a terminal
 		shell->is_interactive = 1;
