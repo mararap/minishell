@@ -120,9 +120,13 @@ void		ms_setup_child_signals(void);
 ** lexer / parser
 */
 
+void		ms_token_add_back(t_token **list, t_token *new_tok);
+t_token		*ms_token_new(t_token_type type, char *value);
+char		*ms_collect_word(t_shell *shell, char *str, int *idx);
 t_token		*ms_lex_line(t_shell *shell, char *line);
 void		ms_free_token_list(t_token *token_list);
 t_command	*ms_parse_tokens(t_token *token_list);
+int			ms_fill_command(t_command *cmd, t_token **cursor);
 void		ms_free_command_list(t_command *command_list);
 
 /*

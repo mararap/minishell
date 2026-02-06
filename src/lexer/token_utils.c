@@ -1,26 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init.c                                             :+:      :+:    :+:   */
+/*   token_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: marapovi <marapovi@student.42vienna.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/16 16:10:01 by marapovi          #+#    #+#             */
-/*   Updated: 2026/01/16 16:26:00 by marapovi         ###   ########.fr       */
+/*   Created: 2026/01/24 21:22:37 by marapovi          #+#    #+#             */
+/*   Updated: 2026/01/24 21:26:01 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	ms_init_shell(t_shell *shell, char **envp)
+t_token	*ms_token_new(t_token_type type, char *value)
 {
-	shell->env_list = ms_env_from_environ(envp);
-	shell->last_exit_status = 0;
-	shell->is_interactive = 0;
+	t_token	*tok;
+
+	tok = (t_token *)ms_xmalloc(sizeof(t_token));
+	tok->type = type;
+	tok->value = value;
+	tok->next = NULL;
+	return (tok);
 }
 
-void	ms_free_shell(t_shell *shell)
+void	ms_token_add_back(t_token **list, t_token *new_tok)
 {
-	ms_env_free_list(shell->env_list);
-	shell->env_list = NULL;
+	t_token	*iter;
+
+	if (!*list)
+	{
+		*list = new_tok;
+		return ;
+	}
+	iter = *list;
+	while (iter->next)
+		iter = iter->next;
+	iter->next = new_tok;
 }
