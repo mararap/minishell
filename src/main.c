@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/11 20:32:50 by marapovi          #+#    #+#             */
+/*   Updated: 2026/02/06 15:31:18 by marapovi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 volatile sig_atomic_t	g_signal_number = 0;
@@ -6,6 +18,7 @@ static void	ms_detect_interactive(t_shell *shell, char **argv)
 {
 	(void)argv;
 	if (isatty(STDIN_FILENO))
+		//system function to check if STDIN is "at tty" aka connected to a terminal
 		shell->is_interactive = 1;
 	else
 		shell->is_interactive = 0;
@@ -17,9 +30,10 @@ int	main(int argc, char **argv, char **envp)
 
 	//Maria to check if this is needed
 	(void)argc;
+	(void)argv;
 	
 	ms_init_shell(&shell, envp);
-	ms_detect_interactive(&shell, argv);
+	ms_detect_interactive(&shell);
 	ms_main_loop(&shell);
 	ms_free_shell(&shell);
 	return (shell.last_exit_status);
