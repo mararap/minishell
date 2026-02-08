@@ -24,14 +24,3 @@ void	ft_putendl_fd(char *s, int fd)
 	}
 	write (fd, "\n", 1);
 }
-/*
-#include <fcntl.h>
-
-int	main(void)
-{
-	char	s[42] = "testing ft_pudendl_fd once again";
-//	int		fd = open("testing_fd_functions.c", O_RDWR);
-	int	fd = 1;
-	ft_putendl_fd(s, fd);
-	return (0);
-}*/

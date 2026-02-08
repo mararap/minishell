@@ -37,16 +37,3 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	}
 	return (newstr);
 }
-/*
-#include <stdio.h>
-
-int	main(void)
-{
-	const char *s1 = "testing";
-	const char *s2 = " function";
-	char * result = ft_strjoin(s1, s2);
-
-	printf("newstr: %s\n", result);
-	free(result);
-	return (0);
-}*/

@@ -21,15 +21,3 @@ size_t	ft_strlen(const char *str)
 		i++;
 	return (i);
 }
-/*
-#include <stdio.h>
-#include <bsd/string.h>
-
-int	main(void)
-{
-	char	str[] = "asdfjklö";
-	
-	printf("Length of \"%s\" is: %zu\n", str, strlen(str));
-	printf("Length of \"%s\" is: %zu\n", str, ft_strlen(str));
-	return (0);
-}*/

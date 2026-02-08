@@ -92,6 +92,8 @@ void	ms_free_command_list(t_command *command_list)
 		{
 			next_redir = redir->next;
 			free(redir->target);
+			if (redir->type == REDIR_HEREDOC && redir->heredoc_fd >= 0)
+				close(redir->heredoc_fd);
 			free(redir);
 			redir = next_redir;
 		}

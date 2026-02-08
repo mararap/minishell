@@ -1,48 +1,49 @@
 #include "minishell.h"
 
-//keep in executor
-static int	ms_wait_for_children(pid_t *pids, int count)
+static int	ms_status_to_exit(int status)
 {
-	int	i;
-	int	status;
-	int	last_status = 0;
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
+	if (WIFSIGNALED(status))
+		return (128 + WTERMSIG(status));
+	return (1);
+}
 
-	for (i = 0; i < count; i++)
+static int	ms_wait_for_children(pid_t last_pid, int count, int interactive)
+{
+	int		status;
+	int		last_status;
+	int		waited;
+	pid_t	pid;
+
+	last_status = 0;
+	waited = 0;
+	while (waited < count)
 	{
-		if (waitpid(pids[i], &status, 0) > 0)
+		pid = waitpid(-1, &status, 0);
+		if (pid == -1)
 		{
-			if (WIFEXITED(status))
-				last_status = WEXITSTATUS(status);
-			else if (WIFSIGNALED(status))
-				last_status = 128 + WTERMSIG(status);
+			if (errno == EINTR)
+				continue;
+			break;
 		}
+		if (pid == last_pid)
+		{
+		if (interactive && WIFSIGNALED(status))
+		{
+			int sig = WTERMSIG(status);
+			if (sig == SIGINT)
+				write(STDERR_FILENO, "\n", 1);
+			else if (sig == SIGQUIT)
+				write(STDERR_FILENO, "Quit (core dumped)\n", 19);
+		}
+		last_status = ms_status_to_exit(status);
+		}
+		waited++;
 	}
 	return (last_status);
 }
 
-//keep in executor
-static int	ms_count_commands(t_command *cmd)
-{
-	int	count;
-
-	count = 0;
-	while (cmd)
-	{
-		count++;
-		cmd = cmd->next;
-	}
-	return (count);
-}
-
-//keep in executor
-static int	ms_should_run_builtin_parent(t_command *cmd)
-{
-	if (!cmd || cmd->next || !cmd->argv)
-		return (0);
-	return (ms_is_builtin(cmd->argv[0]));
-}
-
-//keep in executor
 int	ms_create_pipe_if_needed(t_command *cmd, int pipe_fd[2])
 {
 	if (!cmd->next)
@@ -78,35 +79,109 @@ int	ms_pipeline_error(pid_t *pids, int prev_read)
 	return (1);
 }
 
-//To check for memory leaks
-//what is pipe_fd and how it is working
-int	ms_execute_pipeline(t_shell *shell, t_command *cmds)
+static int	ms_abort_pipeline(t_shell *shell, pid_t *pids, int created,
+				int prev_read, int pipe_fd[2])
 {
-	int			i;
+	int	i;
+
+	if (prev_read >= 0 && prev_read != STDIN_FILENO)
+		close(prev_read);
+	if (pipe_fd[0] >= 0)
+		close(pipe_fd[0]);
+	if (pipe_fd[1] >= 0)
+		close(pipe_fd[1]);
+	i = 0;
+	while (i < created)
+	{
+		if (pids[i] > 0)
+			kill(pids[i], SIGTERM);
+		i++;
+	}
+	if (created > 0)
+		ms_wait_for_children(pids[created - 1], created, 0);
+	free(pids);
+	if (shell->is_interactive)
+		ms_setup_interactive_signals();
+	return (1);
+}
+
+int	ms_execute_pipeline(t_shell *shell, t_command *command_list)
+{
 	int			cmd_count;
+	t_command	*cmd;
 	int			prev_read;
 	int			pipe_fd[2];
 	pid_t		*pids;
-	t_command	*cmd;
+	pid_t		last_pid;
+	int			i;
+	int			status;
 
-	cmd_count = ms_count_commands(cmds);
-	if (ms_should_run_builtin_parent(cmds))
-		return (ms_run_builtin_parent(shell, cmds));
-	pids = ms_xmalloc(sizeof(pid_t) * cmd_count);
+	cmd_count = 0;
+	cmd = command_list;
+	while (cmd)
+	{
+		cmd_count++;
+		cmd = cmd->next;
+	}
+	if (cmd_count == 1 && command_list->argv
+		&& ms_is_builtin(command_list->argv[0]))
+		return (ms_run_builtin_parent(shell, command_list));
+
+	pids = (pid_t *)ms_xmalloc(sizeof(pid_t) * cmd_count);
+
+	if (shell->is_interactive)
+	{
+		signal(SIGINT, SIG_IGN);
+		signal(SIGQUIT, SIG_IGN);
+	}
+
 	prev_read = STDIN_FILENO;
-	cmd = cmds;
+	cmd = command_list;
 	i = 0;
 	while (cmd)
 	{
-		if (ms_create_pipe_if_needed(cmd, pipe_fd) < 0)
-			return (ms_pipeline_error(pids, prev_read));
-		pids[i] = ms_fork_and_execute(shell, cmd, prev_read, pipe_fd);
-		if (pids[i++] < 0)
-			return (ms_pipeline_error(pids, prev_read));
-		ms_update_parent_fds(&prev_read, cmd, pipe_fd);
+		pipe_fd[0] = -1;
+		pipe_fd[1] = -1;
+		if (cmd->next)
+		{
+			if (pipe(pipe_fd) < 0)
+			{
+				ms_perror("pipe");
+				return (ms_abort_pipeline(shell, pids, i, prev_read, pipe_fd));
+			}
+		}
+		pids[i] = fork();
+		if (pids[i] < 0)
+		{
+			ms_perror("fork");
+			return (ms_abort_pipeline(shell, pids, i, prev_read, pipe_fd));
+		}
+		if (pids[i] == 0)
+		{
+			if (pipe_fd[0] >= 0)
+				close(pipe_fd[0]);
+			ms_execute_child(shell, cmd, prev_read, \
+				(cmd->next ? pipe_fd[1] : STDOUT_FILENO));
+			exit(1);
+		}
+		if (prev_read != STDIN_FILENO)
+			close(prev_read);
+		if (pipe_fd[1] >= 0)
+			close(pipe_fd[1]);
+		prev_read = pipe_fd[0];
 		cmd = cmd->next;
+		i++;
 	}
-	return (ms_wait_for_children(pids, cmd_count));
+
+	last_pid = pids[cmd_count - 1];
+	if (prev_read >= 0 && prev_read != STDIN_FILENO)
+		close(prev_read);
+
+	status = ms_wait_for_children(last_pid, cmd_count, shell->is_interactive);
+	free(pids);
+	if (shell->is_interactive)
+		ms_setup_interactive_signals();
+	return (status);
 }
 
 

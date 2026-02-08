@@ -38,18 +38,3 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	newstr[j] = '\0';
 	return (newstr);
 }
-/*
-#include <stdio.h>
-
-int	main(void)
-{
-	char const s[42] = "testing my function";
-	unsigned int start = 9;
-	size_t len = 3;
-	char	*result;
-
-	result = (char *)ft_substr(s, start, len);
-	printf("newstr = %s\n", result);
-	free(result);
-	return (0);
-}*/

@@ -16,13 +16,3 @@ void	ft_putchar_fd(char c, int fd)
 {
 	write(fd, &c, 1);
 }
-/*
-#include <fcntl.h>
-
-int	main(void)
-{
-	char c = 'M';
-	int fd = open("ft_memcmp.c", O_RDWR);
-	ft_putchar_fd(c, fd);
-	return (0);
-}*/

@@ -27,16 +27,3 @@ char	*ft_strrchr(const char *s, int c)
 	}
 	return (0);
 }
-/*
-#include <stdio.h>
-#include <string.h>
-
-int	main(void)
-{
-	const char	*s = "tripouille";
-	int	c = 'z';
-
-	printf("my function: %s\n", ft_strrchr(s, c));
-	printf("original function: %s\n", strrchr(s, c));
-	return(0);
-}*/

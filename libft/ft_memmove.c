@@ -34,18 +34,3 @@ void	*ft_memmove(void *dst, const void *src, size_t len)
 		return (d);
 	}
 }
-/*
-#include <stdio.h>
-#include <string.h>
-
-int	main(void)
-{
-	char	dst[42] = "does it work?";
-	char	dsto[42] = "does it work?";
-	char	src[] = "yeah it does!";
-	char	srco[] = "yeah it does!";
-	size_t	len = 14;
-
-	printf("my function: %s\n", (char *)ft_memmove(dest, src, len));
-	printf("original function: %s\n", (char *)memmove(desto, srco, len));
-}*/

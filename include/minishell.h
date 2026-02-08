@@ -23,10 +23,10 @@
 # define PROMPT_STR "jumanshe$ "
 # define HEREDOC_PROMPT "> "
 
-# define REDIR_IN 0
-# define REDIR_OUT 1
-# define REDIR_APPEND 2
-# define REDIR_HEREDOC 3
+# define REDIR_IN     TOKEN_REDIR_IN
+# define REDIR_OUT    TOKEN_REDIR_OUT
+# define REDIR_APPEND TOKEN_REDIR_APPEND
+# define REDIR_HEREDOC TOKEN_HEREDOC
 
 /*
 ** Global used only for signal number (required by subject).
@@ -58,11 +58,11 @@ typedef enum e_token_type
 	TOKEN_HEREDOC
 }	t_token_type;
 
-//Maria to check if we can combine the next two structures into one
 typedef struct s_token
 {
 	char			*value;
 	t_token_type	type;
+	int				quoted;   /* NEW: 1 if this word contained any quotes */
 	struct s_token	*next;
 }	t_token;
 
@@ -70,6 +70,8 @@ typedef struct s_redir
 {
 	int				type;
 	char			*target;
+	int				heredoc_fd;      /* NEW: read-fd prepared before exec */
+	int				heredoc_expand;  /* NEW: 1 if expand heredoc lines */
 	struct s_redir	*next;
 }	t_redir;
 
@@ -126,9 +128,10 @@ void		ms_setup_child_signals(void);
 ** lexer / parser
 */
 
+int		ms_prepare_heredocs(t_shell *shell, t_command *cmds);
 void		ms_token_add_back(t_token **list, t_token *new_tok);
-t_token		*ms_token_new(t_token_type type, char *value);
-char		*ms_collect_word(t_shell *shell, char *str, int *idx);
+t_token	*ms_token_new(t_token_type type, char *value, int quoted);
+char *ms_collect_word(t_shell *shell, char *str, int *idx, int *was_quoted, int allow_expansion);
 t_token		*ms_lex_line(t_shell *shell, char *line);
 void		ms_free_token_list(t_token *token_list);
 t_command	*ms_parse_tokens(t_token *token_list);
@@ -143,9 +146,11 @@ int			ms_execute_pipeline(t_shell *shell, t_command *command_list);
 int			ms_is_builtin(char *cmd_name);
 int			ms_run_builtin_parent(t_shell *shell, t_command *cmd);
 int			ms_run_builtin_child(t_shell *shell, char **argv);
-int			ms_apply_redirections(t_redir *redirections, t_shell *shell);
+int			ms_apply_redirections(t_redir *redirections);
 int			ms_fork_and_execute(t_shell *shell, t_command *cmd,
 	int prev_read, int pipe_fd[2]);
+void	ms_execute_child(t_shell *shell, t_command *cmd,
+			int in_fd, int out_fd);
 
 /*
 ** builtins

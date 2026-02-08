@@ -23,13 +23,3 @@ void	ft_putstr_fd(char *s, int fd)
 		i++;
 	}
 }
-/*
-#include <fcntl.h>
-
-int	main(void)
-{
-	char	s[42] = "testing my function";
-	int		fd = open("testing_fd_functions.c", O_RDWR);
-	ft_putstr_fd(s, fd);
-	return (0);
-}*/

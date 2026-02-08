@@ -31,16 +31,3 @@ int	ft_memcmp(const void *s1, const void *s2, size_t n)
 	}
 	return (0);
 }
-/*
-#include <stdio.h>
-#include <string.h>
-
-int	main(void)
-{
-	const void	*s1 = "testing my function";
-	const void	*s2 = "testing something else";
-	size_t	n = '\0';
-	printf("original function: %d\n", memcmp(s1, s2, n));
-	printf("original function: %d\n", memcmp(s1, s2, n));
-	return (0);
-}*/

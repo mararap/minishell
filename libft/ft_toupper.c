@@ -20,16 +20,3 @@ int	ft_toupper(int c)
 	else
 		return (c);
 }
-/*
-#include <ctype.h>
-#include <stdio.h>
-
-int	main(void)
-{
-	int c;
-
-	c = 'm';
-	printf("mine: %d\n", ft_toupper(c));
-	printf("original: %d\n", toupper(c));
-	return (0);
-}*/

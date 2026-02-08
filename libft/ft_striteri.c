@@ -25,21 +25,3 @@ void	ft_striteri(char *s, void (*f)(unsigned int, char*))
 		i++;
 	}
 }
-/*
-#include <stdio.h>
-
-void	to_upper_with_index(unsigned int i, char *c)
-{
-	if ((i % 2 == 0) && *c >= 'a' && *c <= 'z')
-		*c = *c - 32;
-}
-
-int	main(void)
-{
-	char	str[] = "hello world";
-
-	ft_striteri(str, to_upper_with_index);
-
-	printf("modified string: %s\n", str); 
-	return (0);
-}*/

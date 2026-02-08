@@ -31,16 +31,3 @@ char	*ft_strchr(const char *s, int c)
 		return ((char *)&s[i]);
 	return (0);
 }
-/*
-#include <string.h>
-#include <stdio.h>
-
-int	main(void)
-{
-	const char	s[42] = "you got this!";
-	int c = 'X';
-
-	printf("my function: %s\n", ft_strchr(s, c));
-	printf("original: %s\n", strchr(s, c));
-	return(0);
-}*/

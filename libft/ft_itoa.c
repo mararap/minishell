@@ -55,15 +55,3 @@ char	*ft_itoa(int n)
 	}
 	return (newstr);
 }
-/*
-#include <stdio.h>
-
-int	main(void)
-{
-	int	n = -42;
-	char * result = ft_itoa(n);
-
-	printf("newstr: %s\n", result);
-	free(result);
-	return (0);
-}*/

@@ -19,13 +19,3 @@ int	ft_isalpha(int i)
 		return (1);
 	return (0);
 }
-/*
-#include <stdio.h>
-#include <ctype.h>
-
-int	main(void)
-{
-	printf("%d\n", ft_isalpha('M'));
-	printf("%d\n", isalpha('M'));
-	return (0);
-}*/
