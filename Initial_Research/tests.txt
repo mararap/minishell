@@ -1,0 +1,1038 @@
+Below is an **extensive test plan** for your current minishell implementation (from `code.txt`) against the **minishell subject** (from `miniShell.pdf`). The subject explicitly requires prompt+history, PATH lookup, quotes, `$VAR` and `$?`, redirections `< > >> <<`, pipes, and bash-like ctrl-C/ctrl-D/ctrl-\ behavior, plus the listed builtins. 
+
+I’m going to give you:
+
+1. a practical **test harness strategy** (black-box compare to bash + leak checks)
+2. **function-by-function** test cases (unit style) based on your public API + indirect tests for `static` helpers
+3. a big set of **end-to-end application** test cases (correctness + errors + statuses + files)
+4. **signals** and **valgrind** (leaks + fd leaks) checks aligned with the subject’s “readline leaks tolerated; your leaks not tolerated” note 
+
+---
+
+## 0) Ground rules from the subject (what we must test)
+
+Required behaviors include:
+
+* Prompt + working history 
+* Executable lookup via `$PATH` or relative/absolute path 
+* Only **one global** for signals: store **signal number only**
+* Quotes: `'` prevents interpretation; `"` prevents interpretation **except `$`** 
+* Redirections: `<`, `>`, `>>`, `<<` 
+* Pipes `|` 
+* `$VAR` expansion + `$?` expansion 
+* Ctrl behavior in interactive:
+
+  * ctrl-C new prompt on new line
+  * ctrl-D exits
+  * ctrl-\ does nothing 
+* Builtins: `echo -n`, `cd`, `pwd`, `export`, `unset`, `env`, `exit` 
+
+---
+
+## 1) Test harness setup (recommended)
+
+### A. Build for debugging + sanitizers
+
+Run two builds:
+
+**ASan/UBSan build (fast feedback):**
+
+```bash
+make fclean
+make CFLAGS="-g3 -O0 -fsanitize=address,undefined -fno-omit-frame-pointer"
+```
+
+**Valgrind build (leak/fd truth):**
+
+```bash
+make fclean
+make CFLAGS="-g3 -O0"
+```
+
+### B. Black-box “bash as oracle” comparison
+
+Because the subject says “take bash as a reference”, compare:
+
+* stdout
+* stderr
+* exit status of the **last foreground pipeline** (your shell returns that from `main`) 
+
+**Important**: your prompt string is `minishell$ ` , so when testing non-interactively (piping input), strip it from captured output.
+
+A simple comparison loop:
+
+* run the same input script in `bash --noprofile --norc`
+* run it in `./minishell`
+* normalize prompt noise
+* compare outputs + final exit code
+
+### C. Leak rule from subject
+
+Readline may leak; **your code must not** .
+Use a valgrind suppression file for readline if needed (generate with `--gen-suppressions=all`).
+
+---
+
+## 2) Function-by-function test cases (unit / module level)
+
+Your public functions are listed in the header section of `code.txt` . For each, here’s what to test.
+
+> Tip: write a `tests/unit_*.c` that links your objects, and run each under ASan + valgrind. For `static` helpers, test through the public functions that use them.
+
+### 2.1 `ms_init_shell`, `ms_free_shell`
+
+* **Init**:
+
+  * envp normal: `shell.env_list != NULL`, `last_exit_status == 0`, `is_interactive == 0`
+  * envp NULL: should not crash (env_list becomes NULL)
+* **Free**:
+
+  * after `ms_free_shell`, `env_list == NULL`
+  * double-free safety: calling `ms_free_shell` twice should not crash (currently it will call `ms_env_free_list(NULL)` which is safe; confirm)
+
+Leak checks:
+
+* valgrind: no definitely-lost blocks after init/free cycle.
+
+### 2.2 Env list
+
+#### `ms_env_from_environ`
+
+* envp with: `A=1`, `B=two`, `EMPTY=`, and an entry without `=` (should be ignored in your implementation)
+* verify:
+
+  * `ms_env_get_value(list,"A") == "1"`
+  * `ms_env_get_value(list,"EMPTY") == ""`
+  * missing key returns NULL
+
+#### `ms_env_get_value`
+
+* existing key
+* missing key
+* key with empty string value
+
+#### `ms_env_set`
+
+* set new variable on empty list
+* set new variable appended to non-empty list
+* update existing variable (value replaced; old value freed)
+* set value NULL (your code uses `ms_strdup_safe`; confirm results)
+
+#### `ms_env_unset`
+
+* remove head node
+* remove middle node
+* remove tail node
+* remove non-existent node (should not change list)
+* unset with NULL/empty name (should not crash; behavior may be “no-op”)
+
+#### `ms_env_to_array`
+
+Your `ms_env_to_array` currently only allocates and fills entries with NULL and returns without setting final NULL terminator properly. 
+Test:
+
+* for env list of N entries: returned array size N+1 and `arr[N] == NULL`
+* ensure it doesn’t return unterminated array (this is a correctness + potential crash test)
+
+### 2.3 Loop / line handling
+
+#### `ms_handle_line`
+
+* `line == NULL` → no crash
+* `line == ""` → no tokens/exec
+* valid command updates `shell.last_exit_status`
+* syntax error should not execute anything
+* ensure tokens and command lists are freed on all branches (run under valgrind)
+
+`ms_handle_line` is central: it calls lexer → parser → executor and stores status.
+
+#### `ms_main_loop`
+
+* interactive mode: prompt shown, history works
+* ctrl-D exits (readline returns NULL) and prints `exit\n` only in interactive
+* empty lines don’t get added to history (your code checks `line[0] != '\0'`) 
+
+### 2.4 Signals
+
+#### `ms_setup_interactive_signals`
+
+* ctrl-C: new prompt on new line (your handler writes newline + readline redisplay)
+* ctrl-: does nothing (SIGQUIT ignored)
+
+#### `ms_setup_child_signals`
+
+* child should get default SIGINT/SIGQUIT
+
+**Critical runtime test**: while a foreground child runs (e.g. `sleep 5`), ctrl-C should stop the child and return to prompt (bash-like) .
+
+### 2.5 Lexer / parser
+
+#### `ms_lex_line`
+
+Token correctness:
+
+* spaces and tabs separate tokens
+* produces tokens for `|`, `<`, `>`, `<<`, `>>`
+* quote handling:
+
+  * `'` makes contents literal (no `$` expansion)
+  * `"` allows `$` expansion 
+* `$VAR` expansion and `$?` expansion
+
+Also test:
+
+* mixed quoting: `ab"cd"ef`, `ab'cd'ef`
+* edge: `$` at end, `$` followed by non-identifier
+
+Memory:
+
+* many short concatenations in lexer can leak if intermediate strings aren’t freed; valgrind this hard.
+
+#### `ms_parse_tokens`
+
+Builds command list separated by pipes. On errors, prints specific messages like:
+
+* `minishell: syntax error near '|'` for leading pipe 
+* `minishell: syntax error` for redirect without target 
+
+Test:
+
+* leading pipe: `| ls`
+* double pipe: `ls || wc` (should error)
+* redirect missing target: `echo >`
+* pipe at end: `echo |` (should error like bash)
+
+Memory:
+
+* on parse error, ensure allocated `t_command` is freed (valgrind).
+
+#### `ms_free_token_list`, `ms_free_command_list`
+
+* call after lex/parse for:
+
+  * empty list
+  * 1 node
+  * many nodes
+* valgrind confirms no “definitely lost”
+
+### 2.6 Executor / redirections
+
+#### `ms_is_builtin`, `ms_run_builtin_parent`, `ms_run_builtin_child`
+
+* all builtin names recognized
+* unknown command not treated as builtin
+* `ms_run_builtin_parent` must apply any required “parent-only” effects (like cd, export, unset) — verify environment and cwd changes persist after call.
+
+#### `ms_execute_pipeline`
+
+* 1 command external: correct exit code
+* 1 builtin: runs in parent if no pipe 
+* multiple commands: proper pipe wiring, correct final status from last pipeline element
+
+Also verify:
+
+* command not found → status 127 and message `minishell: <cmd>: command not found`
+* exec failure → status 126 with perror
+
+Leak/fd:
+
+* pids array must be freed (valgrind should catch if not)
+* pipe fds closed properly (`--track-fds=yes`)
+
+#### `ms_apply_redirections`
+
+Required operators: `<`, `>`, `>>`, `<<`
+Test:
+
+* output truncates, append appends
+* input changes stdin
+* heredoc reads until delimiter, no history requirement 
+* open failure prints perror-like message
+* multiple redirs: last one wins (bash-like)
+
+---
+
+## 3) End-to-end application test cases (bash reference)
+
+### How to run each test
+
+For each test script:
+
+1. Run it in bash:
+
+```bash
+bash --noprofile --norc < script.txt > bash.out 2> bash.err
+echo $? > bash.status
+```
+
+2. Run it in minishell:
+
+```bash
+./minishell < script.txt > ms.out 2> ms.err
+echo $? > ms.status
+```
+
+3. Normalize prompt from minishell output (prompt string is `minishell$ `) :
+
+```bash
+sed -i 's/minishell\$ //g' ms.out ms.err
+```
+
+4. Compare:
+
+```bash
+diff -u bash.out ms.out
+diff -u bash.err ms.err
+diff -u bash.status ms.status
+```
+
+> For tests involving `exit`, run that case alone, because it ends the shell early.
+
+---
+
+## 3.1 Smoke / basic execution
+
+**T01** external command:
+
+```
+/bin/echo OK
+```
+
+Expect: `OK\n`, status 0.
+
+**T02** command not found:
+
+```
+this_command_does_not_exist
+```
+
+Expect stderr contains “command not found”, status 127
+
+**T03** absolute path:
+
+```
+/bin/pwd
+```
+
+Expect: prints cwd, status 0.
+
+**T04** relative executable:
+
+* create: `printf '#!/bin/sh\necho HI\n' > x.sh; chmod +x x.sh`
+* script:
+
+```
+./x.sh
+```
+
+Expect: `HI\n`, status 0.
+
+**T05** permission denied (126):
+
+* create: `printf 'echo NO\n' > noexec; chmod -x noexec`
+* script:
+
+```
+./noexec
+```
+
+Expect stderr contains “Permission denied”, status 126.
+
+---
+
+## 3.2 Builtin: `echo` (with -n)
+
+**T10**
+
+```
+echo
+```
+
+Expect: newline, status 0.
+
+**T11**
+
+```
+echo hello world
+```
+
+Expect: `hello world\n`
+
+**T12**
+
+```
+echo -n hello
+```
+
+Expect: `hello` (no trailing newline)
+
+**T13**
+
+```
+echo -n -n hello
+```
+
+Expect: `hello` (no newline)
+
+**T14**
+
+```
+echo -nnnn hello
+```
+
+Expect (bash): treat as -n flag (prints no newline)
+
+**T15** spaces and quotes:
+
+```
+echo "a  b"
+echo 'a  b'
+```
+
+Expect both lines output `a  b`
+
+---
+
+## 3.3 Builtin: `pwd`
+
+**T20**
+
+```
+pwd
+```
+
+Expect: cwd + newline
+
+**T21** no options allowed (bash errors on unknown option):
+
+```
+pwd -P
+```
+
+Expected by subject: not required; but bash reference may show option handling. Subject says “pwd with no options”. 
+
+---
+
+## 3.4 Builtin: `cd` (relative/absolute path)
+
+**T30** cd to absolute:
+
+```
+pwd
+cd /
+pwd
+```
+
+Expect: first line old cwd, second line `/`
+
+**T31** cd to relative:
+
+```
+mkdir -p tmp_cd/a
+cd tmp_cd
+pwd
+cd a
+pwd
+```
+
+**T32** cd invalid path:
+
+```
+cd does_not_exist
+echo $?
+```
+
+Expect: cd error to stderr, then `$?` prints `1`
+
+**T33** cd too many args:
+
+```
+cd / /
+echo $?
+```
+
+Expect: error, `$?` prints `1`
+
+**T34** PWD/OLDPWD update (subject doesn’t explicitly demand, but bash reference):
+
+```
+cd /
+env | /usr/bin/grep '^PWD='
+env | /usr/bin/grep '^OLDPWD='
+```
+
+---
+
+## 3.5 Builtin: `env`
+
+Subject: “env with no options or arguments”. 
+
+**T40**
+
+```
+env
+```
+
+Expect: prints `NAME=value` lines (bash prints current env)
+
+**T41**
+
+```
+env something
+echo $?
+```
+
+Expect: error, `$?` is 1 (bash: usually `env: ‘something’: No such file or directory` or tries to run; subject says no args—your implementation prints a custom error)
+
+---
+
+## 3.6 Builtin: `export` / `unset`
+
+Subject: no options. 
+
+**T50** set + expand:
+
+```
+export FOO=bar
+echo $FOO
+```
+
+Expect: `bar`
+
+**T51** overwrite:
+
+```
+export FOO=one
+export FOO=two
+echo $FOO
+```
+
+Expect: `two`
+
+**T52** empty value:
+
+```
+export EMPTY=
+echo "X$EMPTY"Y
+```
+
+Expect: `XY`
+
+**T53** export name only:
+
+```
+unset ZZZ
+export ZZZ
+echo ">$ZZZ<"
+```
+
+Expect: `><` (empty)
+
+**T54** unset:
+
+```
+export DEL=1
+unset DEL
+echo $DEL
+```
+
+Expect: empty line
+
+**T55** export without args:
+
+```
+export
+```
+
+Bash prints `declare -x ...` list; subject just says implement export with no options. 
+Test anyway: ensure it prints something reasonable and does not crash.
+
+**T56** invalid identifier (bash errors):
+
+```
+export 1ABC=bad
+echo $?
+```
+
+Expected by bash: non-zero + error message.
+
+---
+
+## 3.7 Builtin: `exit`
+
+Subject: “exit with no options”.
+
+Run each test in a fresh minishell invocation.
+
+**T60** no args:
+
+```
+exit
+```
+
+Expect: shell exits, status 0.
+
+**T61** numeric:
+
+```
+exit 42
+```
+
+Expect: process exit status 42.
+
+**T62** negative wraps:
+
+```
+exit -1
+```
+
+Expect: 255.
+
+**T63** non-numeric:
+
+```
+exit nope
+```
+
+Expect: error “numeric argument required”, exit status 2 
+
+**T64** too many args:
+
+```
+exit 1 2
+echo AFTER
+```
+
+Bash: does **not** exit, prints error, sets `$?=1`. Your code prints `exit` even when not exiting—catch this. 
+
+**T65** overflow numeric:
+
+```
+exit 999999999999999999999999
+```
+
+Bash: usually “numeric argument required” (exit 2). Test for overflow robustness.
+
+---
+
+## 3.8 Variable expansion `$VAR` and `$?`
+
+Subject requires both.
+
+**T70** unset var:
+
+```
+echo ">$UNSET_VAR<"
+```
+
+Expect: `><`
+
+**T71** basic:
+
+```
+echo $PATH
+```
+
+Expect: prints PATH contents
+
+**T72** concatenate:
+
+```
+export A=1
+export B=2
+echo X$A$BY
+```
+
+Expect: `X12Y`
+
+**T73** `$?` after success/failure:
+
+```
+/bin/true
+echo $?
+/bin/false
+echo $?
+```
+
+Expect: `0` then `1`
+
+**T74** `$?` after “command not found”:
+
+```
+nosuchcmd
+echo $?
+```
+
+Expect: `127`
+
+**T75** single quotes prevent expansion:
+
+```
+export QQ=hello
+echo '$QQ'
+```
+
+Expect: `$QQ` literally
+
+**T76** double quotes allow expansion (required):
+
+```
+export QQ=hello
+echo "$QQ"
+```
+
+Expect: `hello` 
+
+**T77** expansion inside double quotes with text:
+
+```
+export QQ=hello
+echo "X$QQY"
+```
+
+Expect: `XhelloY` 
+
+---
+
+## 3.9 Quotes & tokenization edge cases
+
+**T80** spaces in quotes:
+
+```
+echo "a b c"
+echo 'a b c'
+```
+
+**T81** mix quoting:
+
+```
+echo ab"cd"ef
+echo ab'cd'ef
+```
+
+Expect both: `abcdef`
+
+**T82** nested quote characters:
+
+```
+echo "a' b"
+echo 'a" b'
+```
+
+**T83** unclosed quote robustness:
+
+```
+echo "abc
+echo after
+```
+
+Subject: “Not interpret unclosed quotes” 
+Expected: must not crash/hang forever; behavior should be bash-like or at least error out cleanly.
+
+---
+
+## 3.10 Pipes `|`
+
+Subject requires pipes.
+
+**T90** basic pipe:
+
+```
+/bin/echo hello | /usr/bin/wc -c
+```
+
+Expect: `6` (hello\n = 6 bytes)
+
+**T91** multi-pipe:
+
+```
+/bin/printf "a\nb\nc\n" | /usr/bin/wc -l | /usr/bin/tr -d ' '
+```
+
+Expect: `3`
+
+**T92** pipeline status is last command:
+
+```
+/bin/false | /bin/true
+echo $?
+```
+
+Expect: `0` 
+
+**T93** syntax error: leading pipe:
+
+```
+| /bin/echo hi
+```
+
+Expect: syntax error message and non-zero 
+
+**T94** trailing pipe:
+
+```
+/bin/echo hi |
+echo $?
+```
+
+Bash: syntax error. Must not execute partial pipeline.
+
+**T95** double pipe token:
+
+```
+/bin/echo hi || /usr/bin/wc
+```
+
+Since `||` not required, treat it as syntax error (bash-like for unsupported grammar in your minishell).
+
+---
+
+## 3.11 Redirections `< > >> <<`
+
+Subject requires all four.
+
+### Output `>`
+
+**T100**
+
+```
+/bin/echo hi > out1
+/bin/cat out1
+```
+
+Expect: `hi`
+
+**T101** truncation:
+
+```
+/bin/echo one > out2
+/bin/echo two > out2
+/bin/cat out2
+```
+
+Expect: `two`
+
+### Append `>>`
+
+**T102**
+
+```
+/bin/echo one > out3
+/bin/echo two >> out3
+/bin/cat out3
+```
+
+Expect:
+
+```
+one
+two
+```
+
+### Input `<`
+
+**T103**
+
+```
+/bin/echo hello > in1
+/usr/bin/wc -c < in1
+```
+
+Expect: `6`
+
+**T104** missing file:
+
+```
+/bin/cat < does_not_exist
+echo $?
+```
+
+Expect: perror-like message and status 1 (bash uses 1/2 depending); must show error.
+
+### Multiple redirections (last wins)
+
+**T105**
+
+```
+/bin/echo hi > a > b
+/usr/bin/ls -l a b
+/bin/cat b
+```
+
+Expect: `b` contains `hi`, `a` exists but empty
+
+### Heredoc `<<`
+
+**T110**
+
+```
+/bin/cat << EOF
+line1
+line2
+EOF
+```
+
+Expect:
+
+```
+line1
+line2
+```
+
+Subject note: heredoc doesn’t have to update history 
+
+**T111** heredoc into pipeline:
+
+```
+/bin/cat << EOF | /usr/bin/wc -l
+a
+b
+EOF
+```
+
+Expect: `2`
+
+**T112** heredoc delimiter exact match:
+
+```
+/bin/cat << END
+ENDX
+END
+```
+
+Expect output includes `ENDX` only.
+
+---
+
+## 3.12 Combined: pipes + redirections + builtins
+
+**T120** redirect pipeline output to file:
+
+```
+/bin/echo hello | /usr/bin/tr a-z A-Z > upper
+/bin/cat upper
+```
+
+Expect: `HELLO`
+
+**T121** input redir into pipeline:
+
+```
+/bin/printf "a\nb\n" > lines
+/bin/cat < lines | /usr/bin/wc -l
+```
+
+Expect: `2`
+
+**T122** builtin in pipeline:
+
+```
+export X=1
+echo $X | /usr/bin/wc -c
+```
+
+Expect: `2` (1\n)
+
+**T123** builtin with redirection:
+
+```
+echo hi > out_builtin
+/bin/cat out_builtin
+```
+
+Expected by bash: file contains `hi`. This test is important because your executor runs single builtins in parent  — redirections must still apply.
+
+---
+
+## 4) Signal tests (interactive)
+
+Subject-required interactive signal behavior:
+
+### Manual interactive checks
+
+Run `./minishell` attached to a real terminal:
+
+**S1** ctrl-C at prompt
+
+* press ctrl-C on empty prompt
+  Expected: newline + fresh prompt, no “^C” printed (bash-like) 
+
+**S2** ctrl-D at prompt
+Expected: shell exits 
+
+**S3** ctrl-\ at prompt
+Expected: nothing happens 
+
+**S4** ctrl-C during `sleep`
+
+* run: `sleep 10`
+* press ctrl-C
+  Expected: sleep stops, prompt returns, `$?` becomes 130 (bash-like)
+
+**S5** ctrl-\ during `sleep`
+Expected: sleep terminated, `$?` becomes 131 (bash-like)
+
+### Automated signal test idea (PTY)
+
+If you want automation, use a small python PTY runner that:
+
+* spawns minishell under a pseudo-terminal
+* sends `sleep 10\n`
+* sends `\x03` (ctrl-C)
+* reads output and ensures shell is still alive and prompt reappears
+
+(If you want, paste your repo structure and I’ll tailor a ready-to-run PTY test script around your exact prompt/output.)
+
+---
+
+## 5) Memory leaks + FD leaks (required)
+
+### A. Valgrind checklist
+
+Run:
+
+```bash
+valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes ./minishell
+```
+
+Then:
+
+* run a bunch of commands (especially lexer-heavy ones: quotes + expansions, and pipelines)
+* exit with ctrl-D
+* confirm:
+
+  * no “definitely lost” from your code (readline leaks are tolerated by subject) 
+  * no “Open file descriptor” leaks (track-fds)
+
+### B. Leak stress scripts
+
+Run these under valgrind:
+
+**L1: lexer stress**
+
+* 1,000 times:
+
+  * `echo "X$PATH Y" "$HOME" '$HOME' $USER$HOME`
+
+**L2: pipeline stress**
+
+* 1,000 times:
+
+  * `/bin/echo a | /usr/bin/wc -c`
+
+**L3: redirection stress**
+
+* 1,000 times:
+
+  * `/bin/echo hi > tmp_out && /bin/cat < tmp_out > /dev/null`
+
+If memory grows or valgrind shows definite leaks, you’ve got a real leak (not readline).
+
+---
+
+If you want, paste your project tree (or tell me how your files are actually split), and I’ll convert this into a **drop-in `tests/` folder** with:
+
+* a bash oracle runner (`bash` vs `./minishell`)
+* expected output fixtures
+* valgrind/asan wrappers
+* a PTY signal test script
