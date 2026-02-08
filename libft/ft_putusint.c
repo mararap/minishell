@@ -52,11 +52,3 @@ int	ft_putusint(unsigned int u)
 	count = ft_usintlen(u);
 	return (count);
 }
-/*
-#include <stdio.h>
-
-int main(void)
-{
-	ft_putusint(-4568);
-	return(0);
-}*/

@@ -28,11 +28,94 @@ void	ms_handle_line(t_shell *shell, char *line)
 	ms_free_token_list(tokens);
 	if (!commands)
 		return ;
+	status = ms_prepare_heredocs(shell, commands);
+	if (status != 0)
+	{
+		shell->last_exit_status = status;
+		ms_free_command_list(commands);
+		return ;
+	}
 	status = ms_execute_pipeline(shell, commands);
 	shell->last_exit_status = status;
 	ms_free_command_list(commands);
 }
 
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 42
+#endif
+
+static char	*get_next_line(int fd)
+{
+	int bytes_read = 0;
+	int i = 0;
+	char c;
+	if(fd < 0 || BUFFER_SIZE < 1)
+		  return NULL;	
+
+	char *line = malloc(100000);
+	if(!line)
+		return NULL;
+		
+	while((bytes_read = read(fd, &c, 1)) > 0)
+	{
+		line[i++] = c;
+		if(c == '\n')
+			break ;
+	}
+	if (bytes_read < 0 ||  i == 0)
+		return (free(line), NULL);
+	
+	line[i] = '\0';
+
+	char *new_line = malloc(i + 1);
+	if (!new_line)
+		return (free(line), NULL);
+	i = 0;
+
+	while(line[i])
+	{
+		new_line[i] = line[i];
+		i++;
+	}
+	new_line[i] = '\0';
+	free(line);
+
+	return new_line;	
+}
+//Tester LOOP Version
+void	ms_main_loop(t_shell *shell)
+{
+	char	*line;
+
+	while(1)
+	{
+		if (shell->is_interactive)
+			ms_setup_interactive_signals();
+	if (isatty(STDIN_FILENO))
+	{
+		line = readline(PROMPT_STR);
+		if (!line)
+		{
+			if (isatty(STDIN_FILENO))
+				write(STDOUT_FILENO, "exit\n", 5);
+			break;
+		}
+	}
+	else
+	{
+		line = get_next_line(STDIN_FILENO);
+		if (!line)
+			break;
+		line = ft_strtrim(line, "\n");
+	}
+		if (isatty(STDIN_FILENO) && line[0] != '\0')
+			add_history(line);
+		ms_handle_line(shell, line);
+		free(line);
+	}
+}
+
+/* Origninal LOOP
 void	ms_main_loop(t_shell *shell)
 {
 	char *line;
@@ -53,5 +136,5 @@ void	ms_main_loop(t_shell *shell)
 		ms_handle_line(shell, line);
 		free(line);
 	}
-}
+}*/
 

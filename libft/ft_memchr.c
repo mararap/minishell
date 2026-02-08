@@ -29,17 +29,3 @@ void	*ft_memchr(const void *s, int c, size_t n)
 	}
 	return (NULL);
 }
-/*
-#include <stdio.h>
-#include <string.h>
-
-int	main(void)
-{
-	const void *s = "testing my function";
-	int	c = 'i';
-	size_t	n = 7;
-
-	printf("my fuction: %p\n", ft_memchr(s, c, n));
-	printf("original fuction: %p\n", memchr(s, c, n));
-	return (0);
-}*/

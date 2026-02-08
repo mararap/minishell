@@ -32,24 +32,3 @@ char	*ft_strmapi(char const *s, char (*f)(unsigned int, char))
 		return (NULL);
 	return (newstr);
 }
-/*
-#include <stdio.h>
-
-char	ft_ttoupper(unsigned int i, char c)
-{
-	(void) i;
-	if (c >= 'a' && c <= 'z')
-		return (c - ('a' - 'A'));
-	else
-		return (c);
-}
-
-int	main(void)
-{
-	char *str = "Hallo";
-	char *out;
-	out = ft_strmapi(str, ttoupper);
-	printf("out: %s\n", out);
-	free(out);
-	return (0);
-}*/

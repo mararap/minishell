@@ -31,19 +31,3 @@ char	*ft_strnstr(const char *big, const char *little, size_t len)
 	}
 	return (0);
 }
-/*
-#include <stdio.h>
-#include <bsd/string.h>
-
-int	main(void)
-{
-	char	*big = "lorem ipsum dolor sit amet";
-	char	*little = "ipsumm";
-	size_t	n = 30;
-	char	*myresult = ft_strnstr(big, little, n);
-	char	*originalresult = strnstr(big, little, n);
-	
-	printf("myresult: %s\n", myresult);
-	printf("original result: %s\n", originalresult);
-	return (0);
-}*/

@@ -66,33 +66,93 @@ static int ms_is_numeric(char *str)
     return (1);
 }
 
+static int ms_atoll_strict(const char *s, long long *out)
+{
+    long long result;
+    int sign;
+
+    result = 0;
+    sign = 1;
+
+    /* skip leading whitespace */
+    while (*s == ' ' || (*s >= 9 && *s <= 13))
+        s++;
+
+    if (*s == '+' || *s == '-')
+    {
+        if (*s == '-')
+            sign = -1;
+        s++;
+    }
+
+    if (!ft_isdigit(*s))
+        return (0);
+
+    while (ft_isdigit(*s))
+    {
+        if (result > (9223372036854775807LL - (*s - '0')) / 10)
+            return (0); /* overflow */
+        result = result * 10 + (*s - '0');
+        s++;
+    }
+
+    /* skip trailing whitespace */
+    while (*s == ' ' || (*s >= 9 && *s <= 13))
+        s++;
+
+    if (*s != '\0')
+        return (0);
+
+    *out = result * sign;
+    return (1);
+}
+
 int ms_builtin_exit(t_shell *shell, char **argv)
 {
-    int exit_code;
+    long long value;
 
     (void)shell;
 
-    /* No argument: exit with code 0 */
-    if (!argv[1])
+    /* Bash prints "exit" only in interactive shells */
+    if (isatty(STDIN_FILENO))
+        write(STDOUT_FILENO, "exit\n", 5);
+
+    /* No argument OR empty string → exit 0 */
+    if (!argv[1] || argv[1][0] == '\0')
         exit(0);
 
-    /* First argument must be numeric */
-    if (!ms_is_numeric(argv[1]))
+    /* Handle `exit --` */
+    if (ft_strncmp(argv[1], "--", 3) == 0)
     {
-        write(STDERR_FILENO, SHELL_NAME ": exit: numeric argument required\n", 41);
+        if (argv[2])
+        {
+            write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
+            write(STDERR_FILENO, ": exit: ", 8);
+            write(STDERR_FILENO, "too many arguments\n", 19);
+            return (1);
+        }
+        exit(0);
+    }
+
+    /* First argument must be numeric AND within range */
+    if (!ms_is_numeric(argv[1]) || !ms_atoll_strict(argv[1], &value))
+    {
+        write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
+        write(STDERR_FILENO, ": exit: ", 8);
+        write(STDERR_FILENO, argv[1], ft_strlen(argv[1]));
+        write(STDERR_FILENO, ": numeric argument required\n", 28);
         exit(2);
     }
 
-    /* Too many arguments: error, but do not exit shell */
+    /* Too many arguments → error, do NOT exit */
     if (argv[2])
     {
-        write(STDERR_FILENO, SHELL_NAME ": exit: too many arguments\n", 28);
+        write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
+        write(STDERR_FILENO, ": exit: ", 8);
+        write(STDERR_FILENO, "too many arguments\n", 19);
         return (1);
     }
 
-    /* Convert first argument using ft_atoi and exit */
-    exit_code = ft_atoi(argv[1]);
-    exit((unsigned char)exit_code);
-
-    return (0); /* Unreachable, but keeps the compiler happy */
+    /* Valid single numeric argument */
+    exit((unsigned char)value);
 }

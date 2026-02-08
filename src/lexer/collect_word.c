@@ -81,28 +81,43 @@ static char	*ms_collect_plain_word(char *str, int *idx)
 	return (ft_substr(str, start, *idx - start));
 }
 
-char	*ms_collect_word(t_shell *shell, char *str, int *idx)
+char *ms_collect_word(t_shell *shell, char *str, int *idx, int *was_quoted, int allow_expansion)
 {
-	char	*buf;
-	char	*tmp;
-	char	*old_buf;
+    char    *buf;
+    char    *tmp;
+    char    *old_buf;
 
-	buf = ft_strdup("");
-	while (str[*idx] && str[*idx] != ' ' && str[*idx] != '\t'
-		&& str[*idx] != '|' && str[*idx] != '<' && str[*idx] != '>')
-	{
-		if (str[*idx] == '\'')
-			tmp = ms_collect_single_quotes(str, idx);
-		else if (str[*idx] == '"')
-			tmp = ms_collect_double_quotes(shell, str, idx);
-		else if (str[*idx] == '$')
-			tmp = ms_expand_variable(shell, str, idx);
-		else
-			tmp = ms_collect_plain_word(str, idx);
-		old_buf = buf;
-		buf = ft_strjoin(buf, tmp);
-		free(old_buf);
-		free(tmp);
-	}
-	return (buf);
+    buf = ft_strdup("");
+    *was_quoted = 0;  // Initialize quote flag
+
+    while (str[*idx] && str[*idx] != ' ' && str[*idx] != '\t'
+        && str[*idx] != '|' && str[*idx] != '<' && str[*idx] != '>')
+    {
+        if (str[*idx] == '\'')
+        {
+            *was_quoted = 1;
+            tmp = ms_collect_single_quotes(str, idx);
+        }
+        else if (str[*idx] == '"')
+        {
+            *was_quoted = 1;
+            tmp = ms_collect_double_quotes(shell, str, idx);
+        }
+        else if (str[*idx] == '$' && allow_expansion)
+        {
+            tmp = ms_expand_variable(shell, str, idx);
+        }
+        else
+        {
+            // Treat '$' as normal char if expansion not allowed
+            tmp = ms_collect_plain_word(str, idx);
+        }
+
+        old_buf = buf;
+        buf = ft_strjoin(buf, tmp);
+        free(old_buf);
+        free(tmp);
+    }
+
+    return (buf);
 }

@@ -20,16 +20,3 @@ int	ft_tolower(int c)
 	else
 		return (c);
 }
-/*
-#include <ctype.h>
-#include <stdio.h>
-
-int	main(void)
-{
-	int c;
-
-	c = 'M';
-	printf("mine: %d\n", ft_tolower(c));
-	printf("mine: %d\n", tolower(c));
-	return (0);
-}*/

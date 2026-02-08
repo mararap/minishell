@@ -19,15 +19,3 @@ int	ft_isprint(int i)
 		return (1);
 	return (0);
 }
-/*
-#include <ctype.h>
-#include <stdio.h>
-
-int	main(void)
-{
-	unsigned char c;
-	c = 50;
-	printf("%d\n", ft_isprint(c));
-	printf("%d\n", isprint(c));
-	return (0);
-}*/

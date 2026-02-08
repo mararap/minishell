@@ -99,22 +99,3 @@ char	**ft_split(char const *s, char c)
 	arr[wcount] = NULL;
 	return (arr);
 }
-/*
-#include <stdio.h>
-
-int	main(void)
-{
-	char **arr = ft_split("   tripuille 42 ", ' ');
-	if (!arr)
-		return (-1);
-	int i = 0;
-
-	while (arr[i])
-	{
-		printf("arr[%d] = %s\n", i, arr[i]);
-		free (arr[i]);
-		i++;
-	}
-	free (arr);
-	return (0);
-}*/

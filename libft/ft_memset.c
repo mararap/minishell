@@ -26,22 +26,3 @@ void	*ft_memset(void *s, int c, size_t n)
 	}
 	return (s);
 }
-/*
-#include <string.h>
-#include <stdio.h>
-#include <strings.h>
-
-int	main(void)
-{
-	char s[42] = "lets goooooooo";
-	int		c = 'u';
-	size_t	n = 8;
-	
-	char	so[42] = "lets goooooooo";
-	int		co = 'u';
-	size_t	no = 8;
-
-	printf("mine: %p\n", ft_memset(s, c, n));
-	printf("original: %p\n", memset(so, co, no));
-	return (0);
-}*/

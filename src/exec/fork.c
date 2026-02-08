@@ -36,11 +36,18 @@ static char	*ms_find_executable(t_shell *shell, char *cmd)
 
 	if (!cmd || cmd[0] == '\0')
 		return (NULL);
-	if (ft_strchr(cmd, '/'))
-		return (ft_strdup(cmd));
+
+    // If the command contains '/', treat it as a relative or absolute path
+    if (ft_strchr(cmd, '/'))
+		return ft_strdup(cmd);
+	
+	// Get PATH from environment
 	path_env = ms_env_get_value(shell->env_list, "PATH");
-	if (!path_env)
-		return (NULL);
+	
+	// If PATH is unset or empty, no need to split, return NULL immediately
+	if (!path_env || path_env[0] == '\0')
+		return NULL;
+		
 	paths = ft_split(path_env, ':');
 	if (!paths)
 		return (NULL);
@@ -92,12 +99,14 @@ static void	ms_dup_and_close(int from, int to)
 	}
 }
 
-static void	ms_execute_child(t_shell *shell, t_command *cmd,
+void	ms_execute_child(t_shell *shell, t_command *cmd,
 			int in_fd, int out_fd)
 {
+	ms_setup_child_signals();
+
 	ms_dup_and_close(in_fd, STDIN_FILENO);
 	ms_dup_and_close(out_fd, STDOUT_FILENO);
-	if (ms_apply_redirections(cmd->redirections, shell) < 0)
+	if (ms_apply_redirections(cmd->redirections) < 0)
 		exit(1);
 	if (!cmd->argv || !cmd->argv[0])
 		exit(0);

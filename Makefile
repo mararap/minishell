@@ -119,6 +119,7 @@ SRC				:=		main.c\
 						parser/parser.c\
 						parser/fill_command.c\
 						redirections.c\
+						heredoc.c \
 						signals.c\
 						utils.c
 

@@ -42,10 +42,51 @@ int	ms_run_builtin_child(t_shell *shell, char **argv)
 	return (0);
 }
 
+static int	ms_dup_stdio(int *save_in, int *save_out, int *save_err)
+{
+	*save_in = dup(STDIN_FILENO);
+	*save_out = dup(STDOUT_FILENO);
+	*save_err = dup(STDERR_FILENO);
+	if (*save_in < 0 || *save_out < 0 || *save_err < 0)
+		return (-1);
+	return (0);
+}
+
+static void	ms_restore_stdio(int save_in, int save_out, int save_err)
+{
+	if (save_in >= 0)
+	{
+		dup2(save_in, STDIN_FILENO);
+		close(save_in);
+	}
+	if (save_out >= 0)
+	{
+		dup2(save_out, STDOUT_FILENO);
+		close(save_out);
+	}
+	if (save_err >= 0)
+	{
+		dup2(save_err, STDERR_FILENO);
+		close(save_err);
+	}
+}
+
 int	ms_run_builtin_parent(t_shell *shell, t_command *cmd)
 {
+	int	save_in;
+	int	save_out;
+	int	save_err;
 	int	status;
 
-	status = ms_run_builtin_child(shell, cmd->argv);
+	if (ms_dup_stdio(&save_in, &save_out, &save_err) < 0)
+		return (ms_perror("dup"), 1);
+
+	status = 0;
+	if (cmd->redirections && ms_apply_redirections(cmd->redirections) < 0)
+		status = 1; // redirection failed => builtin not executed
+	else
+		status = ms_run_builtin_child(shell, cmd->argv);
+
+	ms_restore_stdio(save_in, save_out, save_err);
 	return (status);
 }

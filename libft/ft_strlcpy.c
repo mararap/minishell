@@ -29,19 +29,3 @@ size_t	ft_strlcpy(char *dest, const char *src, size_t size)
 	dest[i] = '\0';
 	return (slen);
 }
-/*
-#include <stdio.h>
-#include <bsd/string.h>
-
-int	main(void)
-{
-	char dest[25] = "nowtestme";
-	char *src = "testmetestme";
-	size_t size = 4;
-
-	printf("%zu\n", strlcpy(dest, src, size));
-	printf("%s\n", dest);
-	printf("%zu\n", ft_strlcpy(dest, src, size));
-	printf("%s\n", dest);
-	return(0);
-}*/
