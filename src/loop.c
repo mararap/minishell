@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   loop.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42vienna.com>   +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/18 21:03:30 by marapovi          #+#    #+#             */
-/*   Updated: 2026/01/18 21:52:17 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/08 19:02:34 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void	ms_handle_line(t_shell *shell, char *line)
 	shell->last_exit_status = status;
 	ms_free_command_list(commands);
 }
-
+/*
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE 42
 #endif
@@ -81,7 +81,7 @@ static char	*get_next_line(int fd)
 	free(line);
 
 	return new_line;	
-}
+}*/
 //Tester LOOP Version
 void	ms_main_loop(t_shell *shell)
 {
@@ -103,7 +103,7 @@ void	ms_main_loop(t_shell *shell)
 	}
 	else
 	{
-		line = get_next_line(STDIN_FILENO);
+		line = ms_get_next_line(STDIN_FILENO);
 		if (!line)
 			break;
 		line = ft_strtrim(line, "\n");

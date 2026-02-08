@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   collect_word.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42vienna.com>   +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/24 19:51:20 by marapovi          #+#    #+#             */
-/*   Updated: 2026/01/24 19:57:24 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/08 21:02:30 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ static char	*ms_collect_single_quotes(char *str, int *idx)
 	int		start;
 	char	*tmp;
 
+	(*idx)++;
 	start = *idx;
 	while (str[*idx] && str[*idx] != '\'')
 		(*idx)++;
@@ -55,6 +56,7 @@ static char	*ms_collect_double_quotes(t_shell *shell, char *str, int *idx)
 	int		start;
 	char	*tmp;
 
+	(*idx)++;
 	start = *idx;
 	if (str[*idx] == '$')
 		tmp = ms_expand_variable(shell, str, idx);
@@ -112,12 +114,10 @@ char *ms_collect_word(t_shell *shell, char *str, int *idx, int *was_quoted, int 
             // Treat '$' as normal char if expansion not allowed
             tmp = ms_collect_plain_word(str, idx);
         }
-
         old_buf = buf;
         buf = ft_strjoin(buf, tmp);
         free(old_buf);
         free(tmp);
     }
-
     return (buf);
 }
