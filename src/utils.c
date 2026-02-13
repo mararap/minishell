@@ -27,9 +27,8 @@ void	ms_perror(char *msg)
 
 void ms_print_command_not_found(char *cmd)
 {
-    write(STDERR_FILENO, SHELL_NAME ": ", ft_strlen(SHELL_NAME) + 2);
-    write(STDERR_FILENO, cmd, ft_strlen(cmd));
-    write(STDERR_FILENO, ": No such file or directory\n", 28);
+	write(STDERR_FILENO, cmd, ft_strlen(cmd));
+    write(STDERR_FILENO, ": command not found\n", 20);
 }
 
 size_t	ms_str_arr_len(char **arr)

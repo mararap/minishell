@@ -18,8 +18,8 @@
 ** Macros
 */
 
-# define SHELL_NAME "jumanshe"
-# define PROMPT_STR "jumanshe$ "
+# define SHELL_NAME "juma[n]she"
+# define PROMPT_STR "juma[n]she$ "
 # define HEREDOC_PROMPT "> "
 
 # define REDIR_IN TOKEN_REDIR_IN
