@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/08 11:37:31 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/02/14 14:46:58 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/14 16:13:16 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,42 +171,35 @@ static int	ms_hd_child_loop(t_shell *shell, t_redir *r, int wfd)
 {
 	char	*line;
 	char	*expanded;
-	int		matches;
 
 	while (1)
 	{
 		line = readline(HEREDOC_PROMPT);
 		if (!line)
 			break ;
-		//expand for comparison if needed
-		if (r->heredoc_expand)
-			expanded = ms_expand_heredoc_line(shell, line);
-		else
-			expanded = NULL;
-		//compare expanded (if applicable) or raw line
-		if (expanded)
-			matches = (ft_strcmp(expanded, r->target) == 0);
-		else
-			matches = (ft_strcmp(line, r->target) == 0);
-		if (matches)
+		//always compare RAW input with delimiter
+		if (ft_strcmp(line, r->target) == 0)
 		{
 			free(line);
-			if (expanded)
-				free(expanded);
 			break ;
 		}
-		// write expanded or raw line
-		if (expanded)
+		//expand for writing (if needed)
+		if (r->heredoc_expand)
 		{
+			expanded = ms_expand_heredoc_line(shell, line);
+			free(line);
+			if (!expanded)
+				return (1);
 			write(wfd, expanded, ft_strlen(expanded));
+			write(wfd, "\n", 1);
 			free(expanded);
 		}
 		else
 		{
 			write(wfd, line, ft_strlen(line));
+			write(wfd, "\n", 1);
+			free(line);
 		}
-		write(wfd, "\n", 1);
-		free(line);
 	}
 	return (0);
 }
