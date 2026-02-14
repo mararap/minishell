@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatanaso <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/08 11:37:31 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/02/08 11:37:34 by jatanaso         ###   ########.fr       */
+/*   Updated: 2026/02/14 13:59:57 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,7 +177,8 @@ static int	ms_hd_child_loop(t_shell *shell, t_redir *r, int wfd)
 		line = readline(HEREDOC_PROMPT);
 		if (!line)
 			break ;
-		if (ft_strncmp(line, r->target, ft_strlen(r->target) + 1) == 0)
+		if (ft_strcmp(line, r->target) == 0)
+		//if (ft_strncmp(line, r->target, ft_strlen(r->target) + 1) == 0)
 		{
 			free(line);
 			break ;
