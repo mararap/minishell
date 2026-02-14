@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/24 19:51:20 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/14 17:31:03 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/14 18:33:33 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,6 +109,7 @@ char *ms_collect_word(t_shell *shell, char *str, int *idx, int *was_quoted, int 
     char    *buf;
     char    *tmp;
     char    *old_buf;
+	int		start;
 
     buf = ft_strdup("");
     *was_quoted = 0;  // Initialize quote flag
@@ -130,6 +131,17 @@ char *ms_collect_word(t_shell *shell, char *str, int *idx, int *was_quoted, int 
         {
             tmp = ms_expand_variable(shell, str, idx);
         }
+		else if (str[*idx] == '$' && !allow_expansion)
+		{
+			// Treat '$' as literal, collect it as plain text
+			start = *idx;
+			(*idx)++;
+			while (str[*idx] && str[*idx] != ' ' && str[*idx] != '\t'
+				&& str[*idx] != '|' && str[*idx] != '<' && str[*idx] != '>'
+				&& str[*idx] != '\'' && str[*idx] != '"')
+				(*idx)++;
+			tmp = ft_substr(str, start, *idx - start);
+		}
         else
         {
             // Treat '$' as normal char if expansion not allowed

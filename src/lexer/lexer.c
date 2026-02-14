@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 21:16:48 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/14 17:55:25 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/14 18:53:56 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ t_token	*ms_lex_line(t_shell *shell, char *line)
 		else
 		{
 			quoted = 0;
-			word = ms_collect_word(shell, line, &i, &quoted, 1);
+			word = ms_collect_word(shell, line, &i, &quoted, !expect_heredoc_delim);
 			if (!word)
 				break ;
 			ms_token_add_back(&tokens, ms_token_new(TOKEN_WORD, word, quoted));
