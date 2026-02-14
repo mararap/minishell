@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/24 19:51:20 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/14 13:55:37 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/14 15:37:59 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ char *ms_collect_word(t_shell *shell, char *str, int *idx, int *was_quoted, int 
         }
         else if (str[*idx] == '"')
         {
-            *was_quoted = 1;
+            //*was_quoted = 0;
             tmp = ms_collect_double_quotes(shell, str, idx);
         }
         else if (str[*idx] == '$' && allow_expansion)

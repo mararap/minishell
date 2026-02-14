@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 11:19:25 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/08 16:53:18 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/14 15:34:43 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,5 +66,6 @@ int					ft_putint(int n);
 int					ft_putusint(unsigned int u);
 int					ft_puthex(unsigned int x, int c);
 int					ft_putptr(void *ptr);
+int					ft_strcmp(const char *s1, const char *s2);
 
 #endif // LIBFT_H
