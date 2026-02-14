@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/24 19:51:20 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/14 18:33:33 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/14 20:56:02 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,8 @@ static char	*ms_collect_single_quotes(char *str, int *idx)
 	return (tmp);
 }
 
-static char	*ms_collect_double_quotes(t_shell *shell, char *str, int *idx)
+static char	*ms_collect_double_quotes(t_shell *shell, char *str, int *idx,
+										int allow_expansion)
 {
 	int		start;
 	char	*buf;
@@ -67,7 +68,7 @@ static char	*ms_collect_double_quotes(t_shell *shell, char *str, int *idx)
 	buf = ft_strdup("");
 	while (str[*idx] && str[*idx] != '"')
 	{
-		if (str[*idx] == '$')
+		if (str[*idx] == '$' && allow_expansion)
 		{
 			tmp = ms_expand_variable(shell, str, idx);
 			old_buf = buf;
@@ -78,7 +79,7 @@ static char	*ms_collect_double_quotes(t_shell *shell, char *str, int *idx)
 		else
 		{
 			start = *idx;
-			while (str[*idx] && str[*idx] != '"' && str[*idx] != '$')
+			while (str[*idx] && str[*idx] != '"' && !(str[*idx] == '$' && allow_expansion))
 				(*idx)++;
 			tmp = ft_substr(str, start, *idx - start);
 			old_buf = buf;
@@ -125,7 +126,7 @@ char *ms_collect_word(t_shell *shell, char *str, int *idx, int *was_quoted, int 
         else if (str[*idx] == '"')
         {
             *was_quoted = 1;
-            tmp = ms_collect_double_quotes(shell, str, idx);
+            tmp = ms_collect_double_quotes(shell, str, idx, allow_expansion);
         }
         else if (str[*idx] == '$' && allow_expansion)
         {
