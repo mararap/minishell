@@ -4,14 +4,14 @@ static int	ms_is_valid_identifier(const char *str)
 {
 	int	i;
 
-	i = 1;
 	if (!str || !*str)
 		return (0);
 	if (!ft_isalpha(str[0]) && str[0] != '_') //check if first char is letter or '_'
 		return (0);
+	i = 1;
 	while (str[i])
 	{
-		if (ft_isalnum(str[i]) && str[i] != '_')
+		if (!ft_isalnum(str[i]) && str[i] != '_')
 			return (0);
 		i++;
 	}
