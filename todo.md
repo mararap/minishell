@@ -42,6 +42,44 @@ Redirections are not implemented.
 
 20260208 Notes:
 - 
+20260216 - Maria continuing fixing issues
+
+What to tackle next?
+
+Looking at your test results (750/986 passing, 76%), and your test files, here's my recommendation:
+Start with: 1_builtins_env.sh ✅
+
+Why?
+
+    Simplest builtin - just print the environment
+    No complex logic - no parsing arguments, no side effects
+    Foundation for everything else - you need t_env list working
+    Quick win - builds confidence
+
+Then: 1_builtins_export.sh (no args) ✅
+
+    export with no args = print all exported variables
+    Still simple, reuses env printing logic
+    Don't worry about export VAR=value yet - that's harder
+
+Then: 1_builtins_pwd.sh ✅
+
+    Super simple: getcwd() + printf
+    No arguments to parse (except error handling for -L etc.)
+
+Then: 1_builtins_echo.sh ⚠️
+
+    Trickier than it looks!
+    -n flag parsing
+    Multiple -n flags: echo -n -n -n hello (no newline)
+    Invalid flags: echo -nnn -na hello (first is -n, second prints -na)
+
+Then: 1_scmds.sh (simple commands) 🎯
+
+    This is where execution really starts!
+    No pipes, just single commands
+    Practice: fork, execve, waitpid, exit status
+    Handle: PATH searching, command not found (127)
 
 
 

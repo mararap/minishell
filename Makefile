@@ -6,7 +6,7 @@
 #    By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2026/02/13 19:20:49 by marapovi         ###   ########.fr        #
+#    Updated: 2026/02/16 09:57:16 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -159,7 +159,7 @@ $(NAME): print_done $(OBJ) $(LIBFT)
 
 clean:
 	@$(RM) $(OBJ_DIR)
-	@echo "     🧽 MIINISHELL	= clean."
+	@echo "     🧽 MINISHELL	= clean."
 	@$(MAKE) --no-print-directory -C $(LIBFT_DIR) clean
 	@echo "     🧽 LIBFT 		= clean."
 
