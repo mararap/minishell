@@ -49,6 +49,84 @@ static void	ms_export_error(char *arg)
 	ft_putstr_fd("': not a valid identifier\n", 2);
 }
 
+static int	ms_count_env_vars(t_env_var *env_list)
+{
+	int			count;
+	t_env_var	*current;
+
+	count = 0;
+	current = env_list;
+	while (current)
+	{
+		count++;
+		current = current->next;
+	}
+	return (count);
+}
+
+static void	ms_sort_env_array(t_env_var **arr, int size)
+{
+	int			i;
+	int			j;
+	t_env_var	*tmp;
+
+	i = 0;
+	while (i < size - 1)
+	{
+		j = i + 1;
+		while (j < size)  //sort env array alphabetically
+		{
+			if (ft_strcmp(arr[i]->name, arr[j]->name) > 0)
+			{
+				tmp = arr[i];
+				arr[i] = arr[j];
+				arr[j] = tmp;
+			}
+			j++;
+		}
+		i++;
+	}
+}
+
+static void	ms_print_export_format(t_env_var *env_list)
+{
+	t_env_var	**arr;
+	t_env_var	*current;
+	int			count;
+	int			i;
+
+	count = ms_count_env_vars(env_list);
+	if (count == 0)
+		return ;
+	
+	arr = malloc(sizeof(t_env_var *) * count); //array of pointers for sorting
+	if (!arr)
+		return ;
+	current = env_list; //start to fill array
+	i = 0;
+	while (current)
+	{
+		arr[i++] = current;
+		current = current->next;
+	}
+	ms_sort_env_array(arr, count); //sort alphabetically
+	i = 0;
+	while (i < count)
+	{
+		ft_putstr_fd("declare -x ", 1);
+		ft_putstr_fd(arr[i]->name, 1);
+		if (arr[i]->value)
+		{
+			ft_putstr_fd("=\"", 1);
+			ft_putstr_fd(arr[i]->value, 1);
+			ft_putstr_fd("\"", 1);
+		}
+		ft_putstr_fd("\n", 1);
+		i++;
+	}
+	free(arr);
+}
+
 int	ms_builtin_export(t_shell *shell, char **argv)
 {
 	int		i;
@@ -58,7 +136,10 @@ int	ms_builtin_export(t_shell *shell, char **argv)
 	int		exit_code;
 
 	if (!argv[1])
-		return (ms_builtin_env(shell, argv));
+	{
+		ms_print_export_format(shell->env_list);
+		return (0);
+	}
 	i = 1;
 	exit_code = 0;
 	while (argv[i])
