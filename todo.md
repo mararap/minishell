@@ -81,7 +81,29 @@ Then: 1_scmds.sh (simple commands) 🎯
     Practice: fork, execve, waitpid, exit status
     Handle: PATH searching, command not found (127)
 
+## Execution Layer - Maria's Tasks
 
+### Phase 1: Simple Builtins
+- [x] `env` - print environment
+- [ ] `pwd` - print working directory
+- [ ] `export` (no args) - print exported vars
+
+### Phase 2: Medium Builtins
+- [ ] `echo` - with `-n` flag handling
+- [ ] `unset` - remove environment variables
+- [ ] `export VAR=value` - set variables
+- [ ] `cd` - change directory, update PWD/OLDPWD
+- [ ] `exit` - numeric parsing, overflow handling
+
+### Phase 3: Execution Engine
+- [ ] `1_scmds.sh` - simple commands (fork/exec)
+- [ ] `2_path_check.sh` - PATH searching
+- [ ] `1_redirs.sh` - file redirections (>, >>, <, <<)
+- [ ] `1_pipelines.sh` - multiple commands with pipes
+
+### Phase 4: Final Integration
+- [ ] `9_go_wild.sh`
+- [ ] `2_correction.sh`
 
 
 

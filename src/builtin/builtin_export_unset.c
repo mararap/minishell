@@ -113,9 +113,14 @@ static void	ms_print_export_format(t_env_var *env_list)
 	i = 0;
 	while (i < count)
 	{
+		if (ft_strcmp(arr[i]->name, "_") == 0)
+		{
+			i++;
+			continue;
+		}
 		ft_putstr_fd("declare -x ", 1);
 		ft_putstr_fd(arr[i]->name, 1);
-		if (arr[i]->value)
+		if (arr[i]->value && arr[i]->value[0] != '\0') //only if value exists
 		{
 			ft_putstr_fd("=\"", 1);
 			ft_putstr_fd(arr[i]->value, 1);

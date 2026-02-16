@@ -40,6 +40,7 @@ int	is_valid_name(const char *s)
 		return (0);
 	if (!ft_isalpha(*s) && *s != '_')
 		return (0);
+	s++;
 	while (*s != '\0')
 	{
 		if (!ft_isalnum(*s) && *s != '_')
@@ -103,21 +104,26 @@ t_env_var	*ms_env_from_environ(char **envp)
 		{
 			name = ft_substr(envp[i], 0, sep - envp[i]);
 			value = ft_strdup(sep + 1);
-			if (is_valid_name(name) == 1)
-			{
-				node = ms_env_new_node(name, value, 1);
-				if (node != NULL)
-				{
-					if (head == NULL)
-						head = node;
-					else
-						tail->next = node;
-					tail = node;
-				}
-			}
-			free(name);
-			free(value);
 		}
+		else
+		{
+			name = ft_strdup(envp[i]);
+			value = NULL;
+		}
+		if (is_valid_name(name) == 1)
+		{
+			node = ms_env_new_node(name, value, 1);
+			if (node != NULL)
+			{
+				if (head == NULL)
+					head = node;
+				else
+					tail->next = node;
+				tail = node;
+			}
+		}
+		free(name);
+		free(value);
 		i++;
 	}
 	return (head);
