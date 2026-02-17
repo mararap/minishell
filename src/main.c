@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/11 20:32:50 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/16 15:43:09 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/17 13:34:03 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ int	main(int argc, char **argv, char **envp)
 }
 
 /* int main(int ac, char*av[], char **envp)
-{
+{	
 	if (ac <= 1)
 	{
 		write(2, "Wrong test input\n", 17);
@@ -48,7 +48,8 @@ int	main(int argc, char **argv, char **envp)
 	t_shell	shell;
 	ms_init_shell(&shell, envp);
 		char	*line;
-	while (ac-- > 0)
+	int i = 0;
+	while (i++ > ac - 2)
 	{
 		// if (shell.is_interactive)
 		// 	ms_setup_interactive_signals();

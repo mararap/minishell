@@ -71,8 +71,8 @@ static int ms_is_numeric(char *str)
 
 static int ms_atoll_strict(const char *s, long long *out)
 {
-    long long result;
-    int sign;
+    unsigned long long   result;
+    int         sign;
 
     result = 0;
     sign = 1;
@@ -93,8 +93,15 @@ static int ms_atoll_strict(const char *s, long long *out)
 
     while (ft_isdigit(*s))
     {
-        if (result > (9223372036854775807LL - (*s - '0')) / 10)
-            return (0); /* overflow */
+        if (sign == 1 && result > (9223372036854775807ULL - (*s - '0')) / 10)
+            return (0); // positive overflow
+        else
+        {
+            if (result > (9223372036854775807ULL))
+                return (0);
+            if (result == 9223372036854775807ULL && (*s - '0') > 8)
+                return (0);
+        }
         result = result * 10 + (*s - '0');
         s++;
     }
@@ -106,7 +113,14 @@ static int ms_atoll_strict(const char *s, long long *out)
     if (*s != '\0')
         return (0);
 
-    *out = result * sign;
+    if (sign == -1)
+    {
+        if (result == 9223372036854775808ULL)
+            *out = -9223372036854775807ULL - 1ULL;
+        else *out = -(long long)result;
+    }
+    else
+        *out = (long long)result;
     return (1);
 }
 

@@ -85,12 +85,12 @@ Then: 1_scmds.sh (simple commands) 🎯
 
 ### Phase 1: Simple Builtins
 - [x] `env` - print environment
-- [ ] `pwd` - print working directory
+- [x] `pwd` - print working directory
 - [x] `export` (no args) - print exported vars
 
 ### Phase 2: Medium Builtins
-- [ ] `echo` - with `-n` flag handling
-- [ ] `unset` - remove environment variables
+- [x] `echo` - with `-n` flag handling
+- [x] `unset` - remove environment variables
 - [ ] `export VAR=value` - set variables
 - [ ] `cd` - change directory, update PWD/OLDPWD
 - [ ] `exit` - numeric parsing, overflow handling

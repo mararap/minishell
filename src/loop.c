@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/18 21:03:30 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/08 19:02:34 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/17 12:46:20 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,8 +115,8 @@ void	ms_main_loop(t_shell *shell)
 	}
 }
 
-/* Origninal LOOP
-void	ms_main_loop(t_shell *shell)
+//Origninal LOOP
+/* void	ms_main_loop(t_shell *shell)
 {
 	char *line;
 
@@ -136,5 +136,5 @@ void	ms_main_loop(t_shell *shell)
 		ms_handle_line(shell, line);
 		free(line);
 	}
-}*/
+} */
 
