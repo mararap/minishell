@@ -15,6 +15,7 @@
  * - If no argument is given, the shell exits with status 0.
  * - If a single numeric argument `n` is provided, the shell exits with
  *   that value cast to an unsigned 8-bit value (0–255).
+ * - Leading white spaces will be skipped.
  * - If the first argument is not a valid integer, prints an error to
  *   stderr and exits with status 2. This covers cases like "foo" or "+"
  *   which are not numeric. :contentReference[oaicite:1]{index=1}
@@ -51,6 +52,8 @@ static int ms_is_numeric(char *str)
         return (0);
 
     i = 0;
+    while (ft_isspace(str[i]))
+        i++;
     if (str[i] == '+' || str[i] == '-')
     {
         if (!str[i + 1] || !ft_isdigit(str[i + 1]))
@@ -117,8 +120,8 @@ int ms_builtin_exit(t_shell *shell, char **argv)
     if (isatty(STDIN_FILENO))
         write(STDOUT_FILENO, "exit\n", 5);
 
-    /* No argument OR empty string → exit 0 */
-    if (!argv[1] || argv[1][0] == '\0')
+    /* No argument -> exit 0*/
+    if (!argv[1])
         exit(0);
 
     /* Handle `exit --` */
@@ -135,7 +138,8 @@ int ms_builtin_exit(t_shell *shell, char **argv)
     }
 
     /* First argument must be numeric AND within range */
-    if (!ms_is_numeric(argv[1]) || !ms_atoll_strict(argv[1], &value))
+    if (!ms_is_numeric(argv[1]) || !ms_atoll_strict(argv[1], &value)
+        || argv[1][0] == '\0')
     {
         write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
         write(STDERR_FILENO, ": exit: ", 8);
