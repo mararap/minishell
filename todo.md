@@ -86,7 +86,7 @@ Then: 1_scmds.sh (simple commands) 🎯
 ### Phase 1: Simple Builtins
 - [x] `env` - print environment
 - [ ] `pwd` - print working directory
-- [ ] `export` (no args) - print exported vars
+- [x] `export` (no args) - print exported vars
 
 ### Phase 2: Medium Builtins
 - [ ] `echo` - with `-n` flag handling
