@@ -107,6 +107,16 @@ static int	ms_update_pwd_vars(t_shell *shell, char *old_pwd)
 	return (0);
 }
 
+static void	ms_cd_output(char *str)
+{
+	write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
+	write(STDERR_FILENO, ": cd: ", 6);
+	write(STDERR_FILENO, str, ft_strlen(str));
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, strerror(errno), ft_strlen(strerror(errno)));
+	write(STDERR_FILENO, "\n", 1);
+}
+
 static int	ms_cd_home(t_shell *shell, char *old_pwd)
 {
 	char	*home;
@@ -116,14 +126,26 @@ static int	ms_cd_home(t_shell *shell, char *old_pwd)
 		return (cd_error_with_path(NULL, "HOME not set"));
 	if (chdir(home) != 0)
 	{
-		write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
-		write(STDERR_FILENO, ": cd: ", 6);
-		write(STDERR_FILENO, home, ft_strlen(home));
-		write(STDERR_FILENO, ": ", 2);
-		write(STDERR_FILENO, strerror(errno), ft_strlen(strerror(errno)));
-		write(STDERR_FILENO, "\n", 1);
+		ms_cd_output(home);
 		return(1);
 	}
+	return (ms_update_pwd_vars(shell, old_pwd));
+}
+
+static int	ms_cd_oldpwd(t_shell *shell, char *old_pwd)
+{
+	char	*oldpwd;
+
+	oldpwd = ms_env_get_value(shell->env_list, "OLDPWD");
+	if (!oldpwd)
+		return (cd_error_with_path(NULL, "OLDPWD not set"));
+	if (chdir(oldpwd) != 0)
+	{
+		ms_cd_output(oldpwd);
+		return (1);
+	}
+	write(STDOUT_FILENO, oldpwd, ft_strlen(oldpwd));
+	write(STDOUT_FILENO, "\n", 1);
 	return (ms_update_pwd_vars(shell, old_pwd));
 }
 
@@ -144,6 +166,12 @@ int	ms_builtin_cd(t_shell *shell, char **argv)
 		free(old_pwd);
 		return (result);
 	}
+	if (ft_strncmp(argv[1], "-", 2) == 0 && !argv[2])
+	{
+		result = ms_cd_oldpwd(shell, old_pwd);
+		free (old_pwd);
+		return (result);
+	}
 	if (argv[2])
 	{
 		free (old_pwd);
@@ -151,11 +179,7 @@ int	ms_builtin_cd(t_shell *shell, char **argv)
 	}
 	if (chdir(argv[1]) != 0)
 	{
-		write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
-		write(STDERR_FILENO, ": cd: ", 6);
-		write(STDERR_FILENO, argv[1], ft_strlen(argv[1]));
-		write(STDERR_FILENO, ": ", 2);
-		write(STDERR_FILENO, "\n", 1);
+		ms_cd_output(argv[1]);
 		free(old_pwd);
 		return 1; // Return after error
 	}
