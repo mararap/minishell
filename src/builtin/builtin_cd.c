@@ -79,9 +79,15 @@ It cleanly separates concerns between error handling, environment updates, and c
 
 #include "minishell.h"
 
-static int	cd_error(const char *msg)
+static int	cd_error_with_path(const char *path, const char *msg)
 {
-	write(STDERR_FILENO, SHELL_NAME ": cd: ", 7);
+	write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
+	write(STDERR_FILENO, ": cd: ", 6);
+	if (path)
+	{
+		write(STDERR_FILENO, path, ft_strlen(path));
+		write(STDERR_FILENO, ": ", 2);
+	}
 	write(STDERR_FILENO, msg, ft_strlen(msg));
 	write(STDERR_FILENO, "\n", 1);
 	return (1);
@@ -101,9 +107,30 @@ static int	ms_update_pwd_vars(t_shell *shell, char *old_pwd)
 	return (0);
 }
 
+static int	ms_cd_home(t_shell *shell, char *old_pwd)
+{
+	char	*home;
+
+	home = ms_env_get_value(shell->env_list, "HOME");
+	if (!home)
+		return (cd_error_with_path(NULL, "HOME not set"));
+	if (chdir(home) != 0)
+	{
+		write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
+		write(STDERR_FILENO, ": cd: ", 6);
+		write(STDERR_FILENO, home, ft_strlen(home));
+		write(STDERR_FILENO, ": ", 2);
+		write(STDERR_FILENO, strerror(errno), ft_strlen(strerror(errno)));
+		write(STDERR_FILENO, "\n", 1);
+		return(1);
+	}
+	return (ms_update_pwd_vars(shell, old_pwd));
+}
+
 int	ms_builtin_cd(t_shell *shell, char **argv)
 {
 	char	*old_pwd;
+	int		result;
 
 	old_pwd = getcwd(NULL, 0);
 	if (!old_pwd)
@@ -111,31 +138,28 @@ int	ms_builtin_cd(t_shell *shell, char **argv)
 		ms_perror("cd: getcwd");
 		return 1; // Return after the error is printed
 	}
-
 	if (!argv[1])
 	{
-		return cd_error("missing argument"); // Print error and return 1
+		result = ms_cd_home(shell, old_pwd);
+		free(old_pwd);
+		return (result);
 	}
-	else if (argv[2])
+	if (argv[2])
 	{
-		return cd_error("too many arguments"); // Print error and return 1
+		free (old_pwd);
+		return (cd_error_with_path(NULL, "too many arguments"));
 	}
-	else if (chdir(argv[1]) != 0)
+	if (chdir(argv[1]) != 0)
 	{
-		ms_perror("cd"); // Print error message for chdir failure
+		write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
+		write(STDERR_FILENO, ": cd: ", 6);
+		write(STDERR_FILENO, argv[1], ft_strlen(argv[1]));
+		write(STDERR_FILENO, ": ", 2);
+		write(STDERR_FILENO, "\n", 1);
 		free(old_pwd);
 		return 1; // Return after error
 	}
-	else
-	{
-		// Update PWD and OLDPWD only after chdir succeeds
-		if (ms_update_pwd_vars(shell, old_pwd) != 0)
-		{
-			free(old_pwd);
-			return 1; // Return 1 if updating pwd vars failed
-		}
-	}
-
+	result = ms_update_pwd_vars(shell, old_pwd);
 	free(old_pwd);
 	return 0; // Success
 }
