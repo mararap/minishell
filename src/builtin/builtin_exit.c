@@ -71,54 +71,53 @@ static int ms_is_numeric(char *str)
 
 static int ms_atoll_strict(const char *s, long long *out)
 {
-    unsigned long long   result;
-    int         sign;
+    unsigned long long  result;
+    int                 sign;
+    int                 digit;
 
     result = 0;
     sign = 1;
-
-    /* skip leading whitespace */
-    while (*s == ' ' || (*s >= 9 && *s <= 13))
+    while (*s == ' ' || (*s >= 9 && *s <= 13)) // skip leading whitespaces
         s++;
-
-    if (*s == '+' || *s == '-')
+    if (*s == '+' || *s == '-') // set sign
     {
         if (*s == '-')
             sign = -1;
         s++;
     }
-
-    if (!ft_isdigit(*s))
+    if (!ft_isdigit(*s)) // NULL-check
         return (0);
-
     while (ft_isdigit(*s))
     {
-        if (sign == 1 && result > (9223372036854775807ULL - (*s - '0')) / 10)
-            return (0); // positive overflow
-        else
+        digit = *s - '0';
+        if (result > (unsigned long long)(LLONG_MAX - digit) / 10)
         {
-            if (result > (9223372036854775807ULL))
-                return (0);
-            if (result == 9223372036854775807ULL && (*s - '0') > 8)
-                return (0);
+            if (sign == -1 && result ==
+                    (unsigned long long)LLONG_MAX / 10 && digit == 8)
+            {
+                if (!ft_isdigit(*(s + 1)))
+                {
+                    s++;
+                    while (*s == ' ' || (*s >= 9 && *s <= 13))
+                        s++;
+                    if (*s == '\0')
+                    {
+                        *out = LLONG_MIN;
+                        return (1);
+                    }
+                }
+            }
+            return (0);
         }
-        result = result * 10 + (*s - '0');
+        result = result * 10 + digit;
         s++;
     }
-
-    /* skip trailing whitespace */
-    while (*s == ' ' || (*s >= 9 && *s <= 13))
+    while (*s == ' ' || (*s >= 9 && *s <= 13)) // skip trailing white spaces
         s++;
-
     if (*s != '\0')
         return (0);
-
     if (sign == -1)
-    {
-        if (result == 9223372036854775808ULL)
-            *out = -9223372036854775807ULL - 1ULL;
-        else *out = -(long long)result;
-    }
+        *out = -(long long)result;
     else
         *out = (long long)result;
     return (1);
