@@ -91,9 +91,9 @@ Then: 1_scmds.sh (simple commands) 🎯
 ### Phase 2: Medium Builtins
 - [x] `echo` - with `-n` flag handling
 - [x] `unset` - remove environment variables
-- [ ] `export VAR=value` - set variables
+- [x] `export VAR=value` - set variables
 - [ ] `cd` - change directory, update PWD/OLDPWD
-- [ ] `exit` - numeric parsing, overflow handling
+- [x] `exit` - numeric parsing, overflow handling
 
 ### Phase 3: Execution Engine
 - [ ] `1_scmds.sh` - simple commands (fork/exec)

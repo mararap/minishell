@@ -44,7 +44,7 @@
  */
 
 
-static int ms_is_numeric(char *str)
+/* static int ms_is_numeric(char *str)
 {
     int i;
 
@@ -67,7 +67,7 @@ static int ms_is_numeric(char *str)
         i++;
     }
     return (1);
-}
+} */
 
 static int ms_atoll_strict(const char *s, long long *out)
 {
@@ -151,8 +151,7 @@ int ms_builtin_exit(t_shell *shell, char **argv)
     }
 
     /* First argument must be numeric AND within range */
-    if (!ms_is_numeric(argv[1]) || !ms_atoll_strict(argv[1], &value)
-        || argv[1][0] == '\0')
+    if (!ms_atoll_strict(argv[1], &value) || argv[1][0] == '\0')
     {
         write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
         write(STDERR_FILENO, ": exit: ", 8);
