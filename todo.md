@@ -91,14 +91,14 @@ Then: 1_scmds.sh (simple commands) 🎯
 ### Phase 2: Medium Builtins
 - [x] `echo` - with `-n` flag handling
 - [x] `unset` - remove environment variables
-- [x] `export VAR=value` - set variables
-- [ ] `cd` - change directory, update PWD/OLDPWD
+- [ ] `export VAR=value` - set variables
+- [x] `cd` - change directory, update PWD/OLDPWD
 - [x] `exit` - numeric parsing, overflow handling
 
 ### Phase 3: Execution Engine
 - [ ] `1_scmds.sh` - simple commands (fork/exec)
 - [ ] `2_path_check.sh` - PATH searching
-- [ ] `1_redirs.sh` - file redirections (>, >>, <, <<)
+- [x] `1_redirs.sh` - file redirections (>, >>, <, <<)
 - [ ] `1_pipelines.sh` - multiple commands with pipes
 
 ### Phase 4: Final Integration

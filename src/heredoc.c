@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/08 11:37:31 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/02/14 16:13:16 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/19 12:22:10 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,7 +176,15 @@ static int	ms_hd_child_loop(t_shell *shell, t_redir *r, int wfd)
 	{
 		line = readline(HEREDOC_PROMPT);
 		if (!line)
+		{
+			write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
+			write(STDERR_FILENO, ": warning:", 10);
+			write(STDERR_FILENO, " here-document at line 2 delimited ", 35);
+			write(STDERR_FILENO, "by end-of-file (wanted `", 24);
+			write(STDERR_FILENO, r->target, ft_strlen(r->target));
+			write(STDERR_FILENO, "')\n", 3);
 			break ;
+		}
 		//always compare RAW input with delimiter
 		if (ft_strcmp(line, r->target) == 0)
 		{
