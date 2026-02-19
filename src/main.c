@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/11 20:32:50 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/17 13:34:03 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/19 14:14:24 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int	main(int argc, char **argv, char **envp)
 	ms_free_shell(&shell);
 	return (shell.last_exit_status);
 }
-
+//main for debugger
 /* int main(int ac, char*av[], char **envp)
 {	
 	if (ac <= 1)
