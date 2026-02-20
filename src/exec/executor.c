@@ -142,8 +142,6 @@ int	ms_execute_pipeline(t_shell *shell, t_command *command_list)
 	{
 		pipe_fd[0] = -1;
 		pipe_fd[1] = -1;
-/* 		if (ms_check_redirections(cmd->redirections) < 0)
-			return (ms_abort_pipeline(shell, pids, i, prev_read, pipe_fd)); */
 		if (cmd->next)
 		{
 			if (pipe(pipe_fd) < 0)
