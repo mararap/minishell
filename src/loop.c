@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/18 21:03:30 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/17 12:46:20 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/20 16:49:53 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,23 +91,23 @@ void	ms_main_loop(t_shell *shell)
 	{
 		if (shell->is_interactive)
 			ms_setup_interactive_signals();
-	if (isatty(STDIN_FILENO))
-	{
-		line = readline(PROMPT_STR);
-		if (!line)
+		if (isatty(STDIN_FILENO))
 		{
-			if (isatty(STDIN_FILENO))
-				write(STDOUT_FILENO, "exit\n", 5);
-			break;
+			line = readline(PROMPT_STR);
+			if (!line)
+			{
+				if (isatty(STDIN_FILENO))
+					write(STDOUT_FILENO, "exit\n", 5);
+				break;
+			}
 		}
-	}
-	else
-	{
-		line = ms_get_next_line(STDIN_FILENO);
-		if (!line)
-			break;
-		line = ft_strtrim(line, "\n");
-	}
+		else
+		{
+			line = ms_get_next_line(STDIN_FILENO);
+			if (!line)
+				break;
+			line = ft_strtrim(line, "\n");
+		}
 		if (isatty(STDIN_FILENO) && line[0] != '\0')
 			add_history(line);
 		ms_handle_line(shell, line);
