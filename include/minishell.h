@@ -157,6 +157,7 @@ int								ms_run_builtin_parent(t_shell *shell,
 									t_command *cmd);
 int								ms_run_builtin_child(t_shell *shell,
 									char **argv);
+int								ms_check_redirections(t_redir *redirections);
 int								ms_apply_redirections(t_redir *redirections);
 int								ms_fork_and_execute(t_shell *shell,
 									t_command *cmd, int prev_read,

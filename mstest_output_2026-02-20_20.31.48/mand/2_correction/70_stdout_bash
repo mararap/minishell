@@ -1,0 +1,13 @@
+LOGNAME=marapovi
+XAUTHORITY=/home/marapovi/.Xauthority
+XDG_GREETER_DATA_DIR=/var/lib/lightdm-data/marapovi
+LD_PRELOAD=/home/marapovi/42_minishell_tester/utils/libintercept/libintercept.so
+HOME=/home/marapovi
+ZSH=/home/marapovi/.oh-my-zsh
+USER=marapovi
+HELIX_RUNTIME=/home/marapovi/.brew/Cellar/helix/25.07.1/libexec/runtime
+EMAIL=marapovi@student.42vienna.com
+XDG_DATA_DIRS=/usr/share/ubuntu:/usr/share/gnome:/home/marapovi/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share:/var/lib/snapd/desktop
+PATH=/bin:/usr/bin:/usr/sbin:/home/marapovi/.brew/bin:/home/marapovi/sgoinfre/clangd/clangd_21.1.0/bin:/home/marapovi/sgoinfre/clangd/clangd_21.1.0/bin:/home/marapovi/bin/clangd/clangd_21.1.0/bin:/home/marapovi/.brew/bin:/home/marapovi/.local/funcheck/host:/home/marapovi/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/share/rust/cargo/bin
+MAIL=marapovi@student.42vienna.com
+OLDPWD=/home/marapovi/CC_minishell

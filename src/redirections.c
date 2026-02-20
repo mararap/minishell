@@ -13,6 +13,48 @@ static int	ms_open_output_file(t_redir *redir)
 	return (fd);
 }
 
+/* int	ms_check_redirections(t_redir *redirections)
+{
+	int		fd;
+	t_redir	*r;
+	int		has_error;
+
+	has_error = 0;
+	r = redirections;
+	while (r)
+	{
+		if (r->type == REDIR_IN)
+		{
+			fd = open(r->target, O_RDONLY);
+			if (fd < 0)
+			{
+				ms_perror(r->target);
+				has_error = 1;
+			}
+			else
+				close(fd);
+		}
+		else if (r->type == REDIR_OUT || r->type == REDIR_APPEND)
+		{
+			fd = ms_open_output_file(r);
+			if (fd < 0)
+				has_error = 1;
+			else
+				close(fd);
+		}
+		else if (r->type == REDIR_HEREDOC)
+		{
+			if (r->heredoc_fd < 0)
+				has_error = 1;
+		}
+		r = r->next;
+	}
+	if (has_error)
+		return (-1);
+	else
+		return (0);
+} */
+
 int	ms_apply_redirections(t_redir *redirections)
 {
 	int	fd;
