@@ -1,0 +1,257 @@
+Minishell Breaker Checklist
+
+“If this survives, your shell is solid.”
+
+1️⃣ Input & Prompt Edge Cases
+
+Press Enter on empty line
+
+Input only spaces or tabs
+
+Input only quotes:
+
+", '
+
+" "
+
+Very long input line
+
+Ctrl-D at empty prompt
+
+Ctrl-D after typing part of a command
+
+💥 Common failures:
+
+NULL deref
+
+uninitialized tokens
+
+double free on line buffer
+
+2️⃣ Quotes & Expansion Hell
+
+'single quoted $PATH' → no expansion
+
+"double quoted $PATH" → expansion
+
+"$UNSET" → empty, not crash
+
+$UNSET alone
+
+$ at end of word (echo $)
+
+$? before any command
+
+Mixed quotes: "hi '$USER'"
+
+💥 Common failures:
+
+reading freed strings
+
+off-by-one in expander
+
+UB from uninitialized status
+
+3️⃣ Environment Variables
+
+export
+
+export A=1
+
+export A=
+
+export =1
+
+export A=B=C
+
+unset A
+
+unset NOT_SET
+
+env after changes
+
+💥 Common failures:
+
+memory leaks in env list
+
+replacing env without freeing
+
+invalid identifier handling
+
+4️⃣ Command Resolution
+
+Absolute path:
+
+/bin/ls
+
+Relative path:
+
+./minishell
+
+Command not found:
+
+idontexist
+
+Empty command in pipeline:
+
+| ls
+
+ls |
+
+💥 Common failures:
+
+bad PATH split
+
+execve on NULL
+
+wrong exit code (127 vs 126)
+
+5️⃣ Pipes (Top Crash Zone)
+
+ls | wc
+
+ls | cat | wc
+
+cat | cat | cat
+
+Pipe + builtins:
+
+echo hi | wc
+
+Pipe + exit
+
+💥 Common failures:
+
+fd leaks
+
+closing wrong end
+
+children not waited
+
+parent using freed data
+
+6️⃣ Redirections (Silent Killers)
+
+echo hi > out
+
+echo hi >> out
+
+cat < out
+
+< out cat
+
+> out echo hi
+
+echo hi > out | wc
+
+Missing file:
+
+cat < nope
+
+💥 Common failures:
+
+fd leaks
+
+not restoring stdin/stdout
+
+freeing redirection too early
+
+7️⃣ Builtins (Context Matters)
+
+cd
+
+cd with no args
+
+cd ..
+
+cd /
+
+pwd
+
+exit
+
+exit 0
+
+exit 42
+
+exit abc
+
+💥 Common failures:
+
+exit in child instead of parent
+
+wrong exit status
+
+freeing shell state too early
+
+8️⃣ Signals (Evaluator Magnet)
+
+Ctrl-C at empty prompt
+
+Ctrl-C during cat
+
+Ctrl-\ during cat
+
+Ctrl-C in pipeline
+
+Ctrl-C during heredoc (if bonus)
+
+💥 Common failures:
+
+prompt printed twice
+
+shell exiting
+
+global state corruption
+
+UB in signal handler
+
+9️⃣ Exit Status Correctness
+
+true ; echo $?
+
+false ; echo $?
+
+idontexist ; echo $?
+
+cat < nope ; echo $?
+
+Ctrl-C → $? should be 130
+
+💥 Common failures:
+
+stale status
+
+uninitialized $?
+
+wrong signal mapping
+
+🔟 Cleanup & Endgame
+
+Run several commands
+
+Pipes + redirs
+
+exit
+
+Then:
+
+ASan build → zero output
+
+Valgrind:
+
+definitely lost: 0
+
+no open fds
+
+💥 Common failures:
+
+“still reachable” env
+
+leaked pipes
+
+readline leftovers mishandled
+
+One-line evaluator flex 😌
+
+“We tested systematically: input edges, expansion, pipes, redirections, signals, and verified with ASan + Valgrind.”

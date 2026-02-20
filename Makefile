@@ -6,7 +6,7 @@
 #    By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2026/01/25 20:55:39 by marapovi         ###   ########.fr        #
+#    Updated: 2026/02/16 09:57:16 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -73,7 +73,7 @@ CPPFLAGS	:=	-I include -I libft
 
 # C compiler flags - needed for compiling src files AND for linking
 # CFLAGS		:=	-Wall -Wextra -Werror -O2 -march=native -g
-CFLAGS		:=	-Wall -Wextra -Werror
+CFLAGS		:=	-Wall -Wextra -Werror -g
 
 # Flags/Options passed to the linker
 LDFLAGS		:=	-L libft
@@ -159,7 +159,7 @@ $(NAME): print_done $(OBJ) $(LIBFT)
 
 clean:
 	@$(RM) $(OBJ_DIR)
-	@echo "     🧽 MIINISHELL	= clean."
+	@echo "     🧽 MINISHELL	= clean."
 	@$(MAKE) --no-print-directory -C $(LIBFT_DIR) clean
 	@echo "     🧽 LIBFT 		= clean."
 

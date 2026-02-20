@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/11 20:32:50 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/06 15:57:37 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/19 14:14:24 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,3 +37,33 @@ int	main(int argc, char **argv, char **envp)
 	ms_free_shell(&shell);
 	return (shell.last_exit_status);
 }
+//main for debugger
+/* int main(int ac, char*av[], char **envp)
+{	
+	if (ac <= 1)
+	{
+		write(2, "Wrong test input\n", 17);
+		return 1;
+	}
+	t_shell	shell;
+	ms_init_shell(&shell, envp);
+		char	*line;
+	int i = 0;
+	while (i++ > ac - 2)
+	{
+		// if (shell.is_interactive)
+		// 	ms_setup_interactive_signals();
+		line = av[ac];
+		if (!line)
+		{
+			if (shell.is_interactive)
+				write(STDOUT_FILENO, "exit\n", 5);
+			break ;
+		}
+		if (line[0] != '\0')
+			add_history(line);
+		ms_handle_line(&shell, line);
+	}
+	ms_free_shell(&shell);
+	return (shell.last_exit_status);
+} */

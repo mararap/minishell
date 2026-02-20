@@ -7,5 +7,9 @@
     "editor.minimap.showSlider": "always",   // keep the slider visible
     "editor.minimap.side": "right",          // default side
     "editor.fontSize": 14,                    // slightly larger editor font for readability
-    "editor.lineHeight": 22                   // ensures spacing matches font
+    "editor.lineHeight": 22,                   // ensures spacing matches font
+    "[c]": {
+                "editor.defaultFormatter": "keyhr.42-c-format"
+            },
+    "editor.defaultFormatter": "keyhr.42-c-format"
 }

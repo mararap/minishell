@@ -6,7 +6,7 @@
 #    By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/25 12:39:13 by marapovi          #+#    #+#              #
-#    Updated: 2025/11/25 17:51:38 by marapovi         ###   ########.fr        #
+#    Updated: 2026/02/17 10:28:44 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -53,7 +53,9 @@ CFILES	=	ft_isalpha.c\
 			ft_putint.c\
 			ft_putusint.c\
 			ft_puthex.c\
-			ft_putptr.c
+			ft_putptr.c\
+			ft_strcmp.c\
+			ft_isspace.c
 
 OFILES	=	$(CFILES:.c=.o)
 

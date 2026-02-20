@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 11:19:25 by marapovi          #+#    #+#             */
-/*   Updated: 2025/11/25 17:54:11 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/02/17 10:28:32 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ int					ft_isdigit(int c);
 int					ft_isalnum(int c);
 int					ft_isascii(int c);
 int					ft_isprint(int c);
+int					ft_isspace(char c);
 size_t				ft_strlen(const char *s);
 size_t				ft_strlcpy(char *dest, const char *src, size_t size);
 size_t				ft_strlcat(char *dest, const char *src, size_t size);
@@ -66,5 +67,6 @@ int					ft_putint(int n);
 int					ft_putusint(unsigned int u);
 int					ft_puthex(unsigned int x, int c);
 int					ft_putptr(void *ptr);
+int					ft_strcmp(const char *s1, const char *s2);
 
 #endif // LIBFT_H

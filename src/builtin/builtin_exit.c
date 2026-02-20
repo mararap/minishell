@@ -15,6 +15,7 @@
  * - If no argument is given, the shell exits with status 0.
  * - If a single numeric argument `n` is provided, the shell exits with
  *   that value cast to an unsigned 8-bit value (0–255).
+ * - Leading white spaces will be skipped.
  * - If the first argument is not a valid integer, prints an error to
  *   stderr and exits with status 2. This covers cases like "foo" or "+"
  *   which are not numeric. :contentReference[oaicite:1]{index=1}
@@ -43,7 +44,7 @@
  */
 
 
-static int ms_is_numeric(char *str)
+/* static int ms_is_numeric(char *str)
 {
     int i;
 
@@ -51,6 +52,8 @@ static int ms_is_numeric(char *str)
         return (0);
 
     i = 0;
+    while (ft_isspace(str[i]))
+        i++;
     if (str[i] == '+' || str[i] == '-')
     {
         if (!str[i + 1] || !ft_isdigit(str[i + 1]))
@@ -64,46 +67,59 @@ static int ms_is_numeric(char *str)
         i++;
     }
     return (1);
-}
+} */
 
 static int ms_atoll_strict(const char *s, long long *out)
 {
-    long long result;
-    int sign;
+    unsigned long long  result;
+    int                 sign;
+    int                 digit;
 
     result = 0;
     sign = 1;
-
-    /* skip leading whitespace */
-    while (*s == ' ' || (*s >= 9 && *s <= 13))
+    while (*s == ' ' || (*s >= 9 && *s <= 13)) // skip leading whitespaces
         s++;
-
-    if (*s == '+' || *s == '-')
+    if (*s == '+' || *s == '-') // set sign
     {
         if (*s == '-')
             sign = -1;
         s++;
     }
-
-    if (!ft_isdigit(*s))
+    if (!ft_isdigit(*s)) // NULL-check
         return (0);
-
     while (ft_isdigit(*s))
     {
-        if (result > (9223372036854775807LL - (*s - '0')) / 10)
-            return (0); /* overflow */
-        result = result * 10 + (*s - '0');
+        digit = *s - '0';
+        if (result > (unsigned long long)(LLONG_MAX - digit) / 10)
+        {
+            if (sign == -1 && result ==
+                    (unsigned long long)LLONG_MAX / 10 && digit == 8)
+            {
+                if (!ft_isdigit(*(s + 1)))
+                {
+                    s++;
+                    while (*s == ' ' || (*s >= 9 && *s <= 13))
+                        s++;
+                    if (*s == '\0')
+                    {
+                        *out = LLONG_MIN;
+                        return (1);
+                    }
+                }
+            }
+            return (0);
+        }
+        result = result * 10 + digit;
         s++;
     }
-
-    /* skip trailing whitespace */
-    while (*s == ' ' || (*s >= 9 && *s <= 13))
+    while (*s == ' ' || (*s >= 9 && *s <= 13)) // skip trailing white spaces
         s++;
-
     if (*s != '\0')
         return (0);
-
-    *out = result * sign;
+    if (sign == -1)
+        *out = -(long long)result;
+    else
+        *out = (long long)result;
     return (1);
 }
 
@@ -117,8 +133,8 @@ int ms_builtin_exit(t_shell *shell, char **argv)
     if (isatty(STDIN_FILENO))
         write(STDOUT_FILENO, "exit\n", 5);
 
-    /* No argument OR empty string → exit 0 */
-    if (!argv[1] || argv[1][0] == '\0')
+    /* No argument -> exit 0*/
+    if (!argv[1])
         exit(0);
 
     /* Handle `exit --` */
@@ -135,7 +151,7 @@ int ms_builtin_exit(t_shell *shell, char **argv)
     }
 
     /* First argument must be numeric AND within range */
-    if (!ms_is_numeric(argv[1]) || !ms_atoll_strict(argv[1], &value))
+    if (!ms_atoll_strict(argv[1], &value) || argv[1][0] == '\0')
     {
         write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
         write(STDERR_FILENO, ": exit: ", 8);
