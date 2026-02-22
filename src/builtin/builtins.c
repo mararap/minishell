@@ -25,6 +25,8 @@ int	ms_run_builtin_child(t_shell *shell, char **argv)
 {
 	if (!argv || !argv[0])
 		return (0);
+/* 	if (ft_strncmp(argv[0], ".", 2))
+		return (ms_builtin_dot(argv)); */
 	if (ft_strncmp(argv[0], "echo", 5) == 0)
 		return (ms_builtin_echo(argv));
 	if (ft_strncmp(argv[0], "cd", 3) == 0)

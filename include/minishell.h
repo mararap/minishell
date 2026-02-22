@@ -14,6 +14,7 @@
 # include <sys/wait.h>
 # include <unistd.h>
 # include <limits.h>
+# include <sys/stat.h>
 
 /*
 ** Macros

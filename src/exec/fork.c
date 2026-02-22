@@ -69,8 +69,9 @@ static char	*ms_find_executable(t_shell *shell, char *cmd)
 
 static void	ms_exec_external_command(t_shell *shell, char **argv)
 {
-	char	*path;
-	char	**envp;
+	char		*path;
+	char		**envp;
+	struct stat	file_info;
 
 	path = ms_find_executable(shell, argv[0]);
 	if (!path)
@@ -78,12 +79,21 @@ static void	ms_exec_external_command(t_shell *shell, char **argv)
 		ms_print_command_not_found(argv[0]);
 		exit(127);
 	}
+	stat(path, &file_info);
+	if (S_ISDIR(file_info.st_mode))
+	{	
+		write (2, SHELL_NAME, ft_strlen(SHELL_NAME));
+		write (2, ": ", 2);
+		write (2, path, ft_strlen(path));
+		write (2, ": Is a directory", 16);
+		exit(126);
+	}
 	envp = ms_env_to_array_full(shell->env_list);
 	execve(path, argv, envp);
 	ms_perror(path);
 	ms_free_str_array(envp);
 	free(path);
-	exit(126);
+	exit(127);
 }
 
 static void	ms_dup_and_close(int from, int to)
