@@ -780,7 +780,7 @@ juma[n]she
 [1m[35m  10:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:26[0m  
 [1m[35m  11:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:28[0m  
 [1m[35m  12:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:30[0m  
-[1m[35m  13:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ❌[1m[31m [ minishell(139) bash(127) ][0m  [1m[36mCRASH:[0m ❌[1m[31m [ SIGSEGV ][0m  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:32[0m  
+[1m[35m  13:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:32[0m  
 [1m[35m  14:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:34[0m  
 [1m[35m  15:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:36[0m  
 [1m[35m  16:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:38[0m  
@@ -797,18 +797,18 @@ juma[n]she
 [1m[33m  # **************************************************************************** #[0m
 [1m[35m  25:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ❌[1m[31m [ minishell(126) bash(127) ][0m  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:78[0m  
 [1m[35m  26:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:80[0m  
-[1m[35m  27:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ❌[1m[31m [ minishell(139) bash(127) ][0m  [1m[36mCRASH:[0m ❌[1m[31m [ SIGSEGV ][0m  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:82[0m  
-[1m[35m  28:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ❌[1m[31m [ minishell(139) bash(127) ][0m  [1m[36mCRASH:[0m ❌[1m[31m [ SIGSEGV ][0m  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:84[0m  
-[1m[35m  29:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ❌[1m[31m [ minishell(139) bash(127) ][0m  [1m[36mCRASH:[0m ❌[1m[31m [ SIGSEGV ][0m  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:86[0m  
-[1m[35m  30:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ❌[1m[31m [ minishell(139) bash(127) ][0m  [1m[36mCRASH:[0m ❌[1m[31m [ SIGSEGV ][0m  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:88[0m  
+[1m[35m  27:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:82[0m  
+[1m[35m  28:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:84[0m  
+[1m[35m  29:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:86[0m  
+[1m[35m  30:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:88[0m  
 [1m[35m  31:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:90[0m  
 [1m[35m  32:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:92[0m  
-[1m[35m  33:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ❌[1m[31m [ minishell(139) bash(127) ][0m  [1m[36mCRASH:[0m ❌[1m[31m [ SIGSEGV ][0m  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:94[0m  
+[1m[35m  33:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:94[0m  
 [1m[35m  34:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:96[0m  
-[1m[35m  35:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ❌[1m[31m [ minishell(139) bash(127) ][0m  [1m[36mCRASH:[0m ❌[1m[31m [ SIGSEGV ][0m  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:98[0m  
+[1m[35m  35:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:98[0m  
 [1m[35m  36:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:100[0m  
-[1m[35m  37:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ❌[1m[31m [ minishell(139) bash(127) ][0m  [1m[36mCRASH:[0m ❌[1m[31m [ SIGSEGV ][0m  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:102[0m  
-[1m[35m  38:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ❌[1m[31m [ minishell(139) bash(127) ][0m  [1m[36mCRASH:[0m ❌[1m[31m [ SIGSEGV ][0m  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:104[0m  
+[1m[35m  37:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:102[0m  
+[1m[35m  38:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:104[0m  
 [1m[35m  39:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:106[0m  
 [1m[35m  40:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ❌[1m[31m [ minishell(0) bash(2) ][0m  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:108[0m  
 [1m[35m  41:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ❌[1m[31m [ minishell(0) bash(2) ][0m  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/1_scmds.sh:110[0m  
@@ -895,7 +895,7 @@ juma[n]she
 [1m[35m  24:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/2_correction.sh:53[0m  
 [1m[35m  25:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/2_correction.sh:55[0m  
 [1m[35m  26:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/2_correction.sh:58[0m  
-[1m[35m  27:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ❌  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/2_correction.sh:61[0m  
+[1m[35m  27:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/2_correction.sh:61[0m  
 [1m[35m  28:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/2_correction.sh:63[0m  
 [1m[35m  29:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/2_correction.sh:65[0m  
 [1m[35m  30:	[0m[1m[34mSTD_OUT:[0m ✅  [1m[33mSTD_ERR:[0m ✅  [1m[36mEXIT_CODE:[0m ✅  [1m[36mCRASH:[0m ✅  [90m/home/marapovi/42_minishell_tester/cmds/mand/2_correction.sh:68[0m  
@@ -1110,8 +1110,8 @@ juma[n]she
 🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁
 🏁                                    [1m[31mRESULT[0m                                    🏁
 🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁
-                     [1m[35mTOTAL TEST COUNT: 986[0m  [1m[32mTESTS PASSED: 833[0m
-              [1m[34mSTD_OUT:[0m [1m[31m35[0m  [1m[33mSTD_ERR:[0m [1m[31m131[0m  [1m[36mEXIT_CODE:[0m [1m[31m109[0m  [1m[31mCRASHING: 9[0m
+                     [1m[35mTOTAL TEST COUNT: 986[0m  [1m[32mTESTS PASSED: 843[0m
+              [1m[34mSTD_OUT:[0m [1m[31m35[0m  [1m[33mSTD_ERR:[0m [1m[31m121[0m  [1m[36mEXIT_CODE:[0m [1m[31m100[0m  [1m[32mCRASHING: 0[0m
                           [1m[33mTOTAL FAILED AND PASSED CASES:[0m
-[1m[31m                                      ❌ 284 [0m
-[1m[32m                                      ✅ 2683 [0m
+[1m[31m                                      ❌ 256 [0m
+[1m[32m                                      ✅ 2702 [0m

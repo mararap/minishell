@@ -81,6 +81,8 @@ static void	ms_exec_external_command(t_shell *shell, char **argv)
 		exit(127);
 	}
 	stat(path, &file_info);
+	if (stat(path, &file_info) == -1)
+		ms_perror(argv[0], errno);
 	if (S_ISDIR(file_info.st_mode))
 	{	
 		write (2, SHELL_NAME, ft_strlen(SHELL_NAME));
@@ -94,7 +96,7 @@ static void	ms_exec_external_command(t_shell *shell, char **argv)
 	err_no = errno;
 	ms_free_str_array(envp);
 	free(path);
-	ms_perror(argv[1], err_no);
+	ms_perror(argv[0], err_no);
 }
 
 static void	ms_dup_and_close(int from, int to)

@@ -28,18 +28,18 @@ void	ms_perror(char *arg, int err_no)
 	write (STDERR_FILENO, arg, ft_strlen(arg));
 	write (STDERR_FILENO, ": ", 2);
 	if (err_no == ENOENT)
-		perror("No such file or directory\n");
+		write (STDERR_FILENO, "No such file or directory\n", 26);
 	else if (err_no == EISDIR || err_no == ENOEXEC)
 	{
 		if (err_no == EISDIR)
-			perror("Is a directory\n");
+			write (STDERR_FILENO, "Is a directory\n", 15);
 		else
-			perror("Exec format error\n");
+			write(STDERR_FILENO, "Exec format error\n", 18);
 		exit_code = 126;
 	}
 	else
 	{
-		perror(strerror(err_no));
+		write(STDERR_FILENO, strerror(err_no), ft_strlen(strerror(err_no)));
 		write (STDERR_FILENO, "\n", 1);
 	}
 	exit (exit_code);
