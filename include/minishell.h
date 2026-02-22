@@ -169,7 +169,7 @@ void							ms_execute_child(t_shell *shell, t_command *cmd,
 /*
 ** builtins
 */
-
+int								ms_builtin_dot(t_shell *shell, char **argv);
 int								ms_builtin_echo(char **argv);
 int								ms_builtin_pwd(t_shell *shell);
 int								ms_builtin_cd(t_shell *shell, char **argv);
