@@ -295,7 +295,7 @@ int	ms_prepare_heredocs(t_shell *shell, t_command *cmds)
 				}
 				if (fd < 0)
 				{
-					ms_perror("heredoc");
+					perror("heredoc");
 					ms_close_all_heredocs(cmds);
 					return (1);
 				}

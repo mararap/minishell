@@ -72,6 +72,7 @@ static void	ms_exec_external_command(t_shell *shell, char **argv)
 	char		*path;
 	char		**envp;
 	struct stat	file_info;
+	int			err_no;
 
 	path = ms_find_executable(shell, argv[0]);
 	if (!path)
@@ -90,10 +91,10 @@ static void	ms_exec_external_command(t_shell *shell, char **argv)
 	}
 	envp = ms_env_to_array_full(shell->env_list);
 	execve(path, argv, envp);
-	ms_perror(path);
+	err_no = errno;
 	ms_free_str_array(envp);
 	free(path);
-	exit(127);
+	ms_perror(argv[1], err_no);
 }
 
 static void	ms_dup_and_close(int from, int to)
@@ -102,7 +103,7 @@ static void	ms_dup_and_close(int from, int to)
 	{
 		if (dup2(from, to) < 0)
 		{
-			ms_perror("dup2");
+			perror("dup2");
 			exit(1);
 		}
 		close(from);
@@ -138,7 +139,7 @@ int	ms_fork_and_execute(t_shell *shell, t_command *cmd,
 	pid = fork();
 	if (pid < 0)
 	{
-		ms_perror("fork");
+		perror("fork");
 		return (-1);
 	}
 	if (pid == 0)

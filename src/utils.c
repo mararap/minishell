@@ -20,9 +20,29 @@ char	*ms_strdup_safe(const char *src)
 	return (ft_strdup(src));
 }
 
-void	ms_perror(char *msg)
+void	ms_perror(char *arg, int err_no)
 {
-	perror(msg);
+	int	exit_code;
+
+	exit_code = 127;
+	write (STDERR_FILENO, arg, ft_strlen(arg));
+	write (STDERR_FILENO, ": ", 2);
+	if (err_no == ENOENT)
+		perror("No such file or directory\n");
+	else if (err_no == EISDIR || err_no == ENOEXEC)
+	{
+		if (err_no == EISDIR)
+			perror("Is a directory\n");
+		else
+			perror("Exec format error\n");
+		exit_code = 126;
+	}
+	else
+	{
+		perror(strerror(err_no));
+		write (STDERR_FILENO, "\n", 1);
+	}
+	exit (exit_code);
 }
 
 void ms_print_command_not_found(char *cmd)

@@ -157,7 +157,7 @@ int	ms_builtin_cd(t_shell *shell, char **argv)
 	old_pwd = getcwd(NULL, 0);
 	if (!old_pwd)
 	{
-		ms_perror("cd: getcwd");
+		perror("cd: getcwd");
 		return 1; // Return after the error is printed
 	}
 	if (!argv[1])

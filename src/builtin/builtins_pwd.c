@@ -17,7 +17,7 @@ int	ms_builtin_pwd(t_shell *shell)
 	cwd = getcwd(NULL, 0);
 	if (!cwd)
 	{
-		ms_perror("getcwd");
+		perror("getcwd");
 		return (1);
 	}
 	write(STDOUT_FILENO, cwd, ft_strlen(cwd));

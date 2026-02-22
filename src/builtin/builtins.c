@@ -79,7 +79,7 @@ int	ms_run_builtin_parent(t_shell *shell, t_command *cmd)
 	int	status;
 
 	if (ms_dup_stdio(&save_in, &save_out, &save_err) < 0)
-		return (ms_perror("dup"), 1);
+		return (perror("dup"), 1);
 
 	status = 0;
 	if (cmd->redirections && ms_apply_redirections(cmd->redirections) < 0)
