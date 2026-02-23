@@ -80,15 +80,17 @@ static void	ms_exec_external_command(t_shell *shell, char **argv)
 		ms_print_command_not_found(argv[0]);
 		exit(127);
 	}
-	stat(path, &file_info);
 	if (stat(path, &file_info) == -1)
 		ms_perror(argv[0], errno);
 	if (S_ISDIR(file_info.st_mode))
-	{	
-		write (2, SHELL_NAME, ft_strlen(SHELL_NAME));
-		write (2, ": ", 2);
-		write (2, path, ft_strlen(path));
-		write (2, ": Is a directory", 16);
+	{
+		if (ft_strcmp(argv[0], ".") == 0)
+		{
+			ms_print_command_not_found(argv[0]);
+			exit(127);
+		}
+		write (2, argv[0], ft_strlen(argv[0]));
+		write (2, ": Is a directory\n", 17);
 		exit(126);
 	}
 	envp = ms_env_to_array_full(shell->env_list);

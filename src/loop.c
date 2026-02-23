@@ -27,7 +27,10 @@ void	ms_handle_line(t_shell *shell, char *line)
 	commands = ms_parse_tokens(tokens);
 	ms_free_token_list(tokens);
 	if (!commands)
+	{
+		shell->last_exit_status = 2;
 		return ;
+	}
 	status = ms_prepare_heredocs(shell, commands);
 	if (status != 0)
 	{
@@ -113,6 +116,7 @@ void	ms_main_loop(t_shell *shell)
 		ms_handle_line(shell, line);
 		free(line);
 	}
+	exit(shell->last_exit_status);
 }
 
 //Origninal LOOP
