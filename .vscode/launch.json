@@ -9,7 +9,7 @@
 		"type": "cppdbg",
 		"request": "launch",
 		"program": "${workspaceFolder}/minishell",
-		"args": ["echo", "test"],
+		"args": ["/bin/env", "|", "grep", "_="],
 		"stopAtEntry": false,
 		"cwd": "${fileDirname}",
 		"environment": [],
