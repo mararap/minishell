@@ -96,8 +96,8 @@ Then: 1_scmds.sh (simple commands) 🎯
 - [x] `exit` - numeric parsing, overflow handling
 
 ### Phase 3: Execution Engine
-- [ ] `1_scmds.sh` - simple commands (fork/exec)
-- [ ] `2_path_check.sh` - PATH searching
+- [x] `1_scmds.sh` - simple commands (fork/exec)
+- [x] `2_path_check.sh` - PATH searching
 - [x] `1_redirs.sh` - file redirections (>, >>, <, <<)
 - [ ] `1_pipelines.sh` - multiple commands with pipes
 /*from www.geeksforgeeks.com: Pipes behave FIFO(First in First out), Pipe behave like a queue data structure. Size of read and write don’t have to match here. check implementation! see test case line 180 in 1_pipelines.sh*/
@@ -106,5 +106,6 @@ Then: 1_scmds.sh (simple commands) 🎯
 - [ ] `9_go_wild.sh`
 - [ ] `2_correction.sh`
 
-remove -g from Makefile (?)
+- [ ] remove -g from Makefile (?)
+- [ ] norminette & split functions / files
 

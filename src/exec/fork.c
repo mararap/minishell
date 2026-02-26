@@ -2,11 +2,13 @@
 
 static char	**ms_env_to_array_full(t_env_var *env_list)
 {
-	char	**arr;
-	int		len;
-	int		i;
-	char	*entry;
+	char		**arr;
+	int			len;
+	int			i;
+	char		*entry;
+	t_env_var	*head;
 
+	head = env_list;
 	len = 0;
 	while (env_list)
 	{
@@ -15,7 +17,7 @@ static char	**ms_env_to_array_full(t_env_var *env_list)
 	}
 	arr = (char **)ms_xmalloc(sizeof(char *) * (len + 1));
 	i = 0;
-	env_list = env_list ? env_list : NULL;
+	env_list = head;
 	while (env_list && i < len)
 	{
 		entry = ms_str_join_three(env_list->name, "=", env_list->value);
@@ -44,9 +46,15 @@ static char	*ms_find_executable(t_shell *shell, char *cmd)
 	// Get PATH from environment
 	path_env = ms_env_get_value(shell->env_list, "PATH");
 	
-	// If PATH is unset or empty, no need to split, return NULL immediately
+	// If PATH is unset, bash still checks CWD - find file there for proper 126 error
 	if (!path_env)
-		return NULL;
+	{
+		candidate = ms_str_join_three(".", "/", cmd);
+		if (access(candidate, F_OK) == 0)
+			return (candidate);
+		free(candidate);
+		return (NULL);
+	}
 	if (path_env[0] == '\0')
 	{
 		candidate = ms_str_join_three(".", "/", cmd);
