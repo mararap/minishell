@@ -37,6 +37,11 @@ void	ms_perror(char *arg, int err_no)
 			write(STDERR_FILENO, "Exec format error\n", 18);
 		exit_code = 126;
 	}
+	else if (err_no == EACCES)
+	{
+		write(STDERR_FILENO, "Permission denied\n", 18);
+		exit_code = 126;
+	}
 	else
 	{
 		write(STDERR_FILENO, strerror(err_no), ft_strlen(strerror(err_no)));

@@ -45,17 +45,29 @@ static char	*ms_find_executable(t_shell *shell, char *cmd)
 	path_env = ms_env_get_value(shell->env_list, "PATH");
 	
 	// If PATH is unset or empty, no need to split, return NULL immediately
-	if (!path_env || path_env[0] == '\0')
+	if (!path_env)
 		return NULL;
-		
+	if (path_env[0] == '\0')
+	{
+		candidate = ms_str_join_three(".", "/", cmd);
+		return (candidate);
+	}
 	paths = ft_split(path_env, ':');
 	if (!paths)
 		return (NULL);
 	i = 0;
 	while (paths[i])
 	{
-		candidate = ms_str_join_three(paths[i], "/", cmd);
+		if (paths[i][0] == '\0')
+			candidate = ms_str_join_three(".", "/", cmd);
+		else
+			candidate = ms_str_join_three(paths[i], "/", cmd);
 		if (access(candidate, X_OK) == 0)
+		{
+			ms_free_str_array(paths);
+			return (candidate);
+		}
+		if (access(candidate, F_OK) == 0)
 		{
 			ms_free_str_array(paths);
 			return (candidate);
