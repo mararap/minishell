@@ -22,12 +22,12 @@ static void ms_unmask_ifs(char *s)
 		return ;
 	while (*s)
 	{
-		if (*s == ' ')
-			*s = MS_MASK_SPACE;
-		else if (*s == '\t')
-			*s = MS_MASK_TAB;
-		else if (*s == '\n')
-			*s = MS_MASK_NL;
+		if (*s == MS_MASK_SPACE)
+			*s = ' ';
+		else if (*s == MS_MASK_TAB)
+			*s = '\t';
+		else if (*s == MS_MASK_NL)
+			*s = '\n';
 		s++;
 	}
 }

@@ -106,10 +106,12 @@ void	ms_main_loop(t_shell *shell)
 		}
 		else
 		{
-			line = ms_get_next_line(STDIN_FILENO);
-			if (!line)
+			char *raw;
+			raw = ms_get_next_line(STDIN_FILENO);
+			if (!raw)
 				break;
-			line = ft_strtrim(line, "\n");
+			line = ft_strtrim(raw, "\r\n");
+			free(raw);
 		}
 		if (isatty(STDIN_FILENO) && line[0] != '\0')
 			add_history(line);
