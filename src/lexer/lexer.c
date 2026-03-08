@@ -60,8 +60,10 @@ t_token	*ms_lex_line(t_shell *shell, char *line)
 	expect_heredoc_delim = 0;
 	while (line[i])
 	{
-		while (line[i] == ' ' || line[i] == '\t')
+		while (ft_isspace(line[i]))
 			i++;
+		if(line[i] == '#')
+			break ;
 		if (!line[i])
 			break ;
 		if (line[i] == '|')

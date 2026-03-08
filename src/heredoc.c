@@ -167,6 +167,32 @@ static char	*ms_expand_heredoc_line(t_shell *shell, char *line)
 	return (buf);
 }
 
+static void ms_hd_chomp_eol(char *s)
+{
+	size_t len;
+
+	if(!s)
+		return ;
+	len = ft_strlen(s);
+	while (len > 0 && (s[len - 1] == '\n' || s[len - 1] == '\r'))
+	{
+		s[len - 1] = '\0';
+		len--;
+	}
+}
+
+static char *ms_hd_read_line(t_shell *shell)
+{
+	char *line;
+
+	if(shell->is_interactive)
+		return (readline(HEREDOC_PROMPT));
+	line = ms_get_next_line(STDIN_FILENO);
+	if (!line)
+		ms_hd_chomp_eol(line);
+	return(line);
+}
+
 static int	ms_hd_child_loop(t_shell *shell, t_redir *r, int wfd)
 {
 	char	*line;
@@ -174,7 +200,7 @@ static int	ms_hd_child_loop(t_shell *shell, t_redir *r, int wfd)
 
 	while (1)
 	{
-		line = readline(HEREDOC_PROMPT);
+		line = ms_hd_read_line(shell);
 		if (!line)
 		{
 			write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));

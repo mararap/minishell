@@ -12,6 +12,29 @@
 
 #include "minishell.h"
 
+// Mask IFS whitespace inside quotes so it won't split later
+// These bytes are control chars that shouldn't appear in normal input
+
+# define MS_MASK_SPACE 0x1F
+# define MS_MASK_TAB 0x1E
+# define MS_MASK_NL 0x1D
+
+static void ms_mask_ifs(char *s)
+{
+	if (!s)
+		return ;
+	while (*s)
+	{
+		if (*s == ' ')
+			*s = MS_MASK_SPACE;
+		else if (*s == '\t')
+			*s = MS_MASK_TAB;
+		else if (*s == '\n')
+			*s = MS_MASK_NL;
+		s++;
+	}
+}
+
 static char	*ms_expand_variable(t_shell *shell, char *str, int *idx)
 {
 	int		start;
@@ -51,6 +74,7 @@ static char	*ms_collect_single_quotes(char *str, int *idx)
 	while (str[*idx] && str[*idx] != '\'')
 		(*idx)++;
 	tmp = ft_substr(str, start, *idx - start);
+	ms_mask_ifs(tmp);
 	if (str[*idx] == '\'')
 		(*idx)++;
 	return (tmp);
@@ -71,6 +95,7 @@ static char	*ms_collect_double_quotes(t_shell *shell, char *str, int *idx,
 		if (str[*idx] == '$' && allow_expansion)
 		{
 			tmp = ms_expand_variable(shell, str, idx);
+			ms_mask_ifs(tmp);
 			old_buf = buf;
 			buf = ft_strjoin(buf, tmp);
 			free(old_buf);
@@ -82,6 +107,7 @@ static char	*ms_collect_double_quotes(t_shell *shell, char *str, int *idx,
 			while (str[*idx] && str[*idx] != '"' && !(str[*idx] == '$' && allow_expansion))
 				(*idx)++;
 			tmp = ft_substr(str, start, *idx - start);
+			ms_mask_ifs(tmp);
 			old_buf = buf;
 			buf = ft_strjoin(buf, tmp);
 			free(old_buf);

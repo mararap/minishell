@@ -50,7 +50,7 @@ t_command	*ms_parse_tokens(t_token *token_list)
 	{
 		if (cursor->type == TOKEN_PIPE)
 		{
-			write(STDERR_FILENO, "syntax error near unexpected token `|'\n", 39);
+			ft_putstr_fd(SHELL_NAME ": syntax error near unexpected token `|'\n", STDERR_FILENO);
 			return (NULL);
 		}
 		cmd = ms_command_new();
