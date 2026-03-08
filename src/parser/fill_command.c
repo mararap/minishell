@@ -173,8 +173,15 @@ static void	ms_handle_word(t_command *cmd, t_token **cursor, t_token **tok)
 		return;
 	}
 	// Preserve empty word if it came from quotes: echo ""
-	if (word[0] == '\0' && (*tok)->quoted)
-		cmd->argv = ms_add_word_to_argv(cmd->argv, ft_strdup(""));
+	if (word[0] == '\0')
+	{
+		if ((*tok)->quoted)
+			cmd->argv = ms_add_word_to_argv(cmd->argv, ft_strdup(""));
+		free(word);
+		(*tok)->value = NULL;
+		*cursor = (*tok)->next;
+		return ;
+	}
 	
 	//If there is unmasked IFS whitespace, split into multiple argv entries 
 	else if(ft_strchr(word, ' ') || ft_strchr(word, '\t') || ft_strchr(word, '\n'))

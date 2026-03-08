@@ -126,7 +126,7 @@ static char	*ms_collect_plain_word(char *str, int *idx)
 	start = *idx;
 	while (str[*idx] && str[*idx] != ' ' && str[*idx] != '\t'
 		&& str[*idx] != '|' && str[*idx] != '<' && str[*idx] != '>'
-		&& str[*idx] != '\'' && str[*idx] != '"' && str[*idx] != '$')
+		&& str[*idx] != '\'' && str[*idx] != '"' && str[*idx] != '$' && str[*idx] != '&')
 		(*idx)++;
 	return (ft_substr(str, start, *idx - start));
 }

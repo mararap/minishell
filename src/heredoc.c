@@ -188,7 +188,7 @@ static char *ms_hd_read_line(t_shell *shell)
 	if(shell->is_interactive)
 		return (readline(HEREDOC_PROMPT));
 	line = ms_get_next_line(STDIN_FILENO);
-	if (!line)
+	if (line)
 		ms_hd_chomp_eol(line);
 	return(line);
 }
