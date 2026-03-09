@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/08 11:37:31 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/09 12:02:38 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/09 13:15:18 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,16 +198,19 @@ static int	ms_hd_child_loop(t_shell *shell, t_redir *r, int wfd)
 	char	*line;
 	char	*expanded;
 	char	*line_num_str;
+	int		cur_line;
 
+	cur_line = r->heredoc_line;
 	while (1)
 	{
 		line = ms_hd_read_line(shell);
+		cur_line++;
 		if (!line)
 		{
 			write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
 			write(STDERR_FILENO, ": warning:", 10);
 			write(STDERR_FILENO, " here-document at line ", 23);
-			line_num_str = ft_itoa(r->heredoc_line);
+			line_num_str = ft_itoa(r->heredoc_line + 1);
 			write(STDERR_FILENO, line_num_str, ft_strlen(line_num_str));
 			free(line_num_str);
 			write(STDERR_FILENO, " delimited ", 11);
@@ -240,11 +243,11 @@ static int	ms_hd_child_loop(t_shell *shell, t_redir *r, int wfd)
 			free(line);
 		}
 	}
-	return (0);
+	return (cur_line - r->heredoc_line);
 }
 
 /* returns: fd >= 0 success, -2 SIGINT, -1 error */
-static int	ms_build_one_heredoc(t_shell *shell, t_redir *r)
+static int	ms_build_one_heredoc(t_shell *shell, t_redir *r, int *lines_read)
 {
 	char	*path;
 	int		wfd;
@@ -253,6 +256,7 @@ static int	ms_build_one_heredoc(t_shell *shell, t_redir *r)
 	int		st;
 
 	path = NULL;
+	*lines_read = 0;
 	wfd = ms_hd_open_tmp(&path);
 	if (wfd < 0)
 		return (-1);
@@ -273,6 +277,8 @@ static int	ms_build_one_heredoc(t_shell *shell, t_redir *r)
 	close(wfd);
 	if (WIFSIGNALED(st) && WTERMSIG(st) == SIGINT)
 		return (unlink(path), free(path), -2);
+	if (WIFEXITED(st))
+		*lines_read = WEXITSTATUS(st);
 	rfd = open(path, O_RDONLY);
 	unlink(path);
 	free(path);
@@ -308,7 +314,10 @@ int	ms_prepare_heredocs(t_shell *shell, t_command *cmds)
 	t_command	*c;
 	t_redir		*r;
 	int			fd;
+	int			lines_read;
+	int			hd_line_num;
 
+	hd_line_num = 1;
 	c = cmds;
 	while (c)
 	{
@@ -317,8 +326,8 @@ int	ms_prepare_heredocs(t_shell *shell, t_command *cmds)
 		{
 			if (r->type == REDIR_HEREDOC)
 			{
-				r->heredoc_line = shell->input_line_num + 1;
-				fd = ms_build_one_heredoc(shell, r);
+				r->heredoc_line = hd_line_num;
+				fd = ms_build_one_heredoc(shell, r, &lines_read);
 				if (fd == -2)
 				{
 					g_signal_number = SIGINT;
@@ -332,6 +341,7 @@ int	ms_prepare_heredocs(t_shell *shell, t_command *cmds)
 					return (1);
 				}
 				r->heredoc_fd = fd;
+				hd_line_num += lines_read;
 				shell->input_line_num++;
 			}
 			r = r->next;
