@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/08 11:37:31 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/02/19 12:22:10 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/09 12:02:38 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,6 +197,7 @@ static int	ms_hd_child_loop(t_shell *shell, t_redir *r, int wfd)
 {
 	char	*line;
 	char	*expanded;
+	char	*line_num_str;
 
 	while (1)
 	{
@@ -205,7 +206,11 @@ static int	ms_hd_child_loop(t_shell *shell, t_redir *r, int wfd)
 		{
 			write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
 			write(STDERR_FILENO, ": warning:", 10);
-			write(STDERR_FILENO, " here-document at line 2 delimited ", 35);
+			write(STDERR_FILENO, " here-document at line ", 23);
+			line_num_str = ft_itoa(r->heredoc_line);
+			write(STDERR_FILENO, line_num_str, ft_strlen(line_num_str));
+			free(line_num_str);
+			write(STDERR_FILENO, " delimited ", 11);
 			write(STDERR_FILENO, "by end-of-file (wanted `", 24);
 			write(STDERR_FILENO, r->target, ft_strlen(r->target));
 			write(STDERR_FILENO, "')\n", 3);
@@ -312,6 +317,7 @@ int	ms_prepare_heredocs(t_shell *shell, t_command *cmds)
 		{
 			if (r->type == REDIR_HEREDOC)
 			{
+				r->heredoc_line = shell->input_line_num + 1;
 				fd = ms_build_one_heredoc(shell, r);
 				if (fd == -2)
 				{
@@ -326,6 +332,7 @@ int	ms_prepare_heredocs(t_shell *shell, t_command *cmds)
 					return (1);
 				}
 				r->heredoc_fd = fd;
+				shell->input_line_num++;
 			}
 			r = r->next;
 		}

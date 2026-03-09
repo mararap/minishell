@@ -71,8 +71,9 @@ typedef struct s_redir
 {
 	int							type;
 	char						*target;
-	int heredoc_fd;     /* NEW: read-fd prepared before exec */
-	int heredoc_expand; /* NEW: 1 if expand heredoc lines */
+	int 						heredoc_fd;     /* NEW: read-fd prepared before exec */
+	int 						heredoc_expand; /* NEW: 1 if expand heredoc lines */
+	int							heredoc_line; /* line where heredoc starts*/
 	struct s_redir				*next;
 }								t_redir;
 
@@ -88,6 +89,7 @@ typedef struct s_shell
 	t_env_var					*env_list;
 	int							last_exit_status;
 	int							is_interactive;
+	int							input_line_num;
 }								t_shell;
 
 /*

@@ -52,8 +52,12 @@ void	ms_perror(char *arg, int err_no)
 
 void ms_print_command_not_found(char *cmd)
 {
-	write(STDERR_FILENO, cmd, ft_strlen(cmd));
-    write(STDERR_FILENO, ": command not found\n", 20);
+	char	*msg;
+
+	msg = ms_str_join_three(cmd, ": command not found\n", "");
+	if (!msg)
+		return ;
+	write(STDERR_FILENO, msg, ft_strlen(msg));
 }
 
 size_t	ms_str_arr_len(char **arr)

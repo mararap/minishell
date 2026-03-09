@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/25 20:53:48 by marapovi          #+#    #+#             */
-/*   Updated: 2026/01/25 21:26:11 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/09 11:57:48 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,7 @@ static t_redir	*ms_create_redir(int type, char *target, int heredoc_expand)
 	redir->target = target;
 	redir->heredoc_fd = -1;
 	redir->heredoc_expand = heredoc_expand;
+	redir->heredoc_line = 0;
 	redir->next = NULL;
 	return (redir);
 }

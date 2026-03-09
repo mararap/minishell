@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/16 16:10:01 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/09 11:34:06 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/09 12:02:51 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ void	ms_init_shell(t_shell *shell, char **envp)
 	}
 	shell->last_exit_status = 0;
 	shell->is_interactive = 0;
+	shell->input_line_num = 1;
 	rl_signal_event_hook = ms_rl_event_hook;
 }
 
