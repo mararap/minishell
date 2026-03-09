@@ -100,6 +100,7 @@ static void	ms_exec_external_command(t_shell *shell, char **argv)
 		ms_print_command_not_found(argv[0]);
 		exit(127);
 	}
+	ms_env_set(&shell->env_list, "_", path, 1); //update env-var '_'
 	if (stat(path, &file_info) == -1)
 		ms_perror(argv[0], errno);
 	if (S_ISDIR(file_info.st_mode))

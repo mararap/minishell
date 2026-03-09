@@ -3,4 +3,6 @@ obj/
 *.txt
 minishell
 .clangd
-
+mstest_output*/
+libft/*.o
+libft/*.a
