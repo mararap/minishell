@@ -9,10 +9,7 @@ static int	ms_open_output_file(t_redir *redir)
 	else
 		fd = open(redir->target, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd < 0)
-	{
-		ft_putstr_fd(SHELL_NAME ": ", STDERR_FILENO);
 		perror(redir->target);
-	}
 	return (fd);
 }
 
@@ -27,8 +24,6 @@ int	ms_apply_redirections(t_redir *redirections)
 			fd = open(redirections->target, O_RDONLY);
 			if (fd < 0)
 			{
-				//perror(redirections->target);
-				ft_putstr_fd(SHELL_NAME ": ", STDERR_FILENO);
 				perror(redirections->target);
 				return (-1);
 			}

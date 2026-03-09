@@ -50,7 +50,7 @@ int	ms_create_pipe_if_needed(t_command *cmd, int pipe_fd[2])
 		return (0);
 	if (pipe(pipe_fd) < 0)
 	{
-		perror("pipe");
+		perror("pipe\n");
 		return (-1);
 	}
 	return (1);
@@ -75,7 +75,7 @@ int	ms_pipeline_error(pid_t *pids, int prev_read)
 		free(pids);
 	if (prev_read != STDIN_FILENO)
 		close(prev_read);
-	perror("pipeline");
+	perror("pipeline\n");
 	return (1);
 }
 
@@ -146,14 +146,14 @@ int	ms_execute_pipeline(t_shell *shell, t_command *command_list)
 		{
 			if (pipe(pipe_fd) < 0)
 			{
-				perror("pipe");
+				perror("pipe\n");
 				return (ms_abort_pipeline(shell, pids, i, prev_read, pipe_fd));
 			}
 		}
 		pids[i] = fork();
 		if (pids[i] < 0)
 		{
-			perror("fork");
+			perror("fork\n");
 			return (ms_abort_pipeline(shell, pids, i, prev_read, pipe_fd));
 		}
 		if (pids[i] == 0)

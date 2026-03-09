@@ -128,7 +128,7 @@ static void	ms_dup_and_close(int from, int to)
 	{
 		if (dup2(from, to) < 0)
 		{
-			perror("dup2");
+			perror("dup2\n");
 			exit(1);
 		}
 		close(from);
@@ -164,7 +164,7 @@ int	ms_fork_and_execute(t_shell *shell, t_command *cmd,
 	pid = fork();
 	if (pid < 0)
 	{
-		perror("fork");
+		perror("fork\n");
 		return (-1);
 	}
 	if (pid == 0)
