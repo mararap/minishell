@@ -58,6 +58,7 @@ void ms_print_command_not_found(char *cmd)
 	if (!msg)
 		return ;
 	write(STDERR_FILENO, msg, ft_strlen(msg));
+	free(msg);
 }
 
 size_t	ms_str_arr_len(char **arr)

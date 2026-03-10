@@ -42,4 +42,5 @@ void	ms_free_shell(t_shell *shell)
 {
 	ms_env_free_list(&shell->env_list);
 	shell->env_list = NULL;
+	rl_clear_history();
 }

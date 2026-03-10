@@ -267,6 +267,7 @@ static int	ms_build_one_heredoc(t_shell *shell, t_redir *r, int *lines_read)
 		ms_setup_child_signals();
 		st = ms_hd_child_loop(shell, r, wfd);
 		close(wfd);
+		free(path);
 		exit(st);
 	}
 	if (pid < 0)

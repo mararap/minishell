@@ -51,11 +51,16 @@ t_command	*ms_parse_tokens(t_token *token_list)
 		if (cursor->type == TOKEN_PIPE)
 		{
 			ft_putstr_fd(SHELL_NAME ": syntax error near unexpected token `|'\n", STDERR_FILENO);
+			ms_free_command_list(cmds);
 			return (NULL);
 		}
 		cmd = ms_command_new();
 		if (ms_fill_command(cmd, &cursor) < 0)
+		{
+			ms_free_command_list(cmd);
+			ms_free_command_list(cmds);
 			return (NULL);
+		}
 		ms_command_add_back(&cmds, cmd);
 		if (cursor && cursor->type == TOKEN_PIPE)
 			cursor = cursor->next;

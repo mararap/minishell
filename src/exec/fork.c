@@ -102,16 +102,22 @@ static void	ms_exec_external_command(t_shell *shell, char **argv)
 	}
 	ms_env_set(&shell->env_list, "_", path, 1); //update env-var '_'
 	if (stat(path, &file_info) == -1)
-		ms_perror(argv[0], errno);
+	{
+		err_no = errno;
+		free(path);
+		ms_perror(argv[0], err_no);
+	}
 	if (S_ISDIR(file_info.st_mode))
 	{
 		if (ft_strcmp(argv[0], ".") == 0)
 		{
 			ms_print_command_not_found(argv[0]);
+			free(path);
 			exit(127);
 		}
 		write (2, argv[0], ft_strlen(argv[0]));
 		write (2, ": Is a directory\n", 17);
+		free(path);
 		exit(126);
 	}
 	envp = ms_env_to_array_full(shell->env_list);
