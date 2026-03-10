@@ -91,6 +91,7 @@ typedef struct s_shell
 	int							is_interactive;
 	int							input_line_num;
 	int							should_exit;
+	pid_t						main_pid;
 }								t_shell;
 
 /*

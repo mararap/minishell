@@ -90,7 +90,7 @@ void	ms_main_loop(t_shell *shell)
 {
 	char	*line;
 
-	while(1)
+	while(!shell->should_exit)
 	{
 		if (shell->is_interactive)
 			ms_setup_interactive_signals();

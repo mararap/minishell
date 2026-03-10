@@ -34,6 +34,7 @@ void	ms_init_shell(t_shell *shell, char **envp)
 	shell->is_interactive = 0;
 	shell->input_line_num = 1;
 	shell->should_exit = 0;
+	shell->main_pid = getpid();
 	rl_signal_event_hook = ms_rl_event_hook;
 }
 

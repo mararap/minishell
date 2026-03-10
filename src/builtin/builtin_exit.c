@@ -131,7 +131,8 @@ int ms_builtin_exit(t_shell *shell, char **argv)
     //(void)shell;
 
     /* Bash prints "exit" only in interactive shells */
-    if (isatty(STDIN_FILENO))
+    //if (isatty(STDIN_FILENO))
+    if (shell->is_interactive && getpid() == shell->main_pid)
         write(STDOUT_FILENO, "exit\n", 5);
 
     /* No argument -> exit status of last command */
