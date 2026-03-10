@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/24 19:51:20 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/14 20:56:02 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/10 13:10:15 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ static char	*ms_collect_plain_word(char *str, int *idx)
 	start = *idx;
 	while (str[*idx] && str[*idx] != ' ' && str[*idx] != '\t'
 		&& str[*idx] != '|' && str[*idx] != '<' && str[*idx] != '>'
-		&& str[*idx] != '\'' && str[*idx] != '"' && str[*idx] != '$' && str[*idx] != '&')
+		&& str[*idx] != '\'' && str[*idx] != '"' && str[*idx] != '$')
 		(*idx)++;
 	return (ft_substr(str, start, *idx - start));
 }

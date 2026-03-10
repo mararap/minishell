@@ -126,16 +126,22 @@ static int ms_atoll_strict(const char *s, long long *out)
 int ms_builtin_exit(t_shell *shell, char **argv)
 {
     long long value;
+    int       status;
 
-    (void)shell;
+    //(void)shell;
 
     /* Bash prints "exit" only in interactive shells */
     if (isatty(STDIN_FILENO))
         write(STDOUT_FILENO, "exit\n", 5);
 
-    /* No argument -> exit 0*/
+    /* No argument -> exit status of last command */
     if (!argv[1])
-        exit(0);
+    {
+        status = shell->last_exit_status;
+        shell->should_exit = 1;
+        return (status);
+    }
+    //    exit(0);
 
     /* Handle `exit --` */
     if (ft_strncmp(argv[1], "--", 3) == 0)
@@ -147,7 +153,10 @@ int ms_builtin_exit(t_shell *shell, char **argv)
             write(STDERR_FILENO, "too many arguments\n", 19);
             return (1);
         }
-        exit(0);
+    //    exit(0);
+    status = shell->last_exit_status;
+    shell->should_exit = 1;
+    return (status);
     }
 
     /* First argument must be numeric AND within range */
@@ -157,7 +166,9 @@ int ms_builtin_exit(t_shell *shell, char **argv)
         write(STDERR_FILENO, ": exit: ", 8);
         write(STDERR_FILENO, argv[1], ft_strlen(argv[1]));
         write(STDERR_FILENO, ": numeric argument required\n", 28);
-        exit(2);
+    //    exit(2);
+        shell->should_exit = 1;
+        return (2);
     }
 
     /* Too many arguments → error, do NOT exit */
@@ -170,5 +181,8 @@ int ms_builtin_exit(t_shell *shell, char **argv)
     }
 
     /* Valid single numeric argument */
-    exit((unsigned char)value);
+    //exit((unsigned char)value);
+    status = (unsigned char)value;
+    shell->should_exit = 1;
+    return (status);
 }

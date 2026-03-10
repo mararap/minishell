@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/18 21:03:30 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/09 11:57:28 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/10 13:28:07 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,8 +118,11 @@ void	ms_main_loop(t_shell *shell)
 		ms_handle_line(shell, line);
 		free(line);
 		shell->input_line_num++;
+		if (shell->should_exit)
+			break ;
 	}
-	exit(shell->last_exit_status);
+	//exit(shell->last_exit_status);
+	return ;
 }
 
 //Origninal LOOP

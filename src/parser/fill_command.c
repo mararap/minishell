@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/25 20:53:48 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/09 11:57:48 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/10 13:38:34 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 # define MS_MASK_TAB 0x1E
 # define MS_MASK_NL 0x1D
 
-static void ms_unmask_ifs(char *s)
+static void ms_unmask_ifs(char *s) //ifs = internal field seperator
 {
 	if (!s)
 		return ;
@@ -72,7 +72,7 @@ static char **ms_split_ifs_fields(const char *s)
 		while (s[i] && !ms_is_ifs_delim(s[i]))
 			i++;
 		out[j] = ft_substr(s, start, i - start);
-		if (!out)
+		if (!out[j])
 		{
 			write(STDERR_FILENO, SHELL_NAME ": malloc failed\n", 24);
 			exit(1);

@@ -90,6 +90,7 @@ typedef struct s_shell
 	int							last_exit_status;
 	int							is_interactive;
 	int							input_line_num;
+	int							should_exit;
 }								t_shell;
 
 /*
