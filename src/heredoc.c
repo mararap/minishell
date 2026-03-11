@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/08 11:37:31 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/09 13:15:18 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/11 11:53:20 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,7 +247,8 @@ static int	ms_hd_child_loop(t_shell *shell, t_redir *r, int wfd)
 }
 
 /* returns: fd >= 0 success, -2 SIGINT, -1 error */
-static int	ms_build_one_heredoc(t_shell *shell, t_redir *r, int *lines_read)
+static int	ms_build_one_heredoc(t_shell *shell, t_command *cmds,
+	t_redir *r, int *lines_read)
 {
 	char	*path;
 	int		wfd;
@@ -267,6 +268,13 @@ static int	ms_build_one_heredoc(t_shell *shell, t_redir *r, int *lines_read)
 		ms_setup_child_signals();
 		st = ms_hd_child_loop(shell, r, wfd);
 		close(wfd);
+		if (shell->current_line)
+		{
+			free(shell->current_line);
+			shell->current_line = NULL;
+		}
+		ms_free_command_list(cmds);
+		ms_free_shell(shell);
 		free(path);
 		exit(st);
 	}
@@ -328,7 +336,7 @@ int	ms_prepare_heredocs(t_shell *shell, t_command *cmds)
 			if (r->type == REDIR_HEREDOC)
 			{
 				r->heredoc_line = hd_line_num;
-				fd = ms_build_one_heredoc(shell, r, &lines_read);
+				fd = ms_build_one_heredoc(shell, cmds, r, &lines_read);
 				if (fd == -2)
 				{
 					g_signal_number = SIGINT;

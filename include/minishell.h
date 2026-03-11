@@ -159,6 +159,7 @@ void							ms_free_command_list(t_command *command_list);
 int								ms_execute_pipeline(t_shell *shell,
 									t_command *command_list);
 int								ms_is_builtin(char *cmd_name);
+int							ms_builtin_needs_parent(char *cmd_name);
 int								ms_run_builtin_parent(t_shell *shell,
 									t_command *cmd);
 int								ms_run_builtin_child(t_shell *shell,

@@ -21,6 +21,21 @@ int	ms_is_builtin(char *cmd_name)
 	return (0);
 }
 
+int	ms_builtin_needs_parent(char *cmd_name)
+{
+	if (!cmd_name)
+		return (0);
+	if (ft_strncmp(cmd_name, "cd", 3) == 0)
+		return (1);
+	if (ft_strncmp(cmd_name, "export", 7) == 0)
+		return (1);
+	if (ft_strncmp(cmd_name, "unset", 6) == 0)
+		return (1);
+	if (ft_strncmp(cmd_name, "exit", 5) == 0)
+		return (1);
+	return (0);
+}
+
 int	ms_run_builtin_child(t_shell *shell, char **argv)
 {
 	if (!argv || !argv[0])

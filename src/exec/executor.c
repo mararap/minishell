@@ -124,7 +124,8 @@ int	ms_execute_pipeline(t_shell *shell, t_command *command_list)
 		cmd = cmd->next;
 	}
 	if (cmd_count == 1 && command_list->argv
-		&& ms_is_builtin(command_list->argv[0]))
+		&& ms_is_builtin(command_list->argv[0])
+		&& ms_builtin_needs_parent(command_list->argv[0]))
 		return (ms_run_builtin_parent(shell, command_list));
 
 	pids = (pid_t *)ms_xmalloc(sizeof(pid_t) * cmd_count);
