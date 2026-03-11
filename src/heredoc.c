@@ -54,7 +54,7 @@ static int	ms_hd_open_tmp(char **out_path)
 		counter++;
 		if (!path)
 			return (-1);
-		fd = open(path, O_CREAT | O_EXCL | O_WRONLY, 0600);
+		fd = open(path, O_CREAT | O_EXCL | O_WRONLY | O_CLOEXEC, 0600);
 		if (fd >= 0)
 		{
 			*out_path = path;
@@ -288,7 +288,7 @@ static int	ms_build_one_heredoc(t_shell *shell, t_command *cmds,
 		return (unlink(path), free(path), -2);
 	if (WIFEXITED(st))
 		*lines_read = WEXITSTATUS(st);
-	rfd = open(path, O_RDONLY);
+	rfd = open(path, O_RDONLY | O_CLOEXEC);
 	unlink(path);
 	free(path);
 	if (rfd < 0)

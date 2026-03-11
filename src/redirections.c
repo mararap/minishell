@@ -41,7 +41,13 @@ int	ms_apply_redirections(t_redir *redirections)
 			fd = ms_open_output_file(redirections);
 			if (fd < 0)
 				return (-1);
-			dup2(fd, STDOUT_FILENO);
+			//dup2(fd, STDOUT_FILENO);
+			if (dup2(fd, STDOUT_FILENO) < 0)
+			{
+				perror("dup2");
+				close(fd);
+				return (-1);
+			}
 			close(fd);
 		}
 		else if (redirections->type == REDIR_HEREDOC)
@@ -49,8 +55,17 @@ int	ms_apply_redirections(t_redir *redirections)
 			fd = redirections->heredoc_fd;
 			if (fd < 0)
 				return (-1);
-			dup2(fd, STDIN_FILENO);
+			//dup2(fd, STDIN_FILENO);
+			//close(fd);
+			if (dup2(fd, STDIN_FILENO) < 0)
+			{
+				perror("dup2");
+				close(fd);
+				redirections->heredoc_fd = -1;
+				return (-1);
+			}
 			close(fd);
+			redirections->heredoc_fd = -1;
 		}
 		redirections = redirections->next;
 	}

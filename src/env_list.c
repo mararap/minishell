@@ -64,7 +64,7 @@ static t_env_var	*ms_env_new_node(char *name, char *value,
 	if (value != NULL)
 		node->value = ms_strdup_safe(value);
 	else
-		node->value = NULL;
+		node->value = ms_strdup_safe("");
 
 	node->exported = exported;
 	node->next = NULL;

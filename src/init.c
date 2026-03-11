@@ -12,6 +12,28 @@
 
 #include "minishell.h"
 
+static void ms_bootstrap_env(t_shell *shell)
+{
+	char *cwd;
+
+	//Ensure PWD exists even when started with env -i
+	if (!ms_env_get_value(shell->env_list, "PWD"))
+	{
+		cwd = getcwd(NULL, 0);
+		if (cwd)
+		{
+			ms_env_set(&shell->env_list, "PWD", cwd, 1);
+			free(cwd);
+		}
+	}
+
+	//Optional: when env -i compability
+	if (!ms_env_get_value(shell->env_list, "SHLVL"))
+		ms_env_set(&shell->env_list, "SHLVL", "1", 1);
+	if (!ms_env_get_value(shell->env_list, "PATH"))
+		ms_env_set(&shell->env_list, "PATH", "/usr/local/bin:/usr/bin:/bin", 1);
+}
+
 void	ms_init_shell(t_shell *shell, char **envp)
 {
 	char	*shlvl_str;
@@ -19,6 +41,7 @@ void	ms_init_shell(t_shell *shell, char **envp)
 	char	*new_shlvl;
 	
 	shell->env_list = ms_env_from_environ(envp);
+	ms_bootstrap_env(shell);
 	if (isatty(STDIN_FILENO))
 	{
 		shlvl_str = ms_env_get_value(shell->env_list, "SHLVL");
