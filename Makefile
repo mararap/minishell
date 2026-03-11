@@ -6,7 +6,7 @@
 #    By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2026/02/16 09:57:16 by marapovi         ###   ########.fr        #
+#    Updated: 2026/03/11 18:59:38 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -116,8 +116,13 @@ SRC				:=		main.c\
 						lexer/collect_word.c\
 						lexer/token_utils.c\
 						loop.c\
+						expand/ifs_split.c\
 						parser/parser.c\
+						parser/parser_helpers.c\
 						parser/fill_command.c\
+						parser/handle_words.c\
+						parser/handle_redirs.c\
+						parser/free_command.c\
 						redirections.c\
 						heredoc.c \
 						signals.c\
@@ -144,7 +149,7 @@ print_done:
 libft_always:
 	@$(MAKE) --no-print-directory -C $(LIBFT_DIR);
 
-vpath %.c $(SRC_DIR) $(SRC_DIR)/lexer $(SRC_DIR)/parser $(SRC_DIR)/exec $(SRC_DIR)/builtin
+vpath %.c $(SRC_DIR) $(SRC_DIR)/lexer $(SRC_DIR)/parser $(SRC_DIR)/exec $(SRC_DIR)/builtin $(SRC_DIR)/expand
 
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(OBJ_DIR)

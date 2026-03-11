@@ -140,6 +140,10 @@ int								ms_prepare_heredocs(t_shell *shell,
 									t_command *cmds);
 void							ms_token_add_back(t_token **list,
 									t_token *new_tok);
+void							ms_print_syntax_error(t_token *tok);
+t_redir							*ms_create_redir(int type, char *target, int heredoc_expand);
+void							ms_redir_add_back(t_redir **list, t_redir *new_redir);
+int								ms_token_to_redir_type(t_token_type t);
 t_token							*ms_token_new(t_token_type type, char *value,
 									int quoted);
 char							*ms_collect_word(t_shell *shell, char *str,
@@ -148,6 +152,12 @@ char							*ms_collect_word(t_shell *shell, char *str,
 t_token							*ms_lex_line(t_shell *shell, char *line);
 void							ms_free_token_list(t_token *token_list);
 t_command						*ms_parse_tokens(t_token *token_list);
+char							**ms_split_ifs_fields(const char *s);
+void							ms_unmask_ifs(char *s);
+void							ms_handle_word(t_command *cmd, t_token **cursor,
+									t_token *tok);
+int								ms_process_redir_token(t_command *cmd, t_token **cursor,
+									t_token *tok);
 int								ms_fill_command(t_command *cmd,
 									t_token **cursor);
 void							ms_free_command_list(t_command *command_list);
@@ -159,7 +169,7 @@ void							ms_free_command_list(t_command *command_list);
 int								ms_execute_pipeline(t_shell *shell,
 									t_command *command_list);
 int								ms_is_builtin(char *cmd_name);
-int							ms_builtin_needs_parent(char *cmd_name);
+int								ms_builtin_needs_parent(char *cmd_name);
 int								ms_run_builtin_parent(t_shell *shell,
 									t_command *cmd);
 int								ms_run_builtin_child(t_shell *shell,
