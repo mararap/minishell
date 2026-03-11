@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/16 16:10:01 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/10 13:26:15 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/11 10:43:58 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ void	ms_init_shell(t_shell *shell, char **envp)
 	shell->input_line_num = 1;
 	shell->should_exit = 0;
 	shell->main_pid = getpid();
+	shell->current_line = NULL;
 	rl_signal_event_hook = ms_rl_event_hook;
 }
 

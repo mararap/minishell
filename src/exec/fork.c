@@ -87,7 +87,37 @@ static char	*ms_find_executable(t_shell *shell, char *cmd)
 	return (NULL);
 }
 
-static void	ms_exec_external_command(t_shell *shell, char **argv)
+static int	ms_exec_error_code(char *arg, int err_no)
+{
+	int	exit_code;
+
+	exit_code = 127;
+	write(STDERR_FILENO, arg, ft_strlen(arg));
+	write(STDERR_FILENO, ": ", 2);
+	if (err_no == ENOENT)
+		write(STDERR_FILENO, "No such file or directory\n", 26);
+	else if (err_no == EISDIR || err_no == ENOEXEC)
+	{
+		if (err_no == EISDIR)
+			write(STDERR_FILENO, "Is a directory\n", 15);
+		else
+			write(STDERR_FILENO, "Exec format error\n", 18);
+		exit_code = 126;
+	}
+	else if (err_no == EACCES)
+	{
+		write(STDERR_FILENO, "Permission denied\n", 18);
+		exit_code = 126;
+	}
+	else
+	{
+		write(STDERR_FILENO, strerror(err_no), ft_strlen(strerror(err_no)));
+		write(STDERR_FILENO, "\n", 1);
+	}
+	return (exit_code);
+}
+
+static int	ms_exec_external_command(t_shell *shell, char **argv)
 {
 	char		*path;
 	char		**envp;
@@ -98,14 +128,14 @@ static void	ms_exec_external_command(t_shell *shell, char **argv)
 	if (!path)
 	{
 		ms_print_command_not_found(argv[0]);
-		exit(127);
+		return (127);
 	}
 	ms_env_set(&shell->env_list, "_", path, 1); //update env-var '_'
 	if (stat(path, &file_info) == -1)
 	{
 		err_no = errno;
 		free(path);
-		ms_perror(argv[0], err_no);
+		return (ms_exec_error_code(argv[0], err_no));
 	}
 	if (S_ISDIR(file_info.st_mode))
 	{
@@ -113,56 +143,78 @@ static void	ms_exec_external_command(t_shell *shell, char **argv)
 		{
 			ms_print_command_not_found(argv[0]);
 			free(path);
-			exit(127);
+			return (127);
 		}
 		write (2, argv[0], ft_strlen(argv[0]));
 		write (2, ": Is a directory\n", 17);
 		free(path);
-		exit(126);
+		return (126);
 	}
 	envp = ms_env_to_array_full(shell->env_list);
 	execve(path, argv, envp);
 	err_no = errno;
 	ms_free_str_array(envp);
 	free(path);
-	ms_perror(argv[0], err_no);
+	return (ms_exec_error_code(argv[0], err_no));
 }
 
-static void	ms_dup_and_close(int from, int to)
+static int	ms_dup_and_close(int from, int to)
 {
 	if (from != to)
 	{
 		if (dup2(from, to) < 0)
-		{
-			perror("dup2\n");
-			exit(1);
-		}
+			return (-1);
 		close(from);
 	}
+	return (0);
 }
 
-void	ms_execute_child(t_shell *shell, t_command *cmd,
+static void	ms_child_exit(t_shell *shell, t_command *cmd_list, int status)
+{
+	if (shell && shell->current_line)
+	{
+		free(shell->current_line);
+		shell->current_line = NULL;
+	}
+	if (cmd_list)
+		ms_free_command_list(cmd_list);
+	if (shell)
+		ms_free_shell(shell);
+	close(STDIN_FILENO);
+	close(STDOUT_FILENO);
+	close(STDERR_FILENO);
+	exit(status);
+}
+
+void	ms_execute_child(t_shell *shell, t_command *cmd_list, t_command *cmd,
 			int in_fd, int out_fd)
 {
+	int	status;
+
 	ms_setup_child_signals();
 
-	ms_dup_and_close(in_fd, STDIN_FILENO);
-	ms_dup_and_close(out_fd, STDOUT_FILENO);
+	if (ms_dup_and_close(in_fd, STDIN_FILENO) < 0)
+		ms_child_exit(shell, cmd_list, 1);
+	if (ms_dup_and_close(out_fd, STDOUT_FILENO) < 0)
+		ms_child_exit(shell, cmd_list, 1);
 	if (ms_apply_redirections(cmd->redirections) < 0)
-		exit(1);
+		ms_child_exit(shell, cmd_list, 1);
 	if (!cmd->argv || !cmd->argv[0])
-		exit(0);
+		ms_child_exit(shell, cmd_list, 0);
 	if (ms_is_builtin(cmd->argv[0]))
-		exit(ms_run_builtin_child(shell, cmd->argv));
-	ms_exec_external_command(shell, cmd->argv);
-	exit(127);
+	{
+		status = ms_run_builtin_child(shell, cmd->argv);
+		ms_child_exit(shell, cmd_list, status);
+	}
+	status = ms_exec_external_command(shell, cmd->argv);
+	ms_child_exit(shell, cmd_list, status);
 }
 
 //Juliyan to check pipe_fd
 //         write()                    read()
 //    pipe_fd[1]  ─────────▶  pipe_fd[0]
 
-int	ms_fork_and_execute(t_shell *shell, t_command *cmd,
+int	ms_fork_and_execute(t_shell *shell, t_command *cmd_list, t_command *cmd,
 	int prev_read, int pipe_fd[2])
 {
 	pid_t	pid;
@@ -178,7 +230,7 @@ int	ms_fork_and_execute(t_shell *shell, t_command *cmd,
 		ms_setup_child_signals();
 		if (cmd->next)
 			close(pipe_fd[0]);
-		ms_execute_child(shell, cmd, prev_read,
+		ms_execute_child(shell, cmd_list, cmd, prev_read,
 			cmd->next ? pipe_fd[1] : STDOUT_FILENO);
 	}
 	return (pid);

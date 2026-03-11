@@ -158,9 +158,10 @@ int	ms_execute_pipeline(t_shell *shell, t_command *command_list)
 		}
 		if (pids[i] == 0)
 		{
+			free(pids);
 			if (pipe_fd[0] >= 0)
 				close(pipe_fd[0]);
-			ms_execute_child(shell, cmd, prev_read, \
+			ms_execute_child(shell, command_list, cmd, prev_read, \
 				(cmd->next ? pipe_fd[1] : STDOUT_FILENO));
 			exit(1);
 		}

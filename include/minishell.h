@@ -92,6 +92,7 @@ typedef struct s_shell
 	int							input_line_num;
 	int							should_exit;
 	pid_t						main_pid;
+	char						*current_line;
 }								t_shell;
 
 /*
@@ -165,9 +166,10 @@ int								ms_run_builtin_child(t_shell *shell,
 int								ms_check_redirections(t_redir *redirections);
 int								ms_apply_redirections(t_redir *redirections);
 int								ms_fork_and_execute(t_shell *shell,
-									t_command *cmd, int prev_read,
+									t_command *cmd_list, t_command *cmd, int prev_read,
 									int pipe_fd[2]);
-void							ms_execute_child(t_shell *shell, t_command *cmd,
+void							ms_execute_child(t_shell *shell, t_command *cmd_list,
+									t_command *cmd,
 									int in_fd, int out_fd);
 
 /*

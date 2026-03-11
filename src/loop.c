@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/18 21:03:30 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/10 13:28:07 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/11 10:43:58 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,8 +115,10 @@ void	ms_main_loop(t_shell *shell)
 		}
 		if (isatty(STDIN_FILENO) && line[0] != '\0')
 			add_history(line);
+		shell->current_line = line;
 		ms_handle_line(shell, line);
 		free(line);
+		shell->current_line = NULL;
 		shell->input_line_num++;
 		if (shell->should_exit)
 			break ;

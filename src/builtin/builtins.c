@@ -48,7 +48,15 @@ static int	ms_dup_stdio(int *save_in, int *save_out, int *save_err)
 	*save_out = dup(STDOUT_FILENO);
 	*save_err = dup(STDERR_FILENO);
 	if (*save_in < 0 || *save_out < 0 || *save_err < 0)
+	{
+		if (*save_in >= 0)
+			close(*save_in);
+		if (*save_out >= 0)
+			close(*save_out);
+		if (*save_err >= 0)
+			close(*save_err);
 		return (-1);
+	}
 	return (0);
 }
 
