@@ -118,6 +118,11 @@ static void	ms_print_export_format(t_env_var *env_list)
 			i++;
 			continue;
 		}
+		if (arr[i]->exported == 0)
+		{
+			i++;
+			continue;
+		}
 		ft_putstr_fd("export ", 1);
 		ft_putstr_fd(arr[i]->name, 1);
 		if (arr[i]->value && arr[i]->value[0] != '\0') //only if value exists

@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-static char	**ms_env_to_array_full(t_env_var *env_list)
+/* static char	**ms_env_to_array_full(t_env_var *env_list)
 {
 	char		**arr;
 	int			len;
@@ -27,7 +27,7 @@ static char	**ms_env_to_array_full(t_env_var *env_list)
 	}
 	arr[i] = NULL;
 	return (arr);
-}
+} */
 
 static char	*ms_find_executable(t_shell *shell, char *cmd)
 {
@@ -150,7 +150,7 @@ static int	ms_exec_external_command(t_shell *shell, char **argv)
 		free(path);
 		return (126);
 	}
-	envp = ms_env_to_array_full(shell->env_list);
+	envp = ms_env_to_array(shell->env_list);
 	execve(path, argv, envp);
 	err_no = errno;
 	ms_free_str_array(envp);

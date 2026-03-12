@@ -59,7 +59,7 @@ int	ms_builtin_env(t_shell *shell, char **argv)
 	iter = shell->env_list;
 	while (iter)
 	{
-		if (iter->value)
+		if (iter->value && iter->exported == 1)
 			print_env_entry(iter->name, iter->value);
 		iter = iter->next;
 	}

@@ -21,7 +21,7 @@
 
 #include "minishell.h"
 
-//this should be moved to utils.c
+// this should be moved to utils.c
 /*
 ** is_valid_name
 **
@@ -50,25 +50,20 @@ int	is_valid_name(const char *s)
 	return (1);
 }
 
-static t_env_var	*ms_env_new_node(char *name, char *value,
-	int exported)
+static t_env_var	*ms_env_new_node(char *name, char *value, int exported)
 {
 	t_env_var	*node;
 
 	if (name == NULL || is_valid_name(name) == 0)
 		return (NULL);
-
 	node = ms_xmalloc(sizeof(t_env_var));
 	node->name = ms_strdup_safe(name);
-
 	if (value != NULL)
 		node->value = ms_strdup_safe(value);
 	else
 		node->value = ms_strdup_safe("");
-
 	node->exported = exported;
 	node->next = NULL;
-
 	return (node);
 }
 
@@ -172,14 +167,13 @@ char	*ms_env_get_value(t_env_var *env_list, char *name)
 	len = ft_strlen(name);
 	while (env_list != NULL)
 	{
-		if (ft_strlen(env_list->name) == len
-			&& ft_strncmp(env_list->name, name, len) == 0)
+		if (ft_strlen(env_list->name) == len && ft_strncmp(env_list->name, name,
+				len) == 0)
 			return (env_list->value);
 		env_list = env_list->next;
 	}
 	return (NULL);
 }
-
 
 /*
 ** ms_env_set
@@ -194,8 +188,7 @@ char	*ms_env_get_value(t_env_var *env_list, char *name)
 ** variable should be included in child environments.
 */
 
-int	ms_env_set(t_env_var **env_list, char *name, char *value,
-	int exported)
+int	ms_env_set(t_env_var **env_list, char *name, char *value, int exported)
 {
 	t_env_var	*iter;
 	t_env_var	*prev;
@@ -207,8 +200,7 @@ int	ms_env_set(t_env_var **env_list, char *name, char *value,
 	prev = NULL;
 	while (iter != NULL)
 	{
-		if (ft_strncmp(iter->name, name,
-				ft_strlen(name) + 1) == 0)
+		if (ft_strncmp(iter->name, name, ft_strlen(name) + 1) == 0)
 		{
 			free(iter->value);
 			if (value != NULL)
@@ -252,8 +244,7 @@ int	ms_env_unset(t_env_var **env_list, char *name)
 	prev = NULL;
 	while (iter != NULL)
 	{
-		if (ft_strncmp(iter->name, name,
-				ft_strlen(name) + 1) == 0)
+		if (ft_strncmp(iter->name, name, ft_strlen(name) + 1) == 0)
 		{
 			if (prev == NULL)
 				*env_list = iter->next;
@@ -270,7 +261,7 @@ int	ms_env_unset(t_env_var **env_list, char *name)
 	return (0);
 }
 
-//function to free envp array. New not yet used
+// function to free envp array. New not yet used
 /*
 ** free_envp_array
 **
@@ -312,8 +303,8 @@ char	**ms_env_to_array(t_env_var *env_list)
 {
 	char		**envp;
 	t_env_var	*iter;
-	int		count;
-	int		i;
+	int			count;
+	int			i;
 	char		*str;
 	size_t		name_len;
 	size_t		val_len;
@@ -322,7 +313,7 @@ char	**ms_env_to_array(t_env_var *env_list)
 	count = 0;
 	while (iter != NULL)
 	{
-		if (iter->exported == 1)
+		if (iter->exported == 1 && iter->value != NULL)
 			count++;
 		iter = iter->next;
 	}
@@ -331,12 +322,11 @@ char	**ms_env_to_array(t_env_var *env_list)
 	iter = env_list;
 	while (iter != NULL)
 	{
-		if (iter->exported == 1)
+		if (iter->exported == 1 && iter->value != NULL)
 		{
 			name_len = ft_strlen(iter->name);
 			val_len = ft_strlen(iter->value);
-			str = ms_xmalloc(sizeof(char)
-					* (name_len + val_len + 2));
+			str = ms_xmalloc(sizeof(char) * (name_len + val_len + 2));
 			ft_strlcpy(str, iter->name, name_len + 1);
 			ft_strlcat(str, "=", name_len + val_len + 2);
 			ft_strlcat(str, iter->value, name_len + val_len + 2);
