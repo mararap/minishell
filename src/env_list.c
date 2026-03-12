@@ -61,7 +61,7 @@ static t_env_var	*ms_env_new_node(char *name, char *value, int exported)
 	if (value != NULL)
 		node->value = ms_strdup_safe(value);
 	else
-		node->value = ms_strdup_safe("");
+		node->value = NULL;
 	node->exported = exported;
 	node->next = NULL;
 	return (node);
@@ -206,7 +206,7 @@ int	ms_env_set(t_env_var **env_list, char *name, char *value, int exported)
 			if (value != NULL)
 				iter->value = ms_strdup_safe(value);
 			else
-				iter->value = ms_strdup_safe("");
+				iter->value = NULL;
 			iter->exported = exported;
 			return (0);
 		}

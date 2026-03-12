@@ -79,19 +79,33 @@ static void	ms_restore_stdio(int save_in, int save_out, int save_err)
 {
 	if (save_in >= 0)
 	{
-		dup2(save_in, STDIN_FILENO);
+		if (save_in != STDIN_FILENO)
+			dup2(save_in, STDIN_FILENO);
 		close(save_in);
 	}
 	if (save_out >= 0)
 	{
-		dup2(save_out, STDOUT_FILENO);
+		if (save_out != STDOUT_FILENO)
+			dup2(save_out, STDOUT_FILENO);
 		close(save_out);
 	}
 	if (save_err >= 0)
 	{
-		dup2(save_err, STDERR_FILENO);
+		if (save_err != STDERR_FILENO)
+			dup2(save_err, STDERR_FILENO);
 		close(save_err);
 	}
+}
+
+static int	ms_only_output_redirs(t_redir *redirs)
+{
+	while (redirs)
+	{
+		if (redirs->type == REDIR_IN || redirs->type == REDIR_HEREDOC)
+			return (0);
+		redirs = redirs->next;
+	}
+	return (1);
 }
 
 int	ms_run_builtin_parent(t_shell *shell, t_command *cmd)
@@ -103,16 +117,17 @@ int	ms_run_builtin_parent(t_shell *shell, t_command *cmd)
 
 	if (!cmd->redirections)
 		return (ms_run_builtin_child(shell, cmd->argv));
-
+	if (ms_only_output_redirs(cmd->redirections)
+		&& (ft_strncmp(cmd->argv[0], "cd", 3) == 0
+		|| ft_strncmp(cmd->argv[0], "unset", 6) == 0))
+		return (ms_run_builtin_child(shell, cmd->argv));
 	if (ms_dup_stdio(&save_in, &save_out, &save_err) < 0)
 		return (perror("dup"), 1);
-
 	status = 0;
 	if (cmd->redirections && ms_apply_redirections(cmd->redirections) < 0)
 		status = 1; // redirection failed => builtin not executed
 	else
 		status = ms_run_builtin_child(shell, cmd->argv);
-
 	ms_restore_stdio(save_in, save_out, save_err);
 	return (status);
 }

@@ -81,8 +81,7 @@ It cleanly separates concerns between error handling, environment updates, and c
 
 static int	cd_error_with_path(const char *path, const char *msg)
 {
-	write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
-	write(STDERR_FILENO, ": cd: ", 6);
+	write(STDERR_FILENO, "cd: ", 4);
 	if (path)
 	{
 		write(STDERR_FILENO, path, ft_strlen(path));
@@ -109,8 +108,7 @@ static int	ms_update_pwd_vars(t_shell *shell, char *old_pwd)
 
 static void	ms_cd_output(char *str)
 {
-	write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
-	write(STDERR_FILENO, ": cd: ", 6);
+	write(STDERR_FILENO, "cd: ", 4);
 	write(STDERR_FILENO, str, ft_strlen(str));
 	write(STDERR_FILENO, ": ", 2);
 	write(STDERR_FILENO, strerror(errno), ft_strlen(strerror(errno)));
@@ -122,7 +120,7 @@ static int	ms_cd_home(t_shell *shell, char *old_pwd)
 	char	*home;
 
 	home = ms_env_get_value(shell->env_list, "HOME");
-	if (!home)
+	if (!home || home[0] == '\0')
 		return (cd_error_with_path(NULL, "HOME not set"));
 	if (chdir(home) != 0)
 	{
@@ -137,7 +135,7 @@ static int	ms_cd_oldpwd(t_shell *shell, char *old_pwd)
 	char	*oldpwd;
 
 	oldpwd = ms_env_get_value(shell->env_list, "OLDPWD");
-	if (!oldpwd)
+	if (!oldpwd || oldpwd[0] == '\0')
 		return (cd_error_with_path(NULL, "OLDPWD not set"));
 	if (chdir(oldpwd) != 0)
 	{
@@ -160,7 +158,7 @@ int	ms_builtin_cd(t_shell *shell, char **argv)
 		perror("cd: getcwd");
 		return 1; // Return after the error is printed
 	}
-	if (!argv[1])
+	if (!argv[1] || argv[1][0] == '\0')
 	{
 		result = ms_cd_home(shell, old_pwd);
 		free(old_pwd);

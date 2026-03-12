@@ -35,6 +35,7 @@ static char	*ms_find_executable(t_shell *shell, char *cmd)
 	char	**paths;
 	char	*candidate;
 	int		i;
+	char	*cwd;
 
 	if (!cmd || cmd[0] == '\0')
 		return (NULL);
@@ -47,17 +48,13 @@ static char	*ms_find_executable(t_shell *shell, char *cmd)
 	path_env = ms_env_get_value(shell->env_list, "PATH");
 	
 	// If PATH is unset, bash still checks CWD - find file there for proper 126 error
-	if (!path_env)
+	if (!path_env || path_env[0] == '\0')
 	{
-		candidate = ms_str_join_three(".", "/", cmd);
-		if (access(candidate, F_OK) == 0)
-			return (candidate);
-		free(candidate);
-		return (NULL);
-	}
-	if (path_env[0] == '\0')
-	{
-		candidate = ms_str_join_three(".", "/", cmd);
+		cwd = getcwd(NULL, 0);
+		if (!cwd)
+			return (NULL);
+		candidate = ms_str_join_three(cwd, "/", cmd);
+		free(cwd);
 		return (candidate);
 	}
 	paths = ft_split(path_env, ':');
@@ -117,6 +114,13 @@ static int	ms_exec_error_code(char *arg, int err_no)
 	return (exit_code);
 }
 
+static void	ms_update_underscore(t_shell *shell, char *value)
+{
+	if (!shell || !value || value[0] == '\0')
+		return ;
+	ms_env_set(&shell->env_list, "_", value, 1);
+}
+
 static int	ms_exec_external_command(t_shell *shell, char **argv)
 {
 	char		*path;
@@ -130,7 +134,7 @@ static int	ms_exec_external_command(t_shell *shell, char **argv)
 		ms_print_command_not_found(argv[0]);
 		return (127);
 	}
-	ms_env_set(&shell->env_list, "_", path, 1); //update env-var '_'
+	ms_update_underscore(shell, path);
 	if (stat(path, &file_info) == -1)
 	{
 		err_no = errno;
@@ -201,6 +205,7 @@ void	ms_execute_child(t_shell *shell, t_command *cmd_list, t_command *cmd,
 		ms_child_exit(shell, cmd_list, 1);
 	if (!cmd->argv || !cmd->argv[0])
 		ms_child_exit(shell, cmd_list, 0);
+	ms_update_underscore(shell, cmd->argv[0]);
 	if (ms_is_builtin(cmd->argv[0]))
 	{
 		status = ms_run_builtin_child(shell, cmd->argv);
