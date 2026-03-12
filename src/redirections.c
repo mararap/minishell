@@ -13,6 +13,15 @@ static int	ms_open_output_file(t_redir *redir)
 	return (fd);
 }
 
+static void	ms_redir_error(char *target)
+{
+	if (target)
+		write (STDERR_FILENO, target, ft_strlen(target));
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, strerror(errno), ft_strlen(strerror(errno)));
+	write(STDERR_FILENO, "\n", 1);
+}
+
 int	ms_apply_redirections(t_redir *redirections)
 {
 	int	fd;
@@ -24,7 +33,7 @@ int	ms_apply_redirections(t_redir *redirections)
 			fd = open(redirections->target, O_RDONLY);
 			if (fd < 0)
 			{
-				perror(redirections->target);
+				ms_redir_error(redirections->target);
 				return (-1);
 			}
 			if (dup2(fd, STDIN_FILENO) < 0)

@@ -190,6 +190,29 @@ static void	ms_child_exit(t_shell *shell, t_command *cmd_list, int status)
 	exit(status);
 }
 
+static void	ms_close_heredocs(t_command *cmd_list, t_command *current)
+{
+	t_command	*cl;
+	t_redir		*r;
+
+	cl = cmd_list;
+	while (cl)
+	{
+		r = cl->redirections;
+		while (r)
+		{
+			if (r->type == REDIR_HEREDOC && r->heredoc_fd >= 0
+				&& cl != current)
+			{
+				close(r->heredoc_fd);
+				r->heredoc_fd = -1;
+			}
+			r = r->next;
+		}
+		cl = cl->next;
+	}
+}
+
 void	ms_execute_child(t_shell *shell, t_command *cmd_list, t_command *cmd,
 			int in_fd, int out_fd)
 {
@@ -201,6 +224,7 @@ void	ms_execute_child(t_shell *shell, t_command *cmd_list, t_command *cmd,
 		ms_child_exit(shell, cmd_list, 1);
 	if (ms_dup_and_close(out_fd, STDOUT_FILENO) < 0)
 		ms_child_exit(shell, cmd_list, 1);
+	ms_close_heredocs(cmd_list, cmd);
 	if (ms_apply_redirections(cmd->redirections) < 0)
 		ms_child_exit(shell, cmd_list, 1);
 	if (!cmd->argv || !cmd->argv[0])
