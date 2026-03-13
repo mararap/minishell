@@ -1,86 +1,36 @@
-/*Readme Requirements from the Subject:
+*This project has been created as part of the 42 curriculum by jatanaso, marapovi.*
 
-A README.md file must be provided at the root of your Git repository. Its purpose is
-to allow anyone unfamiliar with the project (peers, staff, recruiters, etc.) to quickly
-understand what the project is about, how to run it, and where to find more information
-on the topic.
-The README.md must include at least:
+# Minishell
 
-• The very first line must be italicized and read: This project has been created as part
-of the 42 curriculum by <login1>[, <login2>[, <login3>[...]]].
-
-• A “Description” section that clearly presents the project, including its goal and a
-brief overview.
-
-• An “Instructions” section containing any relevant information about compilation,
-installation, and/or execution.
-
-• A “Resources” section listing classic references related to the topic (documen-
-tation, articles, tutorials, etc.), as well as a description of how AI was used —
-specifying for which tasks and which parts of the project.
-
-➠ Additional sections may be required depending on the project (e.g., usage
-examples, feature list, technical choices, etc.).
-Any required additions will be explicitly listed below.*/
-
-
-
-# minishell
-This project has been created as part of the 42 curriculum by jatanaso and marapovi. (italizise!)
+Minishell is a small UNIX shell written in C, inspired by **bash**.  
+It was built as part of the 42 curriculum to practice process management, file descriptors, parsing/expansion, and signal handling.
 
 ## Description
-A simple UNIX shell implemented in C, inspired by bash.
-This project focuses on processes, file descriptors, parsing, and signals.
+
+The goal of this project is to reproduce a minimal interactive shell that:
+- Displays a prompt and reads user input
+- Keeps a working command history
+- Executes binaries found via `$PATH` or via relative/absolute paths
+- Handles quoting and variable expansion (`$VAR`, `$?`)
+- Supports redirections (`<`, `>`, `>>`, `<<`) and pipelines (`|`)
+- Implements a required set of builtins
+- Handles `ctrl-C`, `ctrl-D`, and `ctrl-\` like bash in interactive mode
 
 ## Instructions
 
+Minishell is a simple Unix shell written in C that supports basic commands, pipes, redirections, environment variable expansion, and signal handling. To build the project, you need a C compiler (cc), make, and the readline development library for command input and history. Compile the project using make, then run it with ./minishell. Build files can be cleaned with make clean, make fclean, or rebuilt using make re. The shell includes several built-in commands such as echo (with -n support), cd (with relative or absolute paths), pwd, export, unset, env, and exit. It also supports input and output redirections (<, >, >>), heredoc (<< DELIM), and pipelines (cmd1 | cmd2 | cmd3). Environment variable expansion using $NAME and the last command’s exit status using $? are implemented as well. In interactive mode, Ctrl+C prints a new prompt on a new line, Ctrl+D exits the shell, and Ctrl+\ is ignored.
+
 ## Resources
-
-## Features
-
-
-## Compilation
-
-make
-run: ./minishell
-
-Makefile rules:
-- make
-- make clean
-- make fclean
-- make re
-
-## Architecture
-
-The project is split into the following main components:
-
-- Lexer
-
-- Parser
-
-- Expander
-
-- Executor
-
-- Signals
-
-
-## Builtins
-
-
-## Signal Handling
-
-
-## Known Limitations
-
-- Behavior may differ from bash in edge cases
-
-## Constraints
-
-- Written in C
-- Follows the 42 Norm
-- Uses only allowed functions as specified in the subject
-- No memory leaks (checked with valgrind)
+- Bash Reference Manual (GNU): https://www.gnu.org/software/bash/manual/bash.html
+- POSIX Shell Command Language (The Open Group): https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html
+- GNU Readline Library documentation: https://tiswww.case.edu/php/chet/readline/rltop.html
+- Internation Standard ISO/IEC 9899 - Programming Languges C
+- The Linux Programming Interface, by Michael Kerrisk
+- Linux man-pages (process & FD syscalls, e.g. execve, pipe, dup2, fork): https://www.man7.org/linux/man-pages/
+- AI usage - AI tools were used to support learning and reduce repetitive work. In particular, we used ChatGPT to:
+	- clarify expected bash-like behaviors (quoting, expansion, error cases) while cross-checking with official documentation;
+	- brainstorm and expand test cases for parsing/redirections/pipes/signals;
+	- review edge cases and suggest refactoring ideas (we implemented changes manually and verified behavior ourselves)
 
 ## Authors
 
