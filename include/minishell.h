@@ -24,6 +24,11 @@
 # define PROMPT_STR "juma[n]she$ "
 # define HEREDOC_PROMPT "> "
 
+/* These bytes are control chars that shouldn't appear in normal input */
+# define MS_MASK_SPACE 0x1F
+# define MS_MASK_TAB 0x1E
+# define MS_MASK_NL 0x1D
+
 # define REDIR_IN TOKEN_REDIR_IN
 # define REDIR_OUT TOKEN_REDIR_OUT
 # define REDIR_APPEND TOKEN_REDIR_APPEND
@@ -94,6 +99,15 @@ typedef struct s_shell
 	pid_t						main_pid;
 	char						*current_line;
 }								t_shell;
+
+typedef struct s_lexr_state
+{
+	t_shell						*shell;
+	char						*line;
+	int							i;
+	int							expect_heredoc_delim;
+}								t_lexr_state;
+
 
 /*
 ** main / init / cleanup

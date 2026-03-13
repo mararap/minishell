@@ -6,20 +6,14 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/24 19:51:20 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/10 13:10:15 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/13 17:37:46 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 // Mask IFS whitespace inside quotes so it won't split later
-// These bytes are control chars that shouldn't appear in normal input
-
-# define MS_MASK_SPACE 0x1F
-# define MS_MASK_TAB 0x1E
-# define MS_MASK_NL 0x1D
-
-static void ms_mask_ifs(char *s)
+static void	ms_mask_ifs(char *s)
 {
 	if (!s)
 		return ;
@@ -49,11 +43,10 @@ static char	*ms_expand_variable(t_shell *shell, char *str, int *idx)
 	start = *idx + 1;
 	while (str[start] && (ft_isalnum(str[start]) || str[start] == '_'))
 		start++;
-	/* If no valid variable name characters found, treat $ as literal */
-	if (start == *idx + 1)
+	if (start == *idx + 1) // If no valid var name chars...
 	{
 		*idx = *idx + 1;
-		return (ft_strdup("$"));
+		return (ft_strdup("$")); // ...treat $ as literal
 	}
 	name = ft_substr(str, *idx + 1, start - (*idx + 1));
 	value = ms_env_get_value(shell->env_list, name);
