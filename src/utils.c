@@ -50,15 +50,98 @@ void	ms_perror(char *arg, int err_no)
 	exit (exit_code);
 }
 
+static int ms_needs_ansi_quote(const char *s)
+{
+	while (*s)
+	{
+		if (!ft_isprint((unsigned char)*s))
+			return (1);
+		s++;
+	}
+	return (0);
+}
+
+static size_t ms_diag_char_len(unsigned char c)
+{
+	if (c == '\a' || c =='\b' || c == '\t' || c == '\n')
+		return (2);
+	if (c == '\v' || c == '\f' || c == '\r' || c == '\\')
+		return (2);
+	if (c == '\'')
+		return (2);
+	if (!ft_isprint(c))
+		return (4);
+	return (1);
+}
+
+static size_t ms_diag_put_escape(char *dst, unsigned char c)
+{
+	if (c == '\a')
+		return (dst[0] = '\\', dst[1] = 'a', 2);
+	if (c == '\b')
+		return (dst[0] = '\\', dst[1] = 'b', 2);
+	if (c == '\t')
+		return (dst[0] = '\\', dst[1] = 't', 2);
+	if (c == '\n')
+		return (dst[0] = '\\', dst[1] = 'n', 2);
+	if (c == '\v')
+		return (dst[0] = '\\', dst[1] = 'v', 2);
+	if (c == '\f')
+		return (dst[0] = '\\', dst[1] = 'f', 2);
+	if (c == '\r')
+		return (dst[0] = '\\', dst[1] = 'r', 2);
+	if (c == '\\' || c =='\'')
+		return (dst[0] = '\\', dst[1] = c, 2);
+	if (!ft_isprint(c))
+	{
+		dst[0] = '\\';
+		dst[1] = '0' + ((c >> 6) & 7);
+		dst[2] = '0' + ((c >> 3) & 7);
+		dst[3] = '0' + (c + 7);
+		return (4);
+	}
+	dst[0] = c;
+	return (1);
+}
+
+static char *ms_format_cmd_name(const char *cmd)
+{
+	char	*out;
+	size_t	i;
+	size_t	j;
+	size_t	len;
+
+	if(!cmd)
+		return (ft_strdup(""));
+	if (!ms_needs_ansi_quote(cmd))
+		return (ft_strdup(cmd));
+	len = 3;
+	i = 0;
+	while (cmd[i])
+		len += ms_diag_char_len((unsigned char)cmd[i++]);
+	out = (char *)ft_calloc(len + 1, sizeof(char));
+	if (!out)
+		return (NULL);
+	j = 0;
+	out[j++] = '$';
+	out[j++] = '\'';
+	i = 0;
+	while (cmd[i])
+		j += ms_diag_put_escape(out + j, (unsigned char)cmd[i++]);
+	out[j++] = '\'';
+	return (out);
+}
+
 void ms_print_command_not_found(char *cmd)
 {
-	char	*msg;
+	char	*display;
 
-	msg = ms_str_join_three(cmd, ": command not found\n", "");
-	if (!msg)
+	display = ms_format_cmd_name(cmd);
+	if (!display)
 		return ;
-	write(STDERR_FILENO, msg, ft_strlen(msg));
-	free(msg);
+	ft_putstr_fd(display, STDERR_FILENO);
+	ft_putstr_fd(": command not found\n", STDERR_FILENO);
+	free(display);
 }
 
 size_t	ms_str_arr_len(char **arr)
