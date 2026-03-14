@@ -1,18 +1,5 @@
 #include "minishell.h"
 
-static int	ms_open_output_file(t_redir *redir)
-{
-	int	fd;
-
-	if (redir->type == REDIR_OUT)
-		fd = open(redir->target, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	else
-		fd = open(redir->target, O_WRONLY | O_CREAT | O_APPEND, 0644);
-	if (fd < 0)
-		perror(redir->target);
-	return (fd);
-}
-
 static void	ms_redir_error(char *target)
 {
 	if (target)
@@ -22,12 +9,35 @@ static void	ms_redir_error(char *target)
 	write(STDERR_FILENO, "\n", 1);
 }
 
+static int	ms_open_output_file(t_redir *redir)
+{
+	int	fd;
+
+	if (redir->type == REDIR_OUT)
+		fd = open(redir->target, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	else
+		fd = open(redir->target, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	if (fd < 0)
+		ms_redir_error(redir->target);
+	return (fd);
+}
+
+static int ms_redir_ambiguous_error(char *target)
+{
+	if (target)
+		ft_putstr_fd(target, STDERR_FILENO);
+	ft_putstr_fd(": ambiguous redirect\n", STDERR_FILENO);
+	return (-1);
+}
+
 int	ms_apply_redirections(t_redir *redirections)
 {
 	int	fd;
 
 	while (redirections)
 	{
+		if (redirections->ambiguous)
+			return (ms_redir_ambiguous_error(redirections->target));
 		if (redirections->type == REDIR_IN)
 		{
 			fd = open(redirections->target, O_RDONLY);

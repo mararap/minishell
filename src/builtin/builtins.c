@@ -97,7 +97,7 @@ static void	ms_restore_stdio(int save_in, int save_out, int save_err)
 	}
 }
 
-static int	ms_only_output_redirs(t_redir *redirs)
+/*static int	ms_only_output_redirs(t_redir *redirs)
 {
 	while (redirs)
 	{
@@ -106,7 +106,7 @@ static int	ms_only_output_redirs(t_redir *redirs)
 		redirs = redirs->next;
 	}
 	return (1);
-}
+}*/
 
 int	ms_run_builtin_parent(t_shell *shell, t_command *cmd)
 {
@@ -117,10 +117,10 @@ int	ms_run_builtin_parent(t_shell *shell, t_command *cmd)
 
 	if (!cmd->redirections)
 		return (ms_run_builtin_child(shell, cmd->argv));
-	if (ms_only_output_redirs(cmd->redirections)
+	/*if (ms_only_output_redirs(cmd->redirections)
 		&& (ft_strncmp(cmd->argv[0], "cd", 3) == 0
 		|| ft_strncmp(cmd->argv[0], "unset", 6) == 0))
-		return (ms_run_builtin_child(shell, cmd->argv));
+		return (ms_run_builtin_child(shell, cmd->argv));*/
 	if (ms_dup_stdio(&save_in, &save_out, &save_err) < 0)
 		return (perror("dup"), 1);
 	status = 0;

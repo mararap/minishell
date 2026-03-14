@@ -41,13 +41,14 @@ void	ms_print_syntax_error(t_token *tok)
 	ft_putstr_fd("'\n", STDERR_FILENO);
 }
 
-t_redir	*ms_create_redir(int type, char *target, int heredoc_expand)
+t_redir	*ms_create_redir(int type, char *target, int heredoc_expand, int ambiguous)
 {
 	t_redir	*redir;
 
 	redir = (t_redir *)ms_xmalloc(sizeof(t_redir));
 	redir->type = type;
 	redir->target = target;
+	redir->ambiguous = ambiguous;
 	redir->heredoc_fd = -1;
 	redir->heredoc_expand = heredoc_expand;
 	redir->heredoc_line = 0;

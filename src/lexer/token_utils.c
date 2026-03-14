@@ -12,13 +12,14 @@
 
 #include "minishell.h"
 
-t_token	*ms_token_new(t_token_type type, char *value, int quoted)
+t_token	*ms_token_new(t_token_type type, char *value, char *raw, int quoted)
 {
 	t_token	*tok;
 
 	tok = (t_token *)ms_xmalloc(sizeof(t_token));
 	tok->type = type;
 	tok->value = value;
+	tok->raw = raw;
 	tok->quoted = quoted;
 	tok->next = NULL;
 	return (tok);

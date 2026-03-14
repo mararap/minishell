@@ -67,6 +67,7 @@ typedef enum e_token_type
 typedef struct s_token
 {
 	char						*value;
+	char						*raw;
 	t_token_type				type;
 	int quoted; /* NEW: 1 if this word contained any quotes */
 	struct s_token				*next;
@@ -76,6 +77,7 @@ typedef struct s_redir
 {
 	int							type;
 	char						*target;
+	int							ambiguous;
 	int 						heredoc_fd;     /* NEW: read-fd prepared before exec */
 	int 						heredoc_expand; /* NEW: 1 if expand heredoc lines */
 	int							heredoc_line; /* line where heredoc starts*/
@@ -155,11 +157,11 @@ int								ms_prepare_heredocs(t_shell *shell,
 void							ms_token_add_back(t_token **list,
 									t_token *new_tok);
 void							ms_print_syntax_error(t_token *tok);
-t_redir							*ms_create_redir(int type, char *target, int heredoc_expand);
+t_redir							*ms_create_redir(int type, char *target, int heredoc_expand, int ambiguous);
 void							ms_redir_add_back(t_redir **list, t_redir *new_redir);
 int								ms_token_to_redir_type(t_token_type t);
 t_token							*ms_token_new(t_token_type type, char *value,
-									int quoted);
+									char *raw, int quoted);
 char							*ms_collect_word(t_shell *shell, char *str,
 									int *idx, int *was_quoted,
 									int allow_expansion);
