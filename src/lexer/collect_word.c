@@ -112,6 +112,12 @@ static char	*ms_collect_double_quotes(t_shell *shell, char *str, int *idx,
 	return (buf);
 }
 
+static char *ms_collect_locale_quotes(t_shell *shell, char *str, int *idx, int allow_expansion)
+{
+	(*idx)++;
+	return (ms_collect_double_quotes(shell, str, idx, allow_expansion));
+}
+
 static char	*ms_collect_plain_word(char *str, int *idx)
 {
 	int	start;
@@ -147,6 +153,11 @@ char *ms_collect_word(t_shell *shell, char *str, int *idx, int *was_quoted, int 
             *was_quoted = 1;
             tmp = ms_collect_double_quotes(shell, str, idx, allow_expansion);
         }
+		else if (str[*idx] == '$' && str[*idx + 1] == '"')
+		{
+			*was_quoted = 1;
+			tmp = ms_collect_locale_quotes(shell, str, idx, allow_expansion);
+		}
         else if (str[*idx] == '$' && allow_expansion)
         {
             tmp = ms_expand_variable(shell, str, idx);

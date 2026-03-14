@@ -18,25 +18,25 @@ static void	ms_add_redir_token(t_token **tokens, t_lexr_state *lstate)
 	{
 		ms_token_add_back(tokens, ms_token_new(TOKEN_HEREDOC, NULL, 0));
 		lstate->i += 2;
-		lstate->expect_heredoc_delim = 0;
+		lstate->expect_heredoc_delim = 1;
 	}
 	else if (lstate->line[lstate->i] == '>'
 		&& lstate->line[lstate->i + 1] == '>')
 	{
 		ms_token_add_back(tokens, ms_token_new(TOKEN_REDIR_APPEND, NULL, 0));
 		lstate->i += 2;
-		lstate->expect_heredoc_delim = 1;
+		lstate->expect_heredoc_delim = 0;
 	}
 	else if (lstate->line[lstate->i] == '<')
 	{
 		ms_token_add_back(tokens, ms_token_new(TOKEN_REDIR_IN, NULL, 0));
-		lstate->i += 2;
+		lstate->i += 1;
 		lstate->expect_heredoc_delim = 0;
 	}
 	else
 	{
 		ms_token_add_back(tokens, ms_token_new(TOKEN_REDIR_OUT, NULL, 0));
-		lstate->i += 2;
+		lstate->i += 1;
 		lstate->expect_heredoc_delim = 0;
 	}
 }
