@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/25 20:53:48 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/11 18:54:00 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/15 19:44:55 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,8 @@ void	ms_print_syntax_error(t_token *tok)
 	ft_putstr_fd("'\n", STDERR_FILENO);
 }
 
-t_redir	*ms_create_redir(int type, char *target, int heredoc_expand, int ambiguous)
+t_redir	*ms_create_redir(int type, char *target, int heredoc_expand,
+	int ambiguous)
 {
 	t_redir	*redir;
 

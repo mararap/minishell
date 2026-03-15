@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/11 20:32:50 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/25 13:27:33 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/15 19:56:51 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,9 @@ int	main(int argc, char **argv, char **envp)
 	ms_detect_interactive(&shell);
 	ms_main_loop(&shell);
 	ms_free_shell(&shell);
+	close(STDIN_FILENO);
+	close(STDOUT_FILENO);
+	close(STDERR_FILENO);
 	return (shell.last_exit_status);
 }
 // main for debugger
