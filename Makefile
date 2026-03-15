@@ -105,9 +105,10 @@ SRC				:=		main.c\
 						builtin/builtin_env.c\
 						builtin/builtin_exit.c\
 						builtin/builtin_export_unset.c\
+						builtin/builtin_unset.c\
 						builtin/builtins.c\
-						builtin/builtins_echo.c\
-						builtin/builtins_pwd.c\
+						builtin/builtin_echo.c\
+						builtin/builtin_pwd.c\
 						env_list.c\
 						exec/executor.c\
 						exec/fork.c\

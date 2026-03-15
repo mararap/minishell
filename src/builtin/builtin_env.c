@@ -1,14 +1,16 @@
-#include "minishell.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_env.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jatanaso <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/03/15 15:24:30 by jatanaso          #+#    #+#             */
+/*   Updated: 2026/03/15 15:24:33 by jatanaso         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-/*
- * print_env_entry:
- *   Construct and print a single environment variable line in the
- *   format "NAME=value\n". We build one buffer per entry and write
- *   it in a single call for performance and clarity.
- *
- *   In minishell, env should list variables currently in the shell’s
- *   environment table. We assume `name` and `value` are valid C strings.
- */
+#include "minishell.h"
 
 static void	print_env_entry(char *name, char *value)
 {
@@ -28,22 +30,6 @@ static void	print_env_entry(char *name, char *value)
 	write(STDOUT_FILENO, line, total_len);
 	free(line);
 }
-
-/*
- * ms_builtin_env:
- *   Implementation of the `env` built‑in command for minishell.
- *
- *   According to the 42 minishell subject, `env` must:
- *     • not accept options or arguments — if anything is passed,
- *       print an error and return failure.
- *     • print all environment variables in the shell’s internal
- *       environment list (exported values) as "NAME=value" lines,
- *       one per line. :contentReference[oaicite:1]{index=1}
- *
- *   This function iterates the linked list of environment vars
- *   and prints only those with a non‑NULL value. Return codes
- *   follow common shell conventions: 0 on success, non‑zero on error.
- */
 
 int	ms_builtin_env(t_shell *shell, char **argv)
 {

@@ -1,25 +1,16 @@
-#include "minishell.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtins.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jatanaso <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/03/15 15:25:10 by jatanaso          #+#    #+#             */
+/*   Updated: 2026/03/15 15:25:12 by jatanaso         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-int	ms_is_builtin(char *cmd_name)
-{
-	if (!cmd_name)
-		return (0);
-	if (ft_strncmp(cmd_name, "echo", 5) == 0)
-		return (1);
-	if (ft_strncmp(cmd_name, "cd", 3) == 0)
-		return (1);
-	if (ft_strncmp(cmd_name, "pwd", 4) == 0)
-		return (1);
-	if (ft_strncmp(cmd_name, "env", 4) == 0)
-		return (1);
-	if (ft_strncmp(cmd_name, "export", 7) == 0)
-		return (1);
-	if (ft_strncmp(cmd_name, "unset", 6) == 0)
-		return (1);
-	if (ft_strncmp(cmd_name, "exit", 5) == 0)
-		return (1);
-	return (0);
-}
+#include "minishell.h"
 
 int	ms_builtin_needs_parent(char *cmd_name)
 {
@@ -97,17 +88,6 @@ static void	ms_restore_stdio(int save_in, int save_out, int save_err)
 	}
 }
 
-/*static int	ms_only_output_redirs(t_redir *redirs)
-{
-	while (redirs)
-	{
-		if (redirs->type == REDIR_IN || redirs->type == REDIR_HEREDOC)
-			return (0);
-		redirs = redirs->next;
-	}
-	return (1);
-}*/
-
 int	ms_run_builtin_parent(t_shell *shell, t_command *cmd)
 {
 	int	save_in;
@@ -117,15 +97,11 @@ int	ms_run_builtin_parent(t_shell *shell, t_command *cmd)
 
 	if (!cmd->redirections)
 		return (ms_run_builtin_child(shell, cmd->argv));
-	/*if (ms_only_output_redirs(cmd->redirections)
-		&& (ft_strncmp(cmd->argv[0], "cd", 3) == 0
-		|| ft_strncmp(cmd->argv[0], "unset", 6) == 0))
-		return (ms_run_builtin_child(shell, cmd->argv));*/
 	if (ms_dup_stdio(&save_in, &save_out, &save_err) < 0)
 		return (perror("dup"), 1);
 	status = 0;
 	if (cmd->redirections && ms_apply_redirections(cmd->redirections) < 0)
-		status = 1; // redirection failed => builtin not executed
+		status = 1;
 	else
 		status = ms_run_builtin_child(shell, cmd->argv);
 	ms_restore_stdio(save_in, save_out, save_err);
