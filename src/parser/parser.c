@@ -38,10 +38,9 @@ static void	ms_command_add_back(t_command **list, t_command *new_cmd)
 	iter->next = new_cmd;
 }
 
-static int	ms_parse_pipe_error(t_command *cmds)
+static int	ms_parse_pipe_error(t_command *cmds, t_token *tok)
 {
-	ft_putstr_fd(SHELL_NAME ": syntax error near unexpected token `|'\n",
-		STDERR_FILENO);
+	ms_print_syntax_error(tok);
 	ms_free_command_list(cmds);
 	return (1);
 }
@@ -74,7 +73,7 @@ t_command	*ms_parse_tokens(t_token *token_list)
 	{
 		if (cursor->type == TOKEN_PIPE)
 		{
-			if (ms_parse_pipe_error(cmds))
+			if (ms_parse_pipe_error(cmds, cursor))
 				return (NULL);
 		}
 		if (ms_parse_one_command(&cmds, &cursor))

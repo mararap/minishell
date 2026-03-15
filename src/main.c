@@ -16,7 +16,7 @@ volatile sig_atomic_t	g_signal_number = 0;
 
 static void	ms_detect_interactive(t_shell *shell)
 {
-	if (isatty(STDIN_FILENO))
+	if (isatty(STDIN_FILENO) && isatty(STDERR_FILENO))
 		// system function to check if STDIN is "at tty" aka connected to a terminal
 		shell->is_interactive = 1;
 	else

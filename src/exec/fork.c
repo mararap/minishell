@@ -35,6 +35,7 @@ static char	*ms_find_executable(t_shell *shell, char *cmd, int *used_path)
 	char	**paths;
 	char	*candidate;
 	int		i;
+	struct	stat	st;
 	char	*cwd;
 
 	if (!cmd || cmd[0] == '\0')
@@ -70,14 +71,7 @@ static char	*ms_find_executable(t_shell *shell, char *cmd, int *used_path)
 			candidate = ms_str_join_three(".", "/", cmd);
 		else
 			candidate = ms_str_join_three(paths[i], "/", cmd);
-		if (access(candidate, X_OK) == 0)
-		{
-			ms_free_str_array(paths);
-			if (used_path)
-				*used_path = 1;
-			return (candidate);
-		}
-		if (access(candidate, F_OK) == 0)
+		if (candidate && stat(candidate, &st) == 0 && !S_ISDIR(st.st_mode) && access(candidate, X_OK) == 0)
 		{
 			ms_free_str_array(paths);
 			if (used_path)
