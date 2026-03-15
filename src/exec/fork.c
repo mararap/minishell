@@ -18,27 +18,64 @@ static char	*ms_join_search_dir(char *dir, char *cmd)
 		return (ms_str_join_three(".", "/", cmd));
 	return (ms_str_join_three(dir, "/", cmd));
 }
+
+static int ms_path_match_kind(char *candidate)
+{
+	struct stat st;
+
+	if (stat(candidate, &st) != 0)
+		return (0);
+	if (S_ISDIR(st.st_mode))
+		return (0);
+	if (access(candidate, X_OK) == 0)
+		return (2);
+	return (1);
+}
+
+static char	*ms_pick_path_hit(char *candidate, char **fallback)
+{
+	int kind;
+
+	kind = ms_path_match_kind(candidate);
+	if (kind == 2)
+		return (candidate);
+	if (kind == 1 && !*fallback)
+		*fallback = ft_strdup(candidate);
+	free(candidate);
+	return (NULL);
+}
+
+static char	*ms_return_path_match(char **paths, char *fallback, char *candidate, int *used_path)
+{
+	ms_free_str_array(paths);
+	if (used_path)
+		*used_path = 1;
+	free (fallback);
+	return (candidate);
+}
+
 static char	*ms_search_path_dirs(char **paths, char *cmd, int *used_path)
 {
 	char	*candidate;
+	char	*fallback;
 	int		i;
 
 	i = 0;
+	fallback = NULL;
 	while (paths[i])
 	{
 		candidate = ms_join_search_dir(paths[i], cmd);
-		if (access(candidate, X_OK) == 0 || access(candidate, F_OK) == 0)
-		{
-			ms_free_str_array(paths);
-			if (used_path)
-				*used_path = 1;
-			return (candidate);
-		}
-		free(candidate);
+		if (!candidate)
+			break ;
+		candidate = ms_pick_path_hit(candidate, &fallback);
+		if (candidate)
+			return (ms_return_path_match(paths, fallback, candidate, used_path));
 		i++;
 	}
 	ms_free_str_array(paths);
-	return (NULL);
+	if (used_path && fallback)
+		*used_path = 1;
+	return (fallback);
 }
 
 static char	*ms_find_executable(t_shell *shell, char *cmd, int *used_path)
