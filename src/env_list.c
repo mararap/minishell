@@ -272,8 +272,8 @@ int	ms_env_unset(t_env_var **env_list, char *name)
 	t_env_var	*iter;
 	t_env_var	*prev;
 
-	if (!name || is_valid_name(name))
-		return (1);
+	if (!name || !is_valid_name(name))
+		return (0);
 	iter = *env_list;
 	prev = NULL;
 	while (iter)
