@@ -2,14 +2,16 @@
 ## Description
 
 This file implements the `cd` builtin command for the minishell project.
-It handles changing the current working directory, validating arguments, reporting errors, and updating the `PWD` and `OLDPWD` environment variables according to shell behavior.
+It handles changing the current working directory, validating arguments,
+	reporting errors,
+	and updating the `PWD` and `OLDPWD` environment variables according to shell behavior.
 
 ---
 
 ### `cd_error`
 
 ```c
-static int cd_error(const char *msg);
+static int	cd_error(const char *msg);
 ```
 
 This helper function prints a formatted `cd` error message to standard error and returns `1`.
@@ -23,7 +25,7 @@ This helper function prints a formatted `cd` error message to standard error and
 ### `ms_update_pwd_vars`
 
 ```c
-static int ms_update_pwd_vars(t_shell *shell, char *old_pwd);
+static int	ms_update_pwd_vars(t_shell *shell, char *old_pwd);
 ```
 
 This function updates the `PWD` and `OLDPWD` environment variables after a successful directory change.
@@ -39,7 +41,7 @@ This function updates the `PWD` and `OLDPWD` environment variables after a succe
 ### `ms_builtin_cd`
 
 ```c
-int ms_builtin_cd(t_shell *shell, char **argv);
+int			ms_builtin_cd(t_shell *shell, char **argv);
 ```
 
 This is the main implementation of the `cd` builtin command.
@@ -73,9 +75,9 @@ This file provides a robust and modular implementation of the `cd` builtin by:
 * Keeping environment variables in sync with the current directory
 * Following expected shell behavior
 
-It cleanly separates concerns between error handling, environment updates, and command execution, making the code easy to maintain and extend.
+It cleanly separates concerns between error handling, environment updates,
+	and command execution, making the code easy to maintain and extend.
 */
-
 
 #include "minishell.h"
 
@@ -125,7 +127,7 @@ static int	ms_cd_home(t_shell *shell, char *old_pwd)
 	if (chdir(home) != 0)
 	{
 		ms_cd_output(home);
-		return(1);
+		return (1);
 	}
 	return (ms_update_pwd_vars(shell, old_pwd));
 }
@@ -147,41 +149,47 @@ static int	ms_cd_oldpwd(t_shell *shell, char *old_pwd)
 	return (ms_update_pwd_vars(shell, old_pwd));
 }
 
-int	ms_builtin_cd(t_shell *shell, char **argv)
+static char	*ms_cd_get_old_pwd(void)
 {
 	char	*old_pwd;
-	int		result;
 
 	old_pwd = getcwd(NULL, 0);
 	if (!old_pwd)
-	{
 		perror("cd: getcwd");
-		return 1; // Return after the error is printed
-	}
+	return (old_pwd);
+}
+
+static int	ms_cd_special_target(t_shell *shell, char **argv, char *old_pwd)
+{
 	if (!argv[1] || argv[1][0] == '\0')
-	{
-		result = ms_cd_home(shell, old_pwd);
-		free(old_pwd);
-		return (result);
-	}
+		return (ms_cd_home(shell, old_pwd));
 	if (ft_strncmp(argv[1], "-", 2) == 0 && !argv[2])
-	{
-		result = ms_cd_oldpwd(shell, old_pwd);
-		free (old_pwd);
-		return (result);
-	}
+		return (ms_cd_oldpwd(shell, old_pwd));
+	return (-1);
+}
+
+static int	ms_cd_regular_target(t_shell *shell, char **argv, char *old_pwd)
+{
 	if (argv[2])
-	{
-		free (old_pwd);
 		return (cd_error_with_path(NULL, "too many arguments"));
-	}
 	if (chdir(argv[1]) != 0)
 	{
 		ms_cd_output(argv[1]);
-		free(old_pwd);
-		return 1; // Return after error
+		return (1); // Return after error
 	}
-	result = ms_update_pwd_vars(shell, old_pwd);
+	return (ms_update_pwd_vars(shell, old_pwd));
+}
+int	ms_builtin_cd(t_shell *shell, char **argv)
+{
+	char *old_pwd;
+	int result;
+
+	old_pwd = ms_cd_get_old_pwd();
+	if (!old_pwd)
+		return (1);
+	result = ms_cd_special_target(shell, argv, old_pwd);
+	if (result < 0)
+		result = ms_cd_regular_target(shell, argv, old_pwd);
 	free(old_pwd);
-	return 0; // Success
+	return (result);
 }

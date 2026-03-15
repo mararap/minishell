@@ -21,27 +21,14 @@
 
 #include "minishell.h"
 
-// this should be moved to utils.c
-/*
-** is_valid_name
-**
-** Check that a string is a valid shell variable name:
-**   - Must not be NULL
-**   - Must start with letter or underscore
-**   - Remaining chars must be alphanumeric or underscore
-**
-** Returns 1 if valid, 0 otherwise. Used by setter and
-** import functions to enforce shell naming rules.
-*/
-
-int	is_valid_name(const char *s)
+static int	is_valid_name(const char *s)
 {
-	if (s == NULL)
+	if (!s)
 		return (0);
 	if (!ft_isalpha(*s) && *s != '_')
 		return (0);
 	s++;
-	while (*s != '\0')
+	while (*s)
 	{
 		if (!ft_isalnum(*s) && *s != '_')
 			return (0);
@@ -54,14 +41,13 @@ static t_env_var	*ms_env_new_node(char *name, char *value, int exported)
 {
 	t_env_var	*node;
 
-	if (name == NULL || is_valid_name(name) == 0)
+	if (!name || !is_valid_name(name))
 		return (NULL);
 	node = ms_xmalloc(sizeof(t_env_var));
 	node->name = ms_strdup_safe(name);
-	if (value != NULL)
+	node->value = NULL;
+	if (value)
 		node->value = ms_strdup_safe(value);
-	else
-		node->value = NULL;
 	node->exported = exported;
 	node->next = NULL;
 	return (node);
@@ -79,44 +65,98 @@ static t_env_var	*ms_env_new_node(char *name, char *value, int exported)
 ** Returns head of the new list, or NULL if envp is empty.
 */
 
+static int	ms_env_split_entry(char *entry, char **name, char **value)
+{
+	char	*sep;
+
+	sep = ft_strchr(entry, '=');
+	if (!sep)
+	{
+		*name = ft_strdup(entry);
+		*value = NULL;
+		return (!*name);
+	}
+	*name = ft_substr(entry, 0, sep - entry);
+	*value = ft_strdup(sep + 1);
+	if (!*name || !*value)
+	{
+		free(*name);
+		free(*value);
+		return (1);
+	}
+	return (0);
+}
+static void	ms_env_append_node(t_env_var **head, t_env_var **tail,
+		t_env_var *node)
+{
+	if (!node)
+		return ;
+	if (!*head)
+		*head = node;
+	else
+		(*tail)->next = node;
+	*tail = node;
+}
+static t_env_var	*ms_env_find_var(t_env_var *env_list, char *name)
+{
+	size_t	len;
+
+	if (!name)
+		return (NULL);
+	len = ft_strlen(name);
+	while (env_list)
+	{
+		if (ft_strlen(env_list->name) == len && ft_strncmp(env_list->name, name,
+				len) == 0)
+			return (env_list);
+		env_list = env_list->next;
+	}
+	return (NULL);
+}
+static int	ms_env_exported_count(t_env_var *env_list)
+{
+	int	count;
+
+	count = 0;
+	while (env_list)
+	{
+		if (env_list->exported == 1 && env_list->value)
+			count++;
+		env_list = env_list->next;
+	}
+	return (count);
+}
+static char	*ms_env_make_entry(t_env_var *var)
+{
+	size_t	name_len;
+	size_t	val_len;
+	char	*str;
+
+	name_len = ft_strlen(var->name);
+	val_len = ft_strlen(var->value);
+	str = ms_xmalloc(sizeof(char) * (name_len + val_len + 2));
+	ft_strlcpy(str, var->name, name_len + 1);
+	ft_strlcat(str, "=", name_len + val_len + 2);
+	ft_strlcat(str, var->value, name_len + val_len + 2);
+	return (str);
+}
 t_env_var	*ms_env_from_environ(char **envp)
 {
 	int			i;
-	char		*sep;
 	char		*name;
 	char		*value;
 	t_env_var	*head;
 	t_env_var	*tail;
-	t_env_var	*node;
 
 	i = 0;
 	head = NULL;
 	tail = NULL;
-	while (envp != NULL && envp[i] != NULL)
+	while (envp && envp[i])
 	{
-		sep = ft_strchr(envp[i], '=');
-		if (sep != NULL)
-		{
-			name = ft_substr(envp[i], 0, sep - envp[i]);
-			value = ft_strdup(sep + 1);
-		}
-		else
-		{
-			name = ft_strdup(envp[i]);
-			value = NULL;
-		}
-		if (is_valid_name(name) == 1)
-		{
-			node = ms_env_new_node(name, value, 1);
-			if (node != NULL)
-			{
-				if (head == NULL)
-					head = node;
-				else
-					tail->next = node;
-				tail = node;
-			}
-		}
+		name = NULL;
+		value = NULL;
+		if (!ms_env_split_entry(envp[i], &name, &value) && is_valid_name(name))
+			ms_env_append_node(&head, &tail, ms_env_new_node(name, value, 1));
 		free(name);
 		free(value);
 		i++;
@@ -137,9 +177,9 @@ void	ms_env_free_list(t_env_var **env_list)
 {
 	t_env_var	*next;
 
-	if (env_list == NULL)
+	if (!env_list)
 		return ;
-	while (*env_list != NULL)
+	while (*env_list)
 	{
 		next = (*env_list)->next;
 		free((*env_list)->name);
@@ -160,19 +200,12 @@ void	ms_env_free_list(t_env_var **env_list)
 
 char	*ms_env_get_value(t_env_var *env_list, char *name)
 {
-	size_t	len;
+	t_env_var	*var;
 
-	if (name == NULL)
+	var = ms_env_find_var(env_list, name);
+	if (!var)
 		return (NULL);
-	len = ft_strlen(name);
-	while (env_list != NULL)
-	{
-		if (ft_strlen(env_list->name) == len && ft_strncmp(env_list->name, name,
-				len) == 0)
-			return (env_list->value);
-		env_list = env_list->next;
-	}
-	return (NULL);
+	return (var->value);
 }
 
 /*
@@ -190,36 +223,25 @@ char	*ms_env_get_value(t_env_var *env_list, char *name)
 
 int	ms_env_set(t_env_var **env_list, char *name, char *value, int exported)
 {
-	t_env_var	*iter;
-	t_env_var	*prev;
-	t_env_var	*new_node;
+	t_env_var	*var;
+	t_env_var	*tail;
 
-	if (name == NULL || is_valid_name(name) == 0)
+	if (!name || !is_valid_name(name))
 		return (1);
-	iter = *env_list;
-	prev = NULL;
-	while (iter != NULL)
+	var = ms_env_find_var(*env_list, name);
+	if (var)
 	{
-		if (ft_strncmp(iter->name, name, ft_strlen(name) + 1) == 0)
-		{
-			free(iter->value);
-			if (value != NULL)
-				iter->value = ms_strdup_safe(value);
-			else
-				iter->value = NULL;
-			iter->exported = exported;
-			return (0);
-		}
-		prev = iter;
-		iter = iter->next;
+		free(var->value);
+		var->value = NULL;
+		if (value)
+			var->value = ms_strdup_safe(value);
+		var->exported = exported;
+		return (0);
 	}
-	new_node = ms_env_new_node(name, value, exported);
-	if (new_node == NULL)
-		return (1);
-	if (prev == NULL)
-		*env_list = new_node;
-	else
-		prev->next = new_node;
+	tail = *env_list;
+	while (tail && tail->next)
+		tail = tail->next;
+	ms_env_append_node(env_list, &tail, ms_env_new_node(name, value, exported));
 	return (0);
 }
 
@@ -233,26 +255,32 @@ int	ms_env_set(t_env_var **env_list, char *name, char *value, int exported)
 ** for the removed node.
 */
 
+static void	ms_env_remove_node(t_env_var **env_list, t_env_var *prev,
+		t_env_var *iter)
+{
+	if (!prev)
+		*env_list = iter->next;
+	else
+		prev->next = iter->next;
+	free(iter->name);
+	free(iter->value);
+	free(iter);
+}
+
 int	ms_env_unset(t_env_var **env_list, char *name)
 {
 	t_env_var	*iter;
 	t_env_var	*prev;
 
-	if (name == NULL || is_valid_name(name) == 0)
+	if (!name || is_valid_name(name))
 		return (1);
 	iter = *env_list;
 	prev = NULL;
-	while (iter != NULL)
+	while (iter)
 	{
 		if (ft_strncmp(iter->name, name, ft_strlen(name) + 1) == 0)
 		{
-			if (prev == NULL)
-				*env_list = iter->next;
-			else
-				prev->next = iter->next;
-			free(iter->name);
-			free(iter->value);
-			free(iter);
+			ms_env_remove_node(env_list, prev, iter);
 			return (0);
 		}
 		prev = iter;
@@ -301,39 +329,18 @@ void	free_envp_array(char **envp)
 
 char	**ms_env_to_array(t_env_var *env_list)
 {
-	char		**envp;
-	t_env_var	*iter;
-	int			count;
-	int			i;
-	char		*str;
-	size_t		name_len;
-	size_t		val_len;
+	char **envp;
+	int count;
+	int i;
 
-	iter = env_list;
-	count = 0;
-	while (iter != NULL)
-	{
-		if (iter->exported == 1 && iter->value != NULL)
-			count++;
-		iter = iter->next;
-	}
+	count = ms_env_exported_count(env_list);
 	envp = ms_xmalloc(sizeof(char *) * (count + 1));
 	i = 0;
-	iter = env_list;
-	while (iter != NULL)
+	while (env_list)
 	{
-		if (iter->exported == 1 && iter->value != NULL)
-		{
-			name_len = ft_strlen(iter->name);
-			val_len = ft_strlen(iter->value);
-			str = ms_xmalloc(sizeof(char) * (name_len + val_len + 2));
-			ft_strlcpy(str, iter->name, name_len + 1);
-			ft_strlcat(str, "=", name_len + val_len + 2);
-			ft_strlcat(str, iter->value, name_len + val_len + 2);
-			envp[i] = str;
-			i++;
-		}
-		iter = iter->next;
+		if (env_list->exported == 1 && env_list->value)
+			envp[i++] = ms_env_make_entry(env_list);
+		env_list = env_list->next;
 	}
 	envp[i] = NULL;
 	return (envp);

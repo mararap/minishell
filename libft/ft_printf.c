@@ -14,28 +14,30 @@
 
 static int	print_format(char type_specifier, va_list argp)
 {
-	int	amount;
-
-	amount = 0;
 	if (type_specifier == 'c')
-		amount += ft_putchar(va_arg(argp, int));
-	else if (type_specifier == 's')
-		amount += ft_putstr(va_arg(argp, char *));
-	else if (type_specifier == 'p')
-		amount += ft_putptr(va_arg(argp, void *));
-	else if (type_specifier == 'd' || type_specifier == 'i')
-		amount += ft_putint(va_arg(argp, int));
-	else if (type_specifier == 'u')
-		amount += ft_putusint(va_arg(argp, unsigned int));
-	else if (type_specifier == 'x')
-		amount += ft_puthex(va_arg(argp, unsigned int), type_specifier);
-	else if (type_specifier == 'X')
-		amount += ft_puthex(va_arg(argp, unsigned int), type_specifier);
-	else if (type_specifier == '%')
-		amount += write(1, "%", 1);
-	else
-		amount = (write(1, "%", 1) + write(1, &type_specifier, 1));
-	return (amount);
+		return (ft_putchar(va_arg(argp, int)));
+	if (type_specifier == 's')
+		return (ft_putstr(va_arg(argp, char *)));
+	if (type_specifier == 'p')
+		return (ft_putptr(va_arg(argp, void *)));
+	if (type_specifier == 'd' || type_specifier == 'i')
+		return (ft_putint(va_arg(argp, int)));
+	if (type_specifier == 'u')
+		return (ft_putusint(va_arg(argp, unsigned int)));
+	if (type_specifier == 'x' || type_specifier == 'X')
+		return (ft_puthex(va_arg(argp, unsigned int), type_specifier));
+	if (type_specifier == '%')
+		return (write(1, "%", 1));
+	return (write(1, "%", 1) + write(1, &type_specifier, 1));
+}
+
+static int	ft_printf_step(const char *format, size_t *i, va_list argp)
+{
+	if (format[*i] == '%' && !format[*i + 1])
+		return (-1);
+	if (format[*i] == '%')
+		return (print_format(format[++(*i)], argp));
+	return (write(1, &format[*i], 1));
 }
 
 int	ft_printf(const char *format, ...)
@@ -49,19 +51,13 @@ int	ft_printf(const char *format, ...)
 		return (-1);
 	va_start(argp, format);
 	count = 0;
-	amount = 0;
 	i = 0;
-	while (format[i] != '\0')
+	while (format[i])
 	{
-		if (format[i] == '%' && format[i + 1])
-		{
-			amount = print_format(format[++i], argp);
-			count += amount;
-		}
-		else if (format[i] == '%' && !format[i + 1])
+		amount = ft_printf_step(format, &i, argp);
+		if (amount < 0)
 			return (va_end(argp), -1);
-		else
-			count += write(1, &format[i], 1);
+		count += amount;
 		i++;
 	}
 	return (va_end(argp), count);

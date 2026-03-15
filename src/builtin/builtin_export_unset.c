@@ -6,7 +6,7 @@ static int	ms_is_valid_identifier(const char *str)
 
 	if (!str || !*str)
 		return (0);
-	if (!ft_isalpha(str[0]) && str[0] != '_') //check if first char is letter or '_'
+	if (!ft_isalpha(str[0]) && str[0] != '_')
 		return (0);
 	i = 1;
 	while (str[i])
@@ -27,9 +27,7 @@ static int	ms_parse_export_pair(char *arg, char **name, char **value)
 	{
 		*name = ft_strdup(arg);
 		*value = NULL;
-		if (!*name)
-			return (1);
-		return (0);
+		return (!*name);
 	}
 	*name = ft_substr(arg, 0, sep - arg);
 	*value = ft_strdup(sep + 1);
@@ -44,22 +42,20 @@ static int	ms_parse_export_pair(char *arg, char **name, char **value)
 
 static void	ms_export_error(char *arg)
 {
-	ft_putstr_fd("juma[n]she: export: `", 2);
-	ft_putstr_fd(arg, 2);
-	ft_putstr_fd("': not a valid identifier\n", 2);
+	ft_putstr_fd("juma[n]she: export: `", STDERR_FILENO);
+	ft_putstr_fd(arg, STDERR_FILENO);
+	ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
 }
 
 static int	ms_count_env_vars(t_env_var *env_list)
 {
-	int			count;
-	t_env_var	*current;
+	int	count;
 
 	count = 0;
-	current = env_list;
-	while (current)
+	while (env_list)
 	{
 		count++;
-		current = current->next;
+		env_list = env_list->next;
 	}
 	return (count);
 }
@@ -74,7 +70,7 @@ static void	ms_sort_env_array(t_env_var **arr, int size)
 	while (i < size - 1)
 	{
 		j = i + 1;
-		while (j < size)  //sort env array alphabetically
+		while (j < size)
 		{
 			if (ft_strcmp(arr[i]->name, arr[j]->name) > 0)
 			{
@@ -88,62 +84,95 @@ static void	ms_sort_env_array(t_env_var **arr, int size)
 	}
 }
 
+static t_env_var	**ms_export_sorted_env(t_env_var *env_list, int *count)
+{
+	t_env_var	**arr;
+	int			i;
+
+	*count = ms_count_env_vars(env_list);
+	if (*count == 0)
+		return (NULL);
+	arr = malloc(sizeof(t_env_var *) * (*count));
+	if (!arr)
+		return (NULL);
+	i = 0;
+	while (env_list)
+	{
+		arr[i++] = env_list;
+		env_list = env_list->next;
+	}
+	ms_sort_env_array(arr, *count);
+	return (arr);
+}
+static int	ms_skip_export_entry(t_env_var *var)
+{
+	if (ft_strcmp(var->name, "_") == 0)
+		return (1);
+	if (var->exported == 0)
+		return (1);
+	return (0);
+}
+static void	ms_print_export_entry(t_env_var *var)
+{
+	ft_putstr_fd("export ", STDOUT_FILENO);
+	ft_putstr_fd(var->name, STDOUT_FILENO);
+	if (var->value && var->value[0] != '\0')
+	{
+		ft_putstr_fd("=\"", STDOUT_FILENO);
+		ft_putstr_fd(var->value, STDOUT_FILENO);
+		ft_putstr_fd("\"", STDOUT_FILENO);
+	}
+	ft_putstr_fd("\n", STDOUT_FILENO);
+}
 static void	ms_print_export_format(t_env_var *env_list)
 {
 	t_env_var	**arr;
-	t_env_var	*current;
 	int			count;
 	int			i;
 
-	count = ms_count_env_vars(env_list);
-	if (count == 0)
-		return ;
-	
-	arr = malloc(sizeof(t_env_var *) * count); //array of pointers for sorting
+	arr = ms_export_sorted_env(env_list, &count);
 	if (!arr)
 		return ;
-	current = env_list; //start to fill array
-	i = 0;
-	while (current)
-	{
-		arr[i++] = current;
-		current = current->next;
-	}
-	ms_sort_env_array(arr, count); //sort alphabetically
 	i = 0;
 	while (i < count)
 	{
-		if (ft_strcmp(arr[i]->name, "_") == 0)
-		{
-			i++;
-			continue;
-		}
-		if (arr[i]->exported == 0)
-		{
-			i++;
-			continue;
-		}
-		ft_putstr_fd("export ", 1);
-		ft_putstr_fd(arr[i]->name, 1);
-		if (arr[i]->value && arr[i]->value[0] != '\0') //only if value exists
-		{
-			ft_putstr_fd("=\"", 1);
-			ft_putstr_fd(arr[i]->value, 1);
-			ft_putstr_fd("\"", 1);
-		}
-		ft_putstr_fd("\n", 1);
+		if (!ms_skip_export_entry(arr[i]))
+			ms_print_export_entry(arr[i]);
 		i++;
 	}
 	free(arr);
 }
+static int	ms_export_name_only(t_shell *shell, char *name)
+{
+	char	*old_val;
+
+	old_val = ms_env_get_value(shell->env_list, name);
+	return (ms_env_set(&shell->env_list, name, old_val ? old_val : "", 1));
+}
+static int	ms_export_one_arg(t_shell *shell, char *arg)
+{
+	char	*name;
+	char	*value;
+	int		status;
+
+	name = NULL;
+	value = NULL;
+	status = ms_parse_export_pair(arg, &name, &value);
+	if (status == 0 && (!name || !ms_is_valid_identifier(name)))
+		status = (ms_export_error(arg), 1);
+	else if (status == 0 && value != NULL)
+		status = ms_env_set(&shell->env_list, name, value, 1);
+	else if (status == 0 && name && name[0] != '\0')
+		status = ms_export_name_only(shell, name);
+	free(name);
+	free(value);
+	return (status != 0);
+}
 
 int	ms_builtin_export(t_shell *shell, char **argv)
 {
-	int		i;
-	char	*name;
-	char	*value;
-	char	*old_val;
-	int		exit_code;
+	int	i;
+	int	exit_code;
 
 	if (!argv[1])
 	{
@@ -154,34 +183,8 @@ int	ms_builtin_export(t_shell *shell, char **argv)
 	exit_code = 0;
 	while (argv[i])
 	{
-		name = NULL;
-		value = NULL;
-		if (ms_parse_export_pair(argv[i], &name, &value) == 0)
-		{
-			if (name && !ms_is_valid_identifier(name))
-			{
-				ms_export_error(argv[i]);
-				exit_code = 1;
-			}
-			else if (name && name[0] != '\0')
-			{
-				if (value != NULL)
-				{
-					// export with assignment
-					ms_env_set(&shell->env_list, name, value, 1);
-				}
-				else
-				{
-					// just export name,
-					// get old value if any
-					old_val = ms_env_get_value(shell->env_list, name);
-					ms_env_set(&shell->env_list, name,
-							old_val ? old_val : "", 1);
-				}
-			}
-		}
-		free(name);
-		free(value);
+		if (ms_export_one_arg(shell, argv[i]))
+			exit_code = 1;
 		i++;
 	}
 	return (exit_code);

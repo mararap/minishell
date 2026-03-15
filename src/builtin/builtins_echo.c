@@ -55,7 +55,8 @@
  *
  * - According to the POSIX standard, the echo utility *shall not accept
  *   any options*; whether a leading "-n" is treated as a flag or as
- *   literal text is *implementation-defined* for different shells/utilities. :contentReference[oaicite:0]{index=0}
+
+	*   literal text is *implementation-defined* for different shells/utilities. :contentReference[oaicite:0]{index=0}
  *
  * - Common shells like Bash and Zsh do treat `-n` as a flag, so this
  *   implementation mimics that widely used behavior rather than strict
@@ -75,17 +76,13 @@
  * echo, success is assumed.
  */
 
-
-
 static int	ms_is_valid_n_flag(char *arg)
 {
 	int	i;
 
-	if (!arg || arg[0] != '-')
+	if (!arg || arg[0] != '-' || arg[1] == '\0')
 		return (0);
 	i = 1;
-	if (arg[1] == '\0')
-		return (0);
 	while (arg[i])
 	{
 		if (arg[i] != 'n')
@@ -95,35 +92,41 @@ static int	ms_is_valid_n_flag(char *arg)
 	return (1);
 }
 
-int	ms_builtin_echo(char **argv)
+static int	ms_echo_skip_flags(char **argv, int *print_newline)
 {
 	int	i;
-	int	print_newline;
-	int	first;
 
 	i = 1;
-	print_newline = 1;
-	first = 1;
-
-	// Skip all valid -n flags
+	*print_newline = 1;
 	while (argv[i] && ms_is_valid_n_flag(argv[i]))
 	{
-		print_newline = 0;
+		*print_newline = 0;
 		i++;
 	}
+	return (i);
+}
+static void	ms_echo_print_args(char **argv, int start)
+{
+	int	first;
 
-	// Print remaining arguments
-	while (argv[i])
+	first = 1;
+	while (argv[start])
 	{
 		if (!first)
 			write(STDOUT_FILENO, " ", 1);
-		write(STDOUT_FILENO, argv[i], ft_strlen(argv[i]));
+		write(STDOUT_FILENO, argv[start], ft_strlen(argv[start]));
 		first = 0;
-		i++;
+		start++;
 	}
+}
+int	ms_builtin_echo(char **argv)
+{
+	int	start;
+	int	print_newline;
 
+	start = ms_echo_skip_flags(argv, &print_newline);
+	ms_echo_print_args(argv, start);
 	if (print_newline)
 		write(STDOUT_FILENO, "\n", 1);
-
 	return (0);
 }
