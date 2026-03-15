@@ -162,6 +162,13 @@ void							ms_redir_add_back(t_redir **list, t_redir *new_redir);
 int								ms_token_to_redir_type(t_token_type t);
 t_token							*ms_tok_new(t_token_type type, char *value,
 									char *raw, int quoted);
+void							ms_mask_ifs(char *s);
+char							*ms_collect_single_quotes(char *str, int *idx);
+char							*ms_collect_double_quotes(t_shell *shell, char *str, int *idx,
+									int allow_expansion);
+char							*ms_collect_locale_quotes(t_shell *shell, char *str, int *idx,
+									int allow_expansion);
+char							*ms_expand_variable(t_shell *shell, char *str, int *idx);
 char							*ms_collect_word(t_shell *shell, char *str,
 									int *idx, int *was_quoted,
 									int allow_expansion);
