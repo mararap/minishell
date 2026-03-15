@@ -154,13 +154,13 @@ void							ms_setup_child_signals(void);
 
 int								ms_prepare_heredocs(t_shell *shell,
 									t_command *cmds);
-void							ms_token_add_back(t_token **list,
+void							ms_tok_add_back(t_token **list,
 									t_token *new_tok);
 void							ms_print_syntax_error(t_token *tok);
 t_redir							*ms_create_redir(int type, char *target, int heredoc_expand, int ambiguous);
 void							ms_redir_add_back(t_redir **list, t_redir *new_redir);
 int								ms_token_to_redir_type(t_token_type t);
-t_token							*ms_token_new(t_token_type type, char *value,
+t_token							*ms_tok_new(t_token_type type, char *value,
 									char *raw, int quoted);
 char							*ms_collect_word(t_shell *shell, char *str,
 									int *idx, int *was_quoted,

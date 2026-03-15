@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   token_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42vienna.com>   +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/24 21:22:37 by marapovi          #+#    #+#             */
-/*   Updated: 2026/01/24 21:26:01 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/15 13:41:37 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_token	*ms_token_new(t_token_type type, char *value, char *raw, int quoted)
+t_token	*ms_tok_new(t_token_type type, char *value, char *raw, int quoted)
 {
 	t_token	*tok;
 
@@ -25,7 +25,7 @@ t_token	*ms_token_new(t_token_type type, char *value, char *raw, int quoted)
 	return (tok);
 }
 
-void	ms_token_add_back(t_token **list, t_token *new_tok)
+void	ms_tok_add_back(t_token **list, t_token *new_tok)
 {
 	t_token	*iter;
 
