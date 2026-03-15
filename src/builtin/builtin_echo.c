@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   builtins_echo.c                                    :+:      :+:    :+:   */
+/*   builtin_echo.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatanaso <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 15:25:19 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/15 15:25:22 by jatanaso         ###   ########.fr       */
+/*   Updated: 2026/03/15 21:07:21 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,28 +117,62 @@ static int	ms_echo_skip_flags(char **argv, int *print_newline)
 	}
 	return (i);
 }
-static void	ms_echo_print_args(char **argv, int start)
+
+static int	ms_echo_write(char *s, size_t len)
+{
+	if (write(STDOUT_FILENO, s, len) < 0)
+		return (1);
+	return (0);
+}
+
+static int	ms_echo_print_args(char **argv, int start)
 {
 	int	first;
 
 	first = 1;
 	while (argv[start])
 	{
-		if (!first)
-			write(STDOUT_FILENO, " ", 1);
-		write(STDOUT_FILENO, argv[start], ft_strlen(argv[start]));
+		if (!first && ms_echo_write(" ", 1))
+			return (1);
+		if (ms_echo_write(argv[start], ft_strlen(argv[start])))
+			return (1);
 		first = 0;
 		start++;
 	}
+	return (0);
 }
+
+static int	ms_ignore_sigpipe(struct sigaction *old_action)
+{
+	struct sigaction	new_action;
+
+	ft_bzero(&new_action, sizeof(new_action));
+	new_action.sa_handler = SIG_IGN;
+	sigemptyset(&new_action.sa_mask);
+	new_action.sa_flags = 0;
+	if (sigaction(SIGPIPE, &new_action, old_action) < 0)
+		return (1);
+	return (0);
+}
+
+static void ms_restore_sigpipe(struct sigaction *old_action)
+{
+	sigaction(SIGPIPE, old_action, NULL);
+}
+
 int	ms_builtin_echo(char **argv)
 {
-	int	start;
-	int	print_newline;
+	struct sigaction	old_action;
+	int					start;
+	int					print_newline;
+	int					status;
 
 	start = ms_echo_skip_flags(argv, &print_newline);
-	ms_echo_print_args(argv, start);
-	if (print_newline)
-		write(STDOUT_FILENO, "\n", 1);
-	return (0);
+	if (ms_ignore_sigpipe(&old_action))
+		return (1);
+	status = ms_echo_print_args(argv, start);
+	if (!status && print_newline)
+		status = ms_echo_write("\n", 1);
+	ms_restore_sigpipe(&old_action);
+	return (status);
 }
