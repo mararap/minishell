@@ -1,77 +1,33 @@
 #include "minishell.h"
 
-/* static char	**ms_env_to_array_full(t_env_var *env_list)
+static char	*ms_cmd_from_cwd(char *cmd)
 {
-	char		**arr;
-	int			len;
-	int			i;
-	char		*entry;
-	t_env_var	*head;
+	char	*cwd;
+	char	*candidate;
 
-	head = env_list;
-	len = 0;
-	while (env_list)
-	{
-		len++;
-		env_list = env_list->next;
-	}
-	arr = (char **)ms_xmalloc(sizeof(char *) * (len + 1));
-	i = 0;
-	env_list = head;
-	while (env_list && i < len)
-	{
-		entry = ms_str_join_three(env_list->name, "=", env_list->value);
-		arr[i] = entry;
-		env_list = env_list->next;
-		i++;
-	}
-	arr[i] = NULL;
-	return (arr);
-} */
-
-static char	*ms_find_executable(t_shell *shell, char *cmd, int *used_path)
+	cwd = getcwd(NULL, 0);
+	if (!cwd)
+		return (NULL);
+	candidate = ms_str_join_three(cwd, "/", cmd);
+	free(cwd);
+	return (candidate);
+}
+static char	*ms_join_search_dir(char *dir, char *cmd)
 {
-	char	*path_env;
-	char	**paths;
+	if (dir[0] == '\0')
+		return (ms_str_join_three(".", "/", cmd));
+	return (ms_str_join_three(dir, "/", cmd));
+}
+static char	*ms_search_path_dirs(char **paths, char *cmd, int *used_path)
+{
 	char	*candidate;
 	int		i;
-	struct	stat	st;
-	char	*cwd;
 
-	if (!cmd || cmd[0] == '\0')
-		return (NULL);
-	if (used_path)
-		*used_path = 0;
-    // If the command contains '/', treat it as a relative or absolute path
-    if (ft_strchr(cmd, '/'))
-		return ft_strdup(cmd);
-	
-	// Get PATH from environment
-	path_env = ms_env_get_value(shell->env_list, "PATH");
-	
-	// If PATH is unset, bash still checks CWD - find file there for proper 126 error
-	if (!path_env)
-	{
-		cwd = getcwd(NULL, 0);
-		if (!cwd)
-			return (NULL);
-		candidate = ms_str_join_three(cwd, "/", cmd);
-		free(cwd);
-		return (candidate);
-	}
-	if (path_env[0] == '\0')
-		return (ft_strdup(cmd));
-	paths = ft_split(path_env, ':');
-	if (!paths)
-		return (NULL);
 	i = 0;
 	while (paths[i])
 	{
-		if (paths[i][0] == '\0')
-			candidate = ms_str_join_three(".", "/", cmd);
-		else
-			candidate = ms_str_join_three(paths[i], "/", cmd);
-		if (candidate && stat(candidate, &st) == 0 && !S_ISDIR(st.st_mode) && access(candidate, X_OK) == 0)
+		candidate = ms_join_search_dir(paths[i], cmd);
+		if (access(candidate, X_OK) == 0 || access(candidate, F_OK) == 0)
 		{
 			ms_free_str_array(paths);
 			if (used_path)
@@ -85,36 +41,61 @@ static char	*ms_find_executable(t_shell *shell, char *cmd, int *used_path)
 	return (NULL);
 }
 
-static int	ms_exec_error_code(char *arg, int err_no)
+static char	*ms_find_executable(t_shell *shell, char *cmd, int *used_path)
 {
-	int	exit_code;
-	
-	if (err_no == 0)
-		err_no = ENOENT;
-	exit_code = 127;
-	write(STDERR_FILENO, arg, ft_strlen(arg));
-	write(STDERR_FILENO, ": ", 2);
+	char		*path_env;
+	char		**paths;
+
+	if (!cmd || cmd[0] == '\0')
+		return (NULL);
+	if (used_path)
+		*used_path = 0;
+	// If the command contains '/', treat it as a relative or absolute path
+	if (ft_strchr(cmd, '/'))
+		return (ft_strdup(cmd));
+	// Get PATH from environment
+	path_env = ms_env_get_value(shell->env_list, "PATH");
+	// If PATH is unset, bash still checks CWD
+	if (!path_env)
+		return (ms_cmd_from_cwd(cmd));
+	if (path_env[0] == '\0')
+		return (ft_strdup(cmd));
+	paths = ft_split(path_env, ':');
+	if (!paths)
+		return (NULL);
+	return (ms_search_path_dirs(paths, cmd, used_path));
+}
+
+static int	ms_exec_exit_code(int err_no)
+{
+	if (err_no == EISDIR || err_no == ENOEXEC || err_no == EACCES)
+		return (126);
+	return (127);
+}
+static void	ms_write_exec_message(int err_no)
+{
 	if (err_no == ENOENT)
 		write(STDERR_FILENO, "No such file or directory\n", 26);
-	else if (err_no == EISDIR || err_no == ENOEXEC)
-	{
-		if (err_no == EISDIR)
-			write(STDERR_FILENO, "Is a directory\n", 15);
-		else
-			write(STDERR_FILENO, "Exec format error\n", 18);
-		exit_code = 126;
-	}
+	else if (err_no == EISDIR)
+		write(STDERR_FILENO, "Is a directory\n", 15);
+	else if (err_no == ENOEXEC)
+		write(STDERR_FILENO, "Exec format error\n", 18);
 	else if (err_no == EACCES)
-	{
 		write(STDERR_FILENO, "Permission denied\n", 18);
-		exit_code = 126;
-	}
 	else
 	{
 		write(STDERR_FILENO, strerror(err_no), ft_strlen(strerror(err_no)));
 		write(STDERR_FILENO, "\n", 1);
 	}
-	return (exit_code);
+}
+static int	ms_exec_error_code(char *arg, int err_no)
+{
+	if (err_no == 0)
+		err_no = ENOENT;
+	write(STDERR_FILENO, arg, ft_strlen(arg));
+	write(STDERR_FILENO, ": ", 2);
+	ms_write_exec_message(err_no);
+	return (ms_exec_exit_code(err_no));
 }
 
 static void	ms_update_underscore(t_shell *shell, char *value)
@@ -124,49 +105,49 @@ static void	ms_update_underscore(t_shell *shell, char *value)
 	ms_env_set(&shell->env_list, "_", value, 1);
 }
 
+static int	ms_exec_directory_status(char *argv0, char *display_arg)
+{
+	if (ft_strcmp(argv0, ".") == 0)
+	{
+		ms_print_command_not_found(argv0);
+		return (127);
+	}
+	write(STDERR_FILENO, display_arg, ft_strlen(display_arg));
+	write(STDERR_FILENO, ": Is a directory\n", 17);
+	return (126);
+}
+
+static int	ms_exec_precheck(char *argv0, char *display_arg, char *path)
+{
+	struct stat	file_info;
+
+	if (stat(path, &file_info) == -1)
+		return (ms_exec_error_code(display_arg, errno));
+	if (S_ISDIR(file_info.st_mode))
+		return (ms_exec_directory_status(argv0, display_arg));
+	return (-1);
+}
+
 static int	ms_exec_external_command(t_shell *shell, char **argv)
 {
-	char		*path;
-	char		**envp;
-	struct stat	file_info;
-	int			err_no = 0;
-	int status;
-	int used_path;
-	char *display_arg;
+	char	*path;
+	char	**envp;
+	char	*display_arg;
+	int		used_path;
+	int		status;
 
 	path = ms_find_executable(shell, argv[0], &used_path);
 	if (!path)
-	{
-		ms_print_command_not_found(argv[0]);
-		return (127);
-	}
+		return (ms_print_command_not_found(argv[0]), 127);
 	display_arg = argv[0];
 	if (used_path)
 		display_arg = path;
 	ms_update_underscore(shell, path);
-	if (stat(path, &file_info) == -1)
-	{
-		status = ms_exec_error_code(display_arg, err_no);
-		free(path);
-		return (status);
-	}
-	if (S_ISDIR(file_info.st_mode))
-	{
-		if (ft_strcmp(argv[0], ".") == 0)
-		{
-			ms_print_command_not_found(argv[0]);
-			free(path);
-			return (127);
-		}
-		write (2, display_arg, ft_strlen(display_arg));
-		write (2, ": Is a directory\n", 17);
-		free(path);
-		return (126);
-	}
+	status = ms_exec_precheck(argv[0], display_arg, path);
+	if (status >= 0)
+		return (free(path), status);
 	envp = ms_env_to_array(shell->env_list);
 	execve(path, argv, envp);
-	err_no = errno;
-	status = ms_exec_error_code(display_arg, err_no);
 	ms_free_str_array(envp);
 	free(path);
 	return (status);
@@ -211,8 +192,7 @@ static void	ms_close_heredocs(t_command *cmd_list, t_command *current)
 		r = cl->redirections;
 		while (r)
 		{
-			if (r->type == REDIR_HEREDOC && r->heredoc_fd >= 0
-				&& cl != current)
+			if (r->type == REDIR_HEREDOC && r->heredoc_fd >= 0 && cl != current)
 			{
 				close(r->heredoc_fd);
 				r->heredoc_fd = -1;
@@ -224,12 +204,11 @@ static void	ms_close_heredocs(t_command *cmd_list, t_command *current)
 }
 
 void	ms_execute_child(t_shell *shell, t_command *cmd_list, t_command *cmd,
-			int in_fd, int out_fd)
+		int in_fd, int out_fd)
 {
 	int	status;
 
 	ms_setup_child_signals();
-
 	if (ms_dup_and_close(in_fd, STDIN_FILENO) < 0)
 		ms_child_exit(shell, cmd_list, 1);
 	if (ms_dup_and_close(out_fd, STDOUT_FILENO) < 0)
@@ -249,12 +228,12 @@ void	ms_execute_child(t_shell *shell, t_command *cmd_list, t_command *cmd,
 	ms_child_exit(shell, cmd_list, status);
 }
 
-//Juliyan to check pipe_fd
+// Juliyan to check pipe_fd
 //         write()                    read()
 //    pipe_fd[1]  ─────────▶  pipe_fd[0]
 
 int	ms_fork_and_execute(t_shell *shell, t_command *cmd_list, t_command *cmd,
-	int prev_read, int pipe_fd[2])
+		int prev_read, int pipe_fd[2])
 {
 	pid_t	pid;
 
@@ -274,5 +253,3 @@ int	ms_fork_and_execute(t_shell *shell, t_command *cmd_list, t_command *cmd,
 	}
 	return (pid);
 }
-
-
