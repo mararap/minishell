@@ -134,6 +134,7 @@ static int	ms_exec_external_command(t_shell *shell, char **argv)
 	char	**envp;
 	char	*display_arg;
 	int		used_path;
+	int		err_no;
 	int		status;
 
 	path = ms_find_executable(shell, argv[0], &used_path);
@@ -148,7 +149,9 @@ static int	ms_exec_external_command(t_shell *shell, char **argv)
 		return (free(path), status);
 	envp = ms_env_to_array(shell->env_list);
 	execve(path, argv, envp);
+	err_no = errno;
 	ms_free_str_array(envp);
+	status = ms_exec_error_code(display_arg, err_no);
 	free(path);
 	return (status);
 }
