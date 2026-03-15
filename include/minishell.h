@@ -201,7 +201,7 @@ int								ms_check_redirections(t_redir *redirections);
 int								ms_apply_redirections(t_redir *redirections);
 int								ms_fork_and_execute(t_shell *shell,
 									t_command *cmd_list, t_command *cmd, int prev_read,
-									int pipe_fd[2]);
+									int pipe_fd[2], pid_t *pids_to_free);
 void							ms_execute_child(t_shell *shell, t_command *cmd_list,
 									t_command *cmd,
 									int in_fd, int out_fd);

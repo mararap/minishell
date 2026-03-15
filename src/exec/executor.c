@@ -136,13 +136,13 @@ static void	ms_prepare_pipeline_signals(t_shell *shell)
 	signal(SIGQUIT, SIG_IGN);
 }
 static pid_t	ms_launch_pipeline_cmd(t_shell *shell, t_command *command_list,
-		t_command *cmd, int *prev_read, int pipe_fd[2])
+		t_command *cmd, int *prev_read, int pipe_fd[2], pid_t *pids)
 {
 	pid_t	pid;
 
 	if (ms_create_pipe_if_needed(cmd, pipe_fd) < 0)
 		return (-1);
-	pid = ms_fork_and_execute(shell, command_list, cmd, *prev_read, pipe_fd);
+	pid = ms_fork_and_execute(shell, command_list, cmd, *prev_read, pipe_fd, pids);
 	if (pid < 0)
 		return (-1);
 	ms_update_parent_fds(prev_read, cmd, pipe_fd);
@@ -176,7 +176,7 @@ static int	ms_spawn_pipeline(t_shell *shell, t_command *command_list,
 		pipe_fd[0] = -1;
 		pipe_fd[1] = -1;
 		pids[i] = ms_launch_pipeline_cmd(shell, command_list, cmd, &prev_read,
-				pipe_fd);
+				pipe_fd, pids);
 		if (pids[i] < 0)
 			return (ms_abort_pipeline(shell, pids, i, prev_read, pipe_fd));
 		cmd = cmd->next;

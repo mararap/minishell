@@ -233,7 +233,7 @@ void	ms_execute_child(t_shell *shell, t_command *cmd_list, t_command *cmd,
 //    pipe_fd[1]  ─────────▶  pipe_fd[0]
 
 int	ms_fork_and_execute(t_shell *shell, t_command *cmd_list, t_command *cmd,
-		int prev_read, int pipe_fd[2])
+		int prev_read, int pipe_fd[2], pid_t *pids_to_free)
 {
 	pid_t	pid;
 
@@ -248,6 +248,8 @@ int	ms_fork_and_execute(t_shell *shell, t_command *cmd_list, t_command *cmd,
 		ms_setup_child_signals();
 		if (cmd->next)
 			close(pipe_fd[0]);
+		if (pids_to_free)
+			free(pids_to_free);
 		ms_execute_child(shell, cmd_list, cmd, prev_read,
 			cmd->next ? pipe_fd[1] : STDOUT_FILENO);
 	}
