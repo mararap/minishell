@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/25 20:53:48 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/15 19:44:55 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/16 13:32:12 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	ms_print_syntax_error(t_token *tok)
 		unexpected = "newline";
 	else
 		unexpected = ms_token_to_str(tok->type);
-	ft_putstr_fd(SHELL_NAME ": syntax error near unexpected token `",
+	ft_putstr_fd("syntax error near unexpected token `",
 		STDERR_FILENO);
 	ft_putstr_fd((char *)unexpected, STDERR_FILENO);
 	ft_putstr_fd("'\n", STDERR_FILENO);

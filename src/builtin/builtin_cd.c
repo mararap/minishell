@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_cd.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatanaso <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 15:24:16 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/15 15:24:23 by jatanaso         ###   ########.fr       */
+/*   Updated: 2026/03/16 13:40:58 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static int	cd_error_with_path(const char *path, const char *msg)
 {
-	write(STDERR_FILENO, "cd: ", 4);
+	write(STDERR_FILENO, SHELL_NAME ": cd: ", ft_strlen(SHELL_NAME) + 6);
 	if (path)
 	{
 		write(STDERR_FILENO, path, ft_strlen(path));
@@ -41,7 +41,7 @@ static int	ms_update_pwd_vars(t_shell *shell, char *old_pwd)
 
 static void	ms_cd_output(char *str)
 {
-	write(STDERR_FILENO, "cd: ", 4);
+	write(STDERR_FILENO, SHELL_NAME ": cd: ", ft_strlen(SHELL_NAME) + 6);
 	write(STDERR_FILENO, str, ft_strlen(str));
 	write(STDERR_FILENO, ": ", 2);
 	write(STDERR_FILENO, strerror(errno), ft_strlen(strerror(errno)));
