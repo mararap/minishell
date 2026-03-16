@@ -2,18 +2,16 @@
 
 static void	ms_redir_error(char *target)
 {
-	char	*prefix;
+	char	*msg;
 	char	*line;
-	char	*err;
-	
+
 	if (!target)
-		target = "";
-	err = strerror(errno);
-	prefix = ms_str_join_three(target, ": ", "");
-	if (!prefix)
 		return ;
-	line = ms_str_join_three(prefix, err, "\n");
-	free(prefix);
+	msg = ms_str_join_three(target, ": ", strerror(errno));
+	if (!msg)
+		return ;
+	line = ms_str_join_three(msg, "\n", "");
+	free (msg);
 	if (!line)
 		return ;
 	write(STDERR_FILENO, line, ft_strlen(line));
