@@ -57,7 +57,7 @@ int	ms_create_pipe_if_needed(t_command *cmd, int pipe_fd[2])
 		return (0);
 	if (pipe(pipe_fd) < 0)
 	{
-		perror("pipe\n");
+		perror("pipe");
 		return (-1);
 	}
 	return (1);
@@ -65,8 +65,11 @@ int	ms_create_pipe_if_needed(t_command *cmd, int pipe_fd[2])
 
 void	ms_update_parent_fds(int *prev_read, t_command *cmd, int pipe_fd[2])
 {
-	if (*prev_read != STDIN_FILENO)
+	if (*prev_read >= 0 && *prev_read != STDIN_FILENO)
+	{
 		close(*prev_read);
+		*prev_read = -1;
+	}
 	if (cmd->next)
 	{
 		close(pipe_fd[1]);
@@ -78,9 +81,9 @@ int	ms_pipeline_error(pid_t *pids, int prev_read)
 {
 	if (pids)
 		free(pids);
-	if (prev_read != STDIN_FILENO)
+	if (prev_read >= 0 && prev_read != STDIN_FILENO)
 		close(prev_read);
-	perror("pipeline\n");
+	perror("pipeline");
 	return (1);
 }
 static int	ms_abort_pipeline(t_shell *shell, pid_t *pids, int created,

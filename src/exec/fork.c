@@ -18,7 +18,7 @@ static char	*ms_join_search_dir(char *dir, char *cmd)
 		return (ms_str_join_three(".", "/", cmd));
 	return (ms_str_join_three(dir, "/", cmd));
 }
-
+/*
 static int ms_path_match_kind(char *candidate)
 {
 	struct stat st;
@@ -52,13 +52,14 @@ static char	*ms_return_path_match(char **paths, char *fallback, char *candidate,
 		*used_path = 1;
 	free (fallback);
 	return (candidate);
-}
+}*/
 
 static char	*ms_search_path_dirs(char **paths, char *cmd, int *used_path)
 {
 	char		*candidate;
 	struct stat	st;
 	int			i;
+	char		*fallback;
 
 	i = 0;
 	fallback = NULL;
@@ -178,7 +179,6 @@ static int	ms_exec_external_command(t_shell *shell, char **argv)
 	int		used_path;
 	int		err_no;
 	int		status;
-	int		err_no;
 
 	path = ms_find_executable(shell, argv[0], &used_path);
 	if (!path)
@@ -286,13 +286,12 @@ int	ms_fork_and_execute(t_shell *shell, t_command *cmd_list, t_command *cmd,
 	pid = fork();
 	if (pid < 0)
 	{
-		perror("fork\n");
+		perror("fork");
 		return (-1);
 	}
 	if (pid == 0)
 	{
-		ms_setup_child_signals();
-		if (cmd->next)
+		if (pipe_fd[0] >= 0)
 			close(pipe_fd[0]);
 		if (pids_to_free)
 			free(pids_to_free);
