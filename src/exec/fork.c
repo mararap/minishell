@@ -20,14 +20,17 @@ static char	*ms_join_search_dir(char *dir, char *cmd)
 }
 static char	*ms_search_path_dirs(char **paths, char *cmd, int *used_path)
 {
-	char	*candidate;
-	int		i;
+	char		*candidate;
+	struct stat	st;
+	int			i;
 
 	i = 0;
 	while (paths[i])
 	{
 		candidate = ms_join_search_dir(paths[i], cmd);
-		if (access(candidate, X_OK) == 0 || access(candidate, F_OK) == 0)
+		if (access(candidate, F_OK) == 0
+			&& stat(candidate, &st) == 0
+			&& !S_ISDIR(st.st_mode))
 		{
 			ms_free_str_array(paths);
 			if (used_path)
@@ -135,6 +138,7 @@ static int	ms_exec_external_command(t_shell *shell, char **argv)
 	char	*display_arg;
 	int		used_path;
 	int		status;
+	int		err_no;
 
 	path = ms_find_executable(shell, argv[0], &used_path);
 	if (!path)
@@ -148,7 +152,9 @@ static int	ms_exec_external_command(t_shell *shell, char **argv)
 		return (free(path), status);
 	envp = ms_env_to_array(shell->env_list);
 	execve(path, argv, envp);
+	err_no = errno;
 	ms_free_str_array(envp);
+	status = ms_exec_error_code(display_arg, err_no);
 	free(path);
 	return (status);
 }

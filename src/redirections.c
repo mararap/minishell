@@ -2,11 +2,20 @@
 
 static void	ms_redir_error(char *target)
 {
-	if (target)
-		write (STDERR_FILENO, target, ft_strlen(target));
-	write(STDERR_FILENO, ": ", 2);
-	write(STDERR_FILENO, strerror(errno), ft_strlen(strerror(errno)));
-	write(STDERR_FILENO, "\n", 1);
+	char	*msg;
+	char	*line;
+
+	if (!target)
+		return ;
+	msg = ms_str_join_three(target, ": ", strerror(errno));
+	if (!msg)
+		return ;
+	line = ms_str_join_three(msg, "\n", "");
+	free (msg);
+	if (!line)
+		return ;
+	write(STDERR_FILENO, line, ft_strlen(line));
+	free(line);
 }
 
 static int	ms_open_output_file(t_redir *redir)

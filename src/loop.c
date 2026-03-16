@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/18 21:03:30 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/11 10:43:58 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/16 14:45:10 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@ void	ms_handle_line(t_shell *shell, char *line)
 	if (!commands)
 	{
 		shell->last_exit_status = 2;
+		if (!shell->is_interactive)
+		shell->should_exit = 1;
 		return ;
 	}
 	status = ms_prepare_heredocs(shell, commands);

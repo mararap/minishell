@@ -135,13 +135,17 @@ static char *ms_format_cmd_name(const char *cmd)
 void ms_print_command_not_found(char *cmd)
 {
 	char	*display;
+	char	*msg;
 
 	display = ms_format_cmd_name(cmd);
 	if (!display)
 		return ;
-	ft_putstr_fd(display, STDERR_FILENO);
-	ft_putstr_fd(": command not found\n", STDERR_FILENO);
+	msg = ms_str_join_three(display, ": command not found", "\n");
 	free(display);
+	if (!msg)
+		return ;
+	write(STDERR_FILENO, msg, ft_strlen(msg));
+	free(msg);
 }
 
 size_t	ms_str_arr_len(char **arr)
