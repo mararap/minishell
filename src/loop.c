@@ -6,11 +6,66 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/18 21:03:30 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/11 10:43:58 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/16 10:14:46 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static void	ms_chomp_eol(char *s)
+{
+	size_t	len;
+
+	if (!s)
+		return ;
+	len = ft_strlen(s);
+	while (len > 0 && (s[len - 1] == '\n' || s[len - 1] == '\r'))
+	{
+		s[len - 1] = '\0';
+		len--;
+	}
+}
+
+static void	ms_discard_one_heredoc_body(const char *delim)
+{
+	char	*line;
+	
+	if (!delim)
+		return ;
+	while (1)
+	{
+		line = ms_get_next_line(STDIN_FILENO);
+		if (!line)
+			return ;
+		ms_chomp_eol(line);
+		if (ft_strcmp(line, delim) == 0)
+		{
+			free(line);
+			return;
+		}
+		free(line);
+	}
+}
+
+static void	ms_discard_pending_heredocs(t_token *tokens)
+{
+	t_token	*cur;
+	t_token	*next;
+	
+	cur = tokens;
+	while (cur)
+	{
+		if (cur->type == TOKEN_HEREDOC)
+		{
+			next = cur->next;
+			if (next && next->type == TOKEN_WORD && next->value)
+				ms_discard_one_heredoc_body(next->value);
+			cur = next;
+		}
+		if (cur)
+			cur = cur->next;
+	}
+}
 
 //Maria
 void	ms_handle_line(t_shell *shell, char *line)
@@ -25,12 +80,15 @@ void	ms_handle_line(t_shell *shell, char *line)
 	if (!tokens)
 		return ;
 	commands = ms_parse_tokens(tokens);
-	ms_free_token_list(tokens);
 	if (!commands)
 	{
+		if (!shell->is_interactive)
+			ms_discard_pending_heredocs(tokens);
+		ms_free_token_list(tokens);
 		shell->last_exit_status = 2;
 		return ;
 	}
+	ms_free_token_list(tokens);
 	status = ms_prepare_heredocs(shell, commands);
 	if (status != 0)
 	{
