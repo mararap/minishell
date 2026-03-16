@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_putptr.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/10 18:36:56 by marapovi          #+#    #+#             */
-/*   Updated: 2025/10/11 21:39:54 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/16 09:23:20 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ int	ft_putptr(void *ptr)
 	if (ptr == 0)
 		return (write(1, "(nil)", 5));
 	adr = (unsigned long long)ptr;
-	write (1, "0x", 2);
+	write(1, "0x", 2);
 	ft_ptrputhex(adr);
 	count = ft_adrlen(adr) + 2;
 	return (count);
