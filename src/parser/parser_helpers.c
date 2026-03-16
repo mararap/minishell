@@ -6,13 +6,13 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/25 20:53:48 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/16 09:44:12 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/16 13:21:15 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static const char	*ms_token_to_str(t_token_type type)
+const char	*ms_token_to_str(t_token_type type)
 {
 	if (type == TOKEN_PIPE)
 		return ("|");

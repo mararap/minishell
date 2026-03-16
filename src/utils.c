@@ -22,32 +22,34 @@ char	*ms_strdup_safe(const char *src)
 
 void	ms_perror(char *arg, int err_no)
 {
-	int	exit_code;
+	int		exit_code;
+	char	*msg;
+	char	*line;
+	char	*prefix;
 
 	exit_code = 127;
-	write (STDERR_FILENO, arg, ft_strlen(arg));
-	write (STDERR_FILENO, ": ", 2);
+	if (err_no == EISDIR || err_no == ENOEXEC || err_no == EACCES)
+		exit_code = 126;
 	if (err_no == ENOENT)
-		write (STDERR_FILENO, "No such file or directory\n", 26);
-	else if (err_no == EISDIR || err_no == ENOEXEC)
-	{
-		if (err_no == EISDIR)
-			write (STDERR_FILENO, "Is a directory\n", 15);
-		else
-			write(STDERR_FILENO, "Exec format error\n", 18);
-		exit_code = 126;
-	}
+		msg = "No such file or directory";
+	else if (err_no == EISDIR)
+		msg = "Is a directory";
+	else if (err_no == ENOEXEC)
+		msg = "Exec format error";
 	else if (err_no == EACCES)
-	{
-		write(STDERR_FILENO, "Permission denied\n", 18);
-		exit_code = 126;
-	}
+		msg = "Permission denied";
 	else
-	{
-		write(STDERR_FILENO, strerror(err_no), ft_strlen(strerror(err_no)));
-		write (STDERR_FILENO, "\n", 1);
-	}
-	exit (exit_code);
+		msg = (char *)strerror(err_no);
+	prefix = ms_str_join_three(arg, ": ", "");
+	if (!prefix)
+		exit(exit_code);
+	line = ms_str_join_three(prefix, msg, "\n");
+	free(prefix);
+	if (!line)
+		exit(exit_code);
+	write(STDERR_FILENO, line, ft_strlen(line));
+	free(line);
+	exit(exit_code);
 }
 
 static int ms_needs_ansi_quote(const char *s)
@@ -135,13 +137,17 @@ static char *ms_format_cmd_name(const char *cmd)
 void ms_print_command_not_found(char *cmd)
 {
 	char	*display;
+	char	*msg;
 
 	display = ms_format_cmd_name(cmd);
 	if (!display)
 		return ;
-	ft_putstr_fd(display, STDERR_FILENO);
-	ft_putstr_fd(": command not found\n", STDERR_FILENO);
+	msg = ms_str_join_three(display, ": command not found", "\n");
 	free(display);
+	if (!msg)
+		return ;
+	write(STDERR_FILENO, msg, ft_strlen(msg));
+	free(msg);
 }
 
 size_t	ms_str_arr_len(char **arr)

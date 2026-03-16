@@ -2,11 +2,22 @@
 
 static void	ms_redir_error(char *target)
 {
-	if (target)
-		write (STDERR_FILENO, target, ft_strlen(target));
-	write(STDERR_FILENO, ": ", 2);
-	write(STDERR_FILENO, strerror(errno), ft_strlen(strerror(errno)));
-	write(STDERR_FILENO, "\n", 1);
+	char	*prefix;
+	char	*line;
+	char	*err;
+	
+	if (!target)
+		target = "";
+	err = strerror(errno);
+	prefix = ms_str_join_three(target, ": ", "");
+	if (!prefix)
+		return ;
+	line = ms_str_join_three(prefix, err, "\n");
+	free(prefix);
+	if (!line)
+		return ;
+	write(STDERR_FILENO, line, ft_strlen(line));
+	free(line);
 }
 
 static int	ms_open_output_file(t_redir *redir)
@@ -24,9 +35,15 @@ static int	ms_open_output_file(t_redir *redir)
 
 static int ms_redir_ambiguous_error(char *target)
 {
-	if (target)
-		ft_putstr_fd(target, STDERR_FILENO);
-	ft_putstr_fd(": ambiguous redirect\n", STDERR_FILENO);
+	char	*line;
+
+	if (!target)
+		target = "";
+	line = ms_str_join_three(target, ": ambiguous redirect", "\n");
+	if (!line)
+		return (-1);
+	write(STDERR_FILENO, line, ft_strlen(line));
+	free(line);
 	return (-1);
 }
 
