@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-static char	*ms_cmd_from_cwd(char *cmd)
+/* static char	*ms_cmd_from_cwd(char *cmd)
 {
 	char	*cwd;
 	char	*candidate;
@@ -11,13 +11,15 @@ static char	*ms_cmd_from_cwd(char *cmd)
 	candidate = ms_str_join_three(cwd, "/", cmd);
 	free(cwd);
 	return (candidate);
-}
+} */
+
 static char	*ms_join_search_dir(char *dir, char *cmd)
 {
 	if (dir[0] == '\0')
 		return (ms_str_join_three(".", "/", cmd));
 	return (ms_str_join_three(dir, "/", cmd));
 }
+
 static char	*ms_search_path_dirs(char **paths, char *cmd, int *used_path)
 {
 	char		*candidate;
@@ -60,7 +62,8 @@ static char	*ms_find_executable(t_shell *shell, char *cmd, int *used_path)
 	path_env = ms_env_get_value(shell->env_list, "PATH");
 	// If PATH is unset, bash still checks CWD
 	if (!path_env)
-		return (ms_cmd_from_cwd(cmd));
+//		return (ms_cmd_from_cwd(cmd));
+		return (ft_strdup(cmd));
 	if (path_env[0] == '\0')
 		return (ft_strdup(cmd));
 	paths = ft_split(path_env, ':');
