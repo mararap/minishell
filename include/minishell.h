@@ -100,7 +100,6 @@ typedef struct s_shell
 	int							should_exit;
 	pid_t						main_pid;
 	char						*current_line;
-	int							shlvl_missing_on_start;
 }								t_shell;
 
 typedef struct s_lexr_state

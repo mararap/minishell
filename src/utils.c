@@ -7,7 +7,7 @@ void	*ms_xmalloc(size_t size)
 	ptr = malloc(size);
 	if (!ptr)
 	{
-		write(STDERR_FILENO, SHELL_NAME ": malloc failed\n", 24);
+		write(STDERR_FILENO, SHELL_NAME ": malloc failed\n", ft_strlen(SHELL_NAME) + 16);
 		exit(1);
 	}
 	return (ptr);

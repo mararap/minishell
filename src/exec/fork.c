@@ -134,14 +134,14 @@ static int	ms_exec_precheck(char *argv0, char *display_arg, char *path)
 	return (-1);
 }
 
-static void	ms_adjust_envp_shlvl(char **envp, int apply_fix)
+static void	ms_adjust_envp_shlvl(char **envp)
 {
 	int		i;
 	int		val;
 	char	*new_val;
 	char	*new_entry;
 
-	if (!apply_fix || !envp)
+	if (!envp)
 		return ;
 	i = 0;
 	while (envp[i])
@@ -149,7 +149,7 @@ static void	ms_adjust_envp_shlvl(char **envp, int apply_fix)
 		if (ft_strncmp(envp[i], "SHLVL=", 6) == 0)
 		{
 			val = ft_atoi(envp[i] + 6);
-			if (val != 1)
+			if (val <= 0)
 				return ;
 			val--;
 			new_val = ft_itoa(val);
@@ -187,7 +187,7 @@ static int	ms_exec_external_command(t_shell *shell, char **argv)
 	if (status >= 0)
 		return (free(path), status);
 	envp = ms_env_to_array(shell->env_list);
-	ms_adjust_envp_shlvl(envp, shell->shlvl_missing_on_start);
+	ms_adjust_envp_shlvl(envp);
 	execve(path, argv, envp);
 	err_no = errno;
 	ms_free_str_array(envp);

@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 15:24:50 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/18 13:23:25 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/18 19:07:02 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,8 @@ static int	ms_parse_export_pair(char *arg, char **name, char **value)
 
 static void	ms_export_error(char *arg)
 {
-	ft_putstr_fd("juma[n]she: export: `", STDERR_FILENO);
+	ft_putstr_fd(SHELL_NAME, STDERR_FILENO);
+	ft_putstr_fd(": export: `", STDERR_FILENO);
 	ft_putstr_fd(arg, STDERR_FILENO);
 	ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
 }
