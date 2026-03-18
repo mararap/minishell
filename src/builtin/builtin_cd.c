@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 15:24:16 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/16 13:40:58 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/18 15:11:45 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static int	cd_error_with_path(const char *path, const char *msg)
 {
-	write(STDERR_FILENO, SHELL_NAME ": cd: ", ft_strlen(SHELL_NAME) + 6);
+	write(STDERR_FILENO, "cd: ", 4);
 	if (path)
 	{
 		write(STDERR_FILENO, path, ft_strlen(path));

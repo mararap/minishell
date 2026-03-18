@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_export_unset.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatanaso <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 15:24:50 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/15 15:24:52 by jatanaso         ###   ########.fr       */
+/*   Updated: 2026/03/18 19:07:02 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,8 @@ static int	ms_parse_export_pair(char *arg, char **name, char **value)
 
 static void	ms_export_error(char *arg)
 {
-	ft_putstr_fd("juma[n]she: export: `", STDERR_FILENO);
+	ft_putstr_fd(SHELL_NAME, STDERR_FILENO);
+	ft_putstr_fd(": export: `", STDERR_FILENO);
 	ft_putstr_fd(arg, STDERR_FILENO);
 	ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
 }
@@ -116,6 +117,7 @@ static t_env_var	**ms_export_sorted_env(t_env_var *env_list, int *count)
 	ms_sort_env_array(arr, *count);
 	return (arr);
 }
+
 static int	ms_skip_export_entry(t_env_var *var)
 {
 	if (ft_strcmp(var->name, "_") == 0)
@@ -124,6 +126,7 @@ static int	ms_skip_export_entry(t_env_var *var)
 		return (1);
 	return (0);
 }
+
 static void	ms_print_export_entry(t_env_var *var)
 {
 	ft_putstr_fd("export ", STDOUT_FILENO);

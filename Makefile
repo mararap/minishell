@@ -6,7 +6,7 @@
 #    By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2026/03/15 16:31:34 by marapovi         ###   ########.fr        #
+#    Updated: 2026/03/18 19:11:50 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -104,7 +104,7 @@ SRC				:=		main.c\
 						builtin/builtin_cd.c\
 						builtin/builtin_env.c\
 						builtin/builtin_exit.c\
-						builtin/builtin_export_unset.c\
+						builtin/builtin_export.c\
 						builtin/builtin_unset.c\
 						builtin/builtins.c\
 						builtin/builtin_echo.c\

@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 16:28:23 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/11 19:36:15 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/18 18:58:37 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ static char	*ms_next_field(const char *s, size_t *i)
 	field = ft_substr(s, start, *i - start);
 	if (!field)
 	{
-		write(STDERR_FILENO, SHELL_NAME ": malloc failed\n", 24);
+		write(STDERR_FILENO, SHELL_NAME ": malloc failed\n", ft_strlen(SHELL_NAME) + 16);
 		exit(1);
 	}
 	ms_unmask_ifs(field);

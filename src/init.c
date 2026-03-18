@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/16 16:10:01 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/12 20:43:10 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/18 16:22:39 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ static void	ms_bootstrap_env(t_shell *shell)
 	}
 	if (!ms_env_get_value(shell->env_list, "PATH"))
 		ms_env_set(&shell->env_list, "PATH",
-			"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.", 0);
+			"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 0);
 	if (!ms_env_get_value(shell->env_list, "OLDPWD"))
 		ms_env_set(&shell->env_list, "OLDPWD", NULL, 1);
 }

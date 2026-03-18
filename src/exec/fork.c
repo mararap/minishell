@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-static char	*ms_cmd_from_cwd(char *cmd)
+/* static char	*ms_cmd_from_cwd(char *cmd)
 {
 	char	*cwd;
 	char	*candidate;
@@ -11,58 +11,22 @@ static char	*ms_cmd_from_cwd(char *cmd)
 	candidate = ms_str_join_three(cwd, "/", cmd);
 	free(cwd);
 	return (candidate);
-}
+} */
+
 static char	*ms_join_search_dir(char *dir, char *cmd)
 {
 	if (dir[0] == '\0')
 		return (ms_str_join_three(".", "/", cmd));
 	return (ms_str_join_three(dir, "/", cmd));
 }
-/*
-static int ms_path_match_kind(char *candidate)
-{
-	struct stat st;
-
-	if (stat(candidate, &st) != 0)
-		return (0);
-	if (S_ISDIR(st.st_mode))
-		return (0);
-	if (access(candidate, X_OK) == 0)
-		return (2);
-	return (1);
-}
-
-static char	*ms_pick_path_hit(char *candidate, char **fallback)
-{
-	int kind;
-
-	kind = ms_path_match_kind(candidate);
-	if (kind == 2)
-		return (candidate);
-	if (kind == 1 && !*fallback)
-		*fallback = ft_strdup(candidate);
-	free(candidate);
-	return (NULL);
-}
-
-static char	*ms_return_path_match(char **paths, char *fallback, char *candidate, int *used_path)
-{
-	ms_free_str_array(paths);
-	if (used_path)
-		*used_path = 1;
-	free (fallback);
-	return (candidate);
-}*/
 
 static char	*ms_search_path_dirs(char **paths, char *cmd, int *used_path)
 {
 	char		*candidate;
 	struct stat	st;
 	int			i;
-	char		*fallback;
 
 	i = 0;
-	fallback = NULL;
 	while (paths[i])
 	{
 		candidate = ms_join_search_dir(paths[i], cmd);
@@ -79,9 +43,7 @@ static char	*ms_search_path_dirs(char **paths, char *cmd, int *used_path)
 		i++;
 	}
 	ms_free_str_array(paths);
-	if (used_path && fallback)
-		*used_path = 1;
-	return (fallback);
+	return (NULL);
 }
 
 static char	*ms_find_executable(t_shell *shell, char *cmd, int *used_path)
@@ -100,7 +62,8 @@ static char	*ms_find_executable(t_shell *shell, char *cmd, int *used_path)
 	path_env = ms_env_get_value(shell->env_list, "PATH");
 	// If PATH is unset, bash still checks CWD
 	if (!path_env)
-		return (ms_cmd_from_cwd(cmd));
+//		return (ms_cmd_from_cwd(cmd));
+		return (ft_strdup(cmd));
 	if (path_env[0] == '\0')
 		return (ft_strdup(cmd));
 	paths = ft_split(path_env, ':');
@@ -171,14 +134,47 @@ static int	ms_exec_precheck(char *argv0, char *display_arg, char *path)
 	return (-1);
 }
 
+static void	ms_adjust_envp_shlvl(char **envp)
+{
+	int		i;
+	int		val;
+	char	*new_val;
+	char	*new_entry;
+
+	if (!envp)
+		return ;
+	i = 0;
+	while (envp[i])
+	{
+		if (ft_strncmp(envp[i], "SHLVL=", 6) == 0)
+		{
+			val = ft_atoi(envp[i] + 6);
+			if (val <= 0)
+				return ;
+			val--;
+			new_val = ft_itoa(val);
+			if (!new_val)
+				return ;
+			new_entry = ms_str_join_three("SHLVL=", new_val, "");
+			free(new_val);
+			if (!new_entry)
+				return ;
+			free(envp[i]);
+			envp[i] = new_entry;
+			return ;
+		}
+		i++;
+	}
+}
+
 static int	ms_exec_external_command(t_shell *shell, char **argv)
 {
 	char	*path;
 	char	**envp;
 	char	*display_arg;
 	int		used_path;
-	int		err_no;
 	int		status;
+	int		err_no;
 
 	path = ms_find_executable(shell, argv[0], &used_path);
 	if (!path)
@@ -191,6 +187,7 @@ static int	ms_exec_external_command(t_shell *shell, char **argv)
 	if (status >= 0)
 		return (free(path), status);
 	envp = ms_env_to_array(shell->env_list);
+	ms_adjust_envp_shlvl(envp);
 	execve(path, argv, envp);
 	err_no = errno;
 	ms_free_str_array(envp);
@@ -286,12 +283,13 @@ int	ms_fork_and_execute(t_shell *shell, t_command *cmd_list, t_command *cmd,
 	pid = fork();
 	if (pid < 0)
 	{
-		perror("fork");
+		perror("fork\n");
 		return (-1);
 	}
 	if (pid == 0)
 	{
-		if (pipe_fd[0] >= 0)
+		ms_setup_child_signals();
+		if (cmd->next)
 			close(pipe_fd[0]);
 		if (pids_to_free)
 			free(pids_to_free);
