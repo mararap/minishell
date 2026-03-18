@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/16 16:10:01 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/12 20:43:10 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/18 13:31:48 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,13 @@ void	ms_init_shell(t_shell *shell, char **envp)
 	int		shlvl;
 	char	*new_shlvl;
 
+	shell->shlvl_missing_on_start = 0;
 	shell->env_list = ms_env_from_environ(envp);
 	ms_bootstrap_env(shell);
 	shlvl_str = ms_env_get_value(shell->env_list, "SHLVL");
+	shell->shlvl_missing_on_start = (shlvl_str == NULL);
 	if (shlvl_str)
-		shlvl = ft_atoi(shlvl_str) + 1; // incremet SHLVL by one on startup
+		shlvl = ft_atoi(shlvl_str); // + 1; // incremet SHLVL by one on startup
 	else
 		shlvl = 1;
 	new_shlvl = ft_itoa(shlvl);

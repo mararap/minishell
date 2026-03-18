@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_export_unset.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatanaso <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 15:24:50 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/15 15:24:52 by jatanaso         ###   ########.fr       */
+/*   Updated: 2026/03/18 13:23:25 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,7 @@ static t_env_var	**ms_export_sorted_env(t_env_var *env_list, int *count)
 	ms_sort_env_array(arr, *count);
 	return (arr);
 }
+
 static int	ms_skip_export_entry(t_env_var *var)
 {
 	if (ft_strcmp(var->name, "_") == 0)
@@ -124,6 +125,7 @@ static int	ms_skip_export_entry(t_env_var *var)
 		return (1);
 	return (0);
 }
+
 static void	ms_print_export_entry(t_env_var *var)
 {
 	ft_putstr_fd("export ", STDOUT_FILENO);
