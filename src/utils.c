@@ -7,7 +7,8 @@ void	*ms_xmalloc(size_t size)
 	ptr = malloc(size);
 	if (!ptr)
 	{
-		write(STDERR_FILENO, SHELL_NAME ": malloc failed\n", ft_strlen(SHELL_NAME) + 16);
+		write(STDERR_FILENO, SHELL_NAME ": malloc failed\n",
+			ft_strlen(SHELL_NAME) + 16);
 		exit(1);
 	}
 	return (ptr);
@@ -52,7 +53,7 @@ void	ms_perror(char *arg, int err_no)
 	exit(exit_code);
 }
 
-static int ms_needs_ansi_quote(const char *s)
+static int	ms_needs_ansi_quote(const char *s)
 {
 	while (*s)
 	{
@@ -63,9 +64,9 @@ static int ms_needs_ansi_quote(const char *s)
 	return (0);
 }
 
-static size_t ms_diag_char_len(unsigned char c)
+static size_t	ms_diag_char_len(unsigned char c)
 {
-	if (c == '\a' || c =='\b' || c == '\t' || c == '\n')
+	if (c == '\a' || c == '\b' || c == '\t' || c == '\n')
 		return (2);
 	if (c == '\v' || c == '\f' || c == '\r' || c == '\\')
 		return (2);
@@ -76,7 +77,7 @@ static size_t ms_diag_char_len(unsigned char c)
 	return (1);
 }
 
-static size_t ms_diag_put_escape(char *dst, unsigned char c)
+static size_t	ms_diag_put_escape(char *dst, unsigned char c)
 {
 	if (c == '\a')
 		return (dst[0] = '\\', dst[1] = 'a', 2);
@@ -92,7 +93,7 @@ static size_t ms_diag_put_escape(char *dst, unsigned char c)
 		return (dst[0] = '\\', dst[1] = 'f', 2);
 	if (c == '\r')
 		return (dst[0] = '\\', dst[1] = 'r', 2);
-	if (c == '\\' || c =='\'')
+	if (c == '\\' || c == '\'')
 		return (dst[0] = '\\', dst[1] = c, 2);
 	if (!ft_isprint(c))
 	{
@@ -106,14 +107,14 @@ static size_t ms_diag_put_escape(char *dst, unsigned char c)
 	return (1);
 }
 
-static char *ms_format_cmd_name(const char *cmd)
+static char	*ms_format_cmd_name(const char *cmd)
 {
 	char	*out;
 	size_t	i;
 	size_t	j;
 	size_t	len;
 
-	if(!cmd)
+	if (!cmd)
 		return (ft_strdup(""));
 	if (!ms_needs_ansi_quote(cmd))
 		return (ft_strdup(cmd));
@@ -134,7 +135,7 @@ static char *ms_format_cmd_name(const char *cmd)
 	return (out);
 }
 
-void ms_print_command_not_found(char *cmd)
+void	ms_print_command_not_found(char *cmd)
 {
 	char	*display;
 	char	*msg;
@@ -192,10 +193,18 @@ static ssize_t	ms_gnl_read_char(int fd, char *c)
 {
 	ssize_t	ret;
 
-	ret = read(fd, c, 1);
-	if (ret <= 0)
+	/* 	ret = read(fd, c, 1);
+		if (ret <= 0)
+			return (ret);
+		return (1); */
+	while (1)
+	{
+		ret = read(fd, c, 1);
+		if (ret < 0 && (errno == EINTR || errno == EAGAIN
+				|| errno == EWOULDBLOCK))
+			continue ;
 		return (ret);
-	return (1);
+	}
 }
 
 static char	*ms_gnl_append_char(char *line, char c)
@@ -243,5 +252,3 @@ char	*ms_get_next_line(int fd)
 flow into independent functions. This keeps each function
 under 25 lines, avoids static state, and makes heredoc behavior
 predictable and signal-safe.”*/
-
-

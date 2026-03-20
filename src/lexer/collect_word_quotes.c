@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 14:01:13 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/15 15:38:11 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/20 14:08:47 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ char	*ms_collect_single_quotes(char *str, int *idx)
 	while (str[*idx] && str[*idx] != '\'')
 		(*idx)++;
 	tmp = ft_substr(str, start, *idx - start);
+	if (!tmp)
+		return (NULL);
 	ms_mask_ifs(tmp);
 	if (str[*idx] == '\'')
 		(*idx)++;
