@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_env.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatanaso <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 15:24:30 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/15 15:24:33 by jatanaso         ###   ########.fr       */
+/*   Updated: 2026/03/20 11:44:12 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ int	ms_builtin_env(t_shell *shell, char **argv)
 {
 	t_env_var	*iter;
 
+	if (argv[1] && ft_strcmp(argv[1], "-i") == 0 && argv[2] == NULL)
+		return (EXIT_SUCCESS);
 	if (argv[1])
 	{
 		ft_putstr_fd("env: ", STDERR_FILENO);

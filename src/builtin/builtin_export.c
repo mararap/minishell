@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   builtin_export_unset.c                             :+:      :+:    :+:   */
+/*   builtin_export.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 15:24:50 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/18 19:07:02 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/20 11:34:15 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,8 @@ static void	ms_print_export_entry(t_env_var *var)
 {
 	ft_putstr_fd("export ", STDOUT_FILENO);
 	ft_putstr_fd(var->name, STDOUT_FILENO);
-	if (var->value && var->value[0] != '\0')
+	/* if (var->value && var->value[0] != '\0') */
+	if (var->value != NULL)
 	{
 		ft_putstr_fd("=\"", STDOUT_FILENO);
 		ft_putstr_fd(var->value, STDOUT_FILENO);
