@@ -23,9 +23,9 @@ static int	ms_open_output_file(t_redir *redir)
 	int	fd;
 
 	if (redir->type == REDIR_OUT)
-		fd = open(redir->target, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		fd = open(redir->target, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	else
-		fd = open(redir->target, O_WRONLY | O_CREAT | O_APPEND, 0644);
+		fd = open(redir->target, O_WRONLY | O_CREAT | O_APPEND, 0666);
 	if (fd < 0)
 		ms_redir_error(redir->target);
 	return (fd);
