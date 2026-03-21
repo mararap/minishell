@@ -39,15 +39,6 @@ static int	ms_update_pwd_vars(t_shell *shell, char *old_pwd)
 	return (0);
 }
 
-static void	ms_cd_output(char *str)
-{
-	write(STDERR_FILENO, SHELL_NAME ": cd: ", ft_strlen(SHELL_NAME) + 6);
-	write(STDERR_FILENO, str, ft_strlen(str));
-	write(STDERR_FILENO, ": ", 2);
-	write(STDERR_FILENO, strerror(errno), ft_strlen(strerror(errno)));
-	write(STDERR_FILENO, "\n", 1);
-}
-
 static int	ms_cd_home(t_shell *shell, char *old_pwd)
 {
 	char	*home;

@@ -14,44 +14,42 @@
 
 static void	ms_add_redir_token(t_token **tokens, t_lexr_state *lstate)
 {
+	t_token_type	type;
+	int				step;
+
 	if (lstate->line[lstate->i] == '<' && lstate->line[lstate->i + 1] == '<')
-	{
-		ms_tok_add_back(tokens, ms_tok_new(TOKEN_HEREDOC, NULL, NULL, 0));
-		lstate->i += 2;
-		lstate->expect_heredoc_delim = 1;
-	}
+		type = TOKEN_HEREDOC;
 	else if (lstate->line[lstate->i] == '>'
 		&& lstate->line[lstate->i + 1] == '>')
-	{
-		ms_tok_add_back(tokens, ms_tok_new(TOKEN_REDIR_APPEND, NULL, NULL, 0));
-		lstate->i += 2;
-		lstate->expect_heredoc_delim = 0;
-	}
+		type = TOKEN_REDIR_APPEND;
 	else if (lstate->line[lstate->i] == '<')
-	{
-		ms_tok_add_back(tokens, ms_tok_new(TOKEN_REDIR_IN, NULL, NULL, 0));
-		lstate->i += 1;
-		lstate->expect_heredoc_delim = 0;
-	}
+		type = TOKEN_REDIR_IN;
 	else
-	{
-		ms_tok_add_back(tokens, ms_tok_new(TOKEN_REDIR_OUT, NULL, NULL, 0));
-		lstate->i += 1;
-		lstate->expect_heredoc_delim = 0;
-	}
+		type = TOKEN_REDIR_OUT;
+	step = 1;
+	if (type == TOKEN_HEREDOC || type == TOKEN_REDIR_APPEND)
+		step = 2;
+	ms_tok_add_back(tokens, ms_tok_new(type, NULL, NULL, 0));
+	lstate->i += step;
+	lstate->expect_heredoc_delim = (type == TOKEN_HEREDOC);
 }
 
 static int	ms_lex_word(t_token **tokens, t_lexr_state *lstate)
 {
-	char	*word;
-	char	*raw;
-	int		quoted;
-	int		start;
+	t_word_ctx	wctx;
+	char		*word;
+	char		*raw;
+	int			quoted;
+	int			start;
 
 	quoted = 0;
 	start = lstate->i;
-	word = ms_collect_word(lstate->shell, lstate->line, &lstate->i, &quoted,
-			!lstate->expect_heredoc_delim);
+	wctx.shell = lstate->shell;
+	wctx.str = lstate->line;
+	wctx.idx = &lstate->i;
+	wctx.was_quoted = &quoted;
+	wctx.allow_expansion = !lstate->expect_heredoc_delim;
+	word = ms_collect_word(&wctx);
 	if (!word)
 		return (0);
 	raw = ft_substr(lstate->line, start, lstate->i - start);
@@ -94,7 +92,7 @@ t_token	*ms_lex_line(t_shell *shell, char *line)
 	{
 		while (ft_isspace(lstate.line[lstate.i]))
 			lstate.i++;
-		if (!lstate.line || lstate.line[lstate.i] == '#')
+		if (!lstate.line[lstate.i] || lstate.line[lstate.i] == '#')
 			break ;
 		if (!ms_lex_tokens(&tokens, &lstate))
 			break ;
@@ -109,10 +107,8 @@ void	ms_free_token_list(t_token *token_list)
 	while (token_list)
 	{
 		next = token_list->next;
-		if (token_list->value)
-			free(token_list->value);
-		if (token_list->raw)
-			free(token_list->raw);
+		free(token_list->value);
+		free(token_list->raw);
 		free(token_list);
 		token_list = next;
 	}

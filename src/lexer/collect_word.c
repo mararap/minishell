@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-int	ms_join_piece(char **buf, char *tmp)
+static int	ms_join_piece(char **buf, char *tmp)
 {
 	char	*new_buf;
 
@@ -25,7 +25,7 @@ int	ms_join_piece(char **buf, char *tmp)
 	return (1);
 }
 
-char	*ms_collect_plain_word(char *str, int *idx)
+static char	*ms_collect_plain_word(char *str, int *idx)
 {
 	int	start;
 
@@ -50,38 +50,49 @@ static char	*ms_collect_literal_dollar(char *str, int *idx)
 	return (ft_substr(str, start, *idx - start));
 }
 
-static char	*ms_collect_piece(t_shell *shell, char *str, int *idx,
-		int *was_quoted, int allow_expansion)
+static char	*ms_collect_piece(t_word_ctx *wctx)
 {
-	if (str[*idx] == '\'')
-		return (*was_quoted = 1, ms_collect_single_quotes(str, idx));
-	if (str[*idx] == '"')
-		return (*was_quoted = 1, ms_collect_double_quotes(shell, str, idx,
-				allow_expansion));
-	if (str[*idx] == '$' && str[*idx + 1] == '"')
-		return (*was_quoted = 1, ms_collect_locale_quotes(shell, str, idx,
-				allow_expansion));
-	if (str[*idx] == '$' && allow_expansion)
-		return (ms_expand_variable(shell, str, idx));
-	if (str[*idx] == '$')
-		return (ms_collect_literal_dollar(str, idx));
-	return (ms_collect_plain_word(str, idx));
+	if (wctx->str[*wctx->idx] == '\'')
+	{
+		*wctx->was_quoted = 1;
+		return (ms_collect_single_quotes(wctx->str, wctx->idx));
+	}
+	if (wctx->str[*wctx->idx] == '"')
+	{
+		*wctx->was_quoted = 1;
+		return (ms_collect_double_quotes(wctx->shell, wctx->str, wctx->idx,
+				wctx->allow_expansion));
+	}
+	if (wctx->str[*wctx->idx] == '$' && wctx->str[*wctx->idx + 1] == '"')
+	{
+		*wctx->was_quoted = 1;
+		return (ms_collect_locale_quotes(wctx->shell, wctx->str, wctx->idx,
+				wctx->allow_expansion));
+	}
+	if (wctx->str[*wctx->idx] == '$' && wctx->allow_expansion)
+		return (ms_expand_variable(wctx->shell, wctx->str, wctx->idx));
+	if (wctx->str[*wctx->idx] == '$')
+		return (ms_collect_literal_dollar(wctx->str, wctx->idx));
+	return (ms_collect_plain_word(wctx->str, wctx->idx));
 }
 
-char	*ms_collect_word(t_shell *shell, char *str, int *idx, int *was_quoted,
-		int allow_expansion)
+char	*ms_collect_word(t_word_ctx *wctx)
 {
-	char	*buf;
-	char	*tmp;
-
-	buf = ft_strdup("");
-	*was_quoted = 0; // Initialize quote flag
-	while (str[*idx] && str[*idx] != ' ' && str[*idx] != '\t'
-		&& str[*idx] != '|' && str[*idx] != '<' && str[*idx] != '>')
-	{
-		tmp = ms_collect_piece(shell, str, idx, was_quoted, allow_expansion);
-		if (!tmp || !ms_join_piece(&buf, tmp))
-			return (free(buf), NULL);
-	}
-	return (buf);
+ 	char	*buf;
+ 	char	*tmp;
+ 
+ 	buf = ft_strdup("");
+	*wctx->was_quoted = 0;
+	while (wctx->str[*wctx->idx] && wctx->str[*wctx->idx] != ' '
+		&& wctx->str[*wctx->idx] != '\t' && wctx->str[*wctx->idx] != '|'
+		&& wctx->str[*wctx->idx] != '<' && wctx->str[*wctx->idx] != '>')
+ 	{
+		tmp = ms_collect_piece(wctx);
+ 		if (!tmp || !ms_join_piece(&buf, tmp))
+		{
+			free(buf);
+			return (NULL);
+		}
+ 	}
+ 	return (buf);
 }

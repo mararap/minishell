@@ -12,73 +12,16 @@
 
 #include "minishell.h"
 
-static void	ms_chomp_eol(char *s)
-{
-	size_t	len;
-
-	if (!s)
-		return ;
-	len = ft_strlen(s);
-	while (len > 0 && (s[len - 1] == '\n' || s[len - 1] == '\r'))
-	{
-		s[len - 1] = '\0';
-		len--;
-	}
-}
-
-static void	ms_discard_one_heredoc_body(const char *delim)
-{
-	char	*line;
-	
-	if (!delim)
-		return ;
-	while (1)
-	{
-		line = ms_get_next_line(STDIN_FILENO);
-		if (!line)
-			return ;
-		ms_chomp_eol(line);
-		if (ft_strcmp(line, delim) == 0)
-		{
-			free(line);
-			return;
-		}
-		free(line);
-	}
-}
-
-static void	ms_discard_pending_heredocs(t_token *tokens)
-{
-	t_token	*cur;
-	t_token	*next;
-	
-	cur = tokens;
-	while (cur)
-	{
-		if (cur->type == TOKEN_HEREDOC)
-		{
-			next = cur->next;
-			if (next && next->type == TOKEN_WORD && next->value)
-				ms_discard_one_heredoc_body(next->value);
-			cur = next;
-		}
-		if (cur)
-			cur = cur->next;
-	}
-}
-
-//Maria
-void	ms_handle_line(t_shell *shell, char *line)
+static t_command	*ms_parse_line(t_shell *shell, char *line)
 {
 	t_token		*tokens;
 	t_command	*commands;
-	int			status;
 
 	if (!line || line[0] == '\0')
-		return ;
+		return (NULL);
 	tokens = ms_lex_line(shell, line);
 	if (!tokens)
-		return ;
+		return (NULL);
 	commands = ms_parse_tokens(tokens);
 	if (!commands)
 	{
@@ -87,130 +30,67 @@ void	ms_handle_line(t_shell *shell, char *line)
 		ms_free_token_list(tokens);
 		shell->last_exit_status = 2;
 		if (!shell->is_interactive)
-		shell->should_exit = 1;
-		return ;
+			shell->should_exit = 1;
+		return (NULL);
 	}
 	ms_free_token_list(tokens);
+	return (commands);
+}
+
+static void	ms_execute_commands(t_shell *shell, t_command *commands)
+{
+	int status;
+
 	status = ms_prepare_heredocs(shell, commands);
-	if (status != 0)
-	{
-		shell->last_exit_status = status;
-		ms_free_command_list(commands);
-		return ;
-	}
-	status = ms_execute_pipeline(shell, commands);
+	if (status == 0)
+		status = ms_execute_pipeline(shell, commands);
 	shell->last_exit_status = status;
 	ms_free_command_list(commands);
 }
-/*
-#ifndef BUFFER_SIZE
-#define BUFFER_SIZE 42
-#endif
 
-static char	*get_next_line(int fd)
+static char	*ms_read_line(t_shell *shell)
 {
-	int bytes_read = 0;
-	int i = 0;
-	char c;
-	if(fd < 0 || BUFFER_SIZE < 1)
-		  return NULL;	
-
-	char *line = malloc(100000);
-	if(!line)
-		return NULL;
-		
-	while((bytes_read = read(fd, &c, 1)) > 0)
-	{
-		line[i++] = c;
-		if(c == '\n')
-			break ;
+	char	*line;
+	if (shell->is_interactive)
+	{	
+		line = readline(PROMPT_STR);
+		if (!line)
+			write(STDOUT_FILENO, "exit\n", 5);
+		return (line);
 	}
-	if (bytes_read < 0 ||  i == 0)
-		return (free(line), NULL);
-	
-	line[i] = '\0';
+	line = ms_get_next_line(STDIN_FILENO);
+	if (line)
+		ms_chomp_eol(line);
+	return (line);
+}
 
-	char *new_line = malloc(i + 1);
-	if (!new_line)
-		return (free(line), NULL);
-	i = 0;
+void	ms_handle_line(t_shell *shell, char *line)
+{
+	t_command	*commands;
 
-	while(line[i])
-	{
-		new_line[i] = line[i];
-		i++;
-	}
-	new_line[i] = '\0';
-	free(line);
+	commands = ms_parse_line(shell, line);
+	if (!commands)
+		return ;
+	ms_execute_commands(shell, commands);
+}
 
-	return new_line;	
-}*/
-//Tester LOOP Version
 void	ms_main_loop(t_shell *shell)
 {
 	char	*line;
 
-	while(!shell->should_exit)
+	while (!shell->should_exit)
 	{
 		if (shell->is_interactive)
 			ms_setup_interactive_signals();
-		if (isatty(STDIN_FILENO))
-		{
-			line = readline(PROMPT_STR);
-			if (!line)
-			{
-				if (isatty(STDIN_FILENO))
-					write(STDOUT_FILENO, "exit\n", 5);
-				break;
-			}
-		}
-		else
-		{
-/* 			char *raw;
-			raw = ms_get_next_line(STDIN_FILENO);
-			if (!raw)
-				break;
-			line = ft_strtrim(raw, "\r\n");
-			free(raw); */
-			line = ms_get_next_line(STDIN_FILENO);
-			if (!line)
-				break ;
-			ms_chomp_eol(line);
-		}
-		if (isatty(STDIN_FILENO) && line[0] != '\0')
+		line = ms_read_line(shell);
+		if (!line)
+			break ;
+		if (shell->is_interactive && line[0] != '\0')
 			add_history(line);
 		shell->current_line = line;
 		ms_handle_line(shell, line);
 		free(line);
 		shell->current_line = NULL;
 		shell->input_line_num++;
-		if (shell->should_exit)
-			break ;
 	}
-	//exit(shell->last_exit_status);
-	return ;
 }
-
-//Origninal LOOP
-/* void	ms_main_loop(t_shell *shell)
-{
-	char *line;
-
-	while(1)
-	{
-		if (shell->is_interactive)
-			ms_setup_interactive_signals();
-		line = readline(PROMPT_STR);
-		if (!line)
-		{
-			if (shell->is_interactive)
-				write(STDOUT_FILENO, "exit\n", 5);
-			break ;
-		}
-		if (line[0] != '\0')
-			add_history(line);
-		ms_handle_line(shell, line);
-		free(line);
-	}
-} */
-

@@ -1,200 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   fork.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/03/20 21:30:00 by marapovi          #+#    #+#             */
+/*   Updated: 2026/03/20 21:30:00 by marapovi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
-
-/* static char	*ms_cmd_from_cwd(char *cmd)
-{
-	char	*cwd;
-	char	*candidate;
-
-	cwd = getcwd(NULL, 0);
-	if (!cwd)
-		return (NULL);
-	candidate = ms_str_join_three(cwd, "/", cmd);
-	free(cwd);
-	return (candidate);
-} */
-
-static char	*ms_join_search_dir(char *dir, char *cmd)
-{
-	if (dir[0] == '\0')
-		return (ms_str_join_three(".", "/", cmd));
-	return (ms_str_join_three(dir, "/", cmd));
-}
-
-static char	*ms_search_path_dirs(char **paths, char *cmd, int *used_path)
-{
-	char		*candidate;
-	struct stat	st;
-	int			i;
-
-	i = 0;
-	while (paths[i])
-	{
-		candidate = ms_join_search_dir(paths[i], cmd);
-		if (access(candidate, F_OK) == 0
-			&& stat(candidate, &st) == 0
-			&& !S_ISDIR(st.st_mode))
-		{
-			ms_free_str_array(paths);
-			if (used_path)
-				*used_path = 1;
-			return (candidate);
-		}
-		free(candidate);
-		i++;
-	}
-	ms_free_str_array(paths);
-	return (NULL);
-}
-
-static char	*ms_find_executable(t_shell *shell, char *cmd, int *used_path)
-{
-	char		*path_env;
-	char		**paths;
-
-	if (!cmd || cmd[0] == '\0')
-		return (NULL);
-	if (used_path)
-		*used_path = 0;
-	// If the command contains '/', treat it as a relative or absolute path
-	if (ft_strchr(cmd, '/'))
-		return (ft_strdup(cmd));
-	// Get PATH from environment
-	path_env = ms_env_get_value(shell->env_list, "PATH");
-	// If PATH is unset, bash still checks CWD
-	if (!path_env)
-//		return (ms_cmd_from_cwd(cmd));
-		return (ft_strdup(cmd));
-	if (path_env[0] == '\0')
-		return (ft_strdup(cmd));
-	paths = ft_split(path_env, ':');
-	if (!paths)
-		return (NULL);
-	return (ms_search_path_dirs(paths, cmd, used_path));
-}
-
-static int	ms_exec_exit_code(int err_no)
-{
-	if (err_no == EISDIR || err_no == ENOEXEC || err_no == EACCES)
-		return (126);
-	return (127);
-}
-static void	ms_write_exec_message(int err_no)
-{
-	if (err_no == ENOENT)
-		write(STDERR_FILENO, "No such file or directory\n", 26);
-	else if (err_no == EISDIR)
-		write(STDERR_FILENO, "Is a directory\n", 15);
-	else if (err_no == ENOEXEC)
-		write(STDERR_FILENO, "Exec format error\n", 18);
-	else if (err_no == EACCES)
-		write(STDERR_FILENO, "Permission denied\n", 18);
-	else
-	{
-		write(STDERR_FILENO, strerror(err_no), ft_strlen(strerror(err_no)));
-		write(STDERR_FILENO, "\n", 1);
-	}
-}
-static int	ms_exec_error_code(char *arg, int err_no)
-{
-	if (err_no == 0)
-		err_no = ENOENT;
-	write(STDERR_FILENO, arg, ft_strlen(arg));
-	write(STDERR_FILENO, ": ", 2);
-	ms_write_exec_message(err_no);
-	return (ms_exec_exit_code(err_no));
-}
-
-static void	ms_update_underscore(t_shell *shell, char *value)
-{
-	if (!shell || !value || value[0] == '\0')
-		return ;
-	ms_env_set(&shell->env_list, "_", value, 1);
-}
-
-static int	ms_exec_directory_status(char *argv0, char *display_arg)
-{
-	if (ft_strcmp(argv0, ".") == 0)
-	{
-		ms_print_command_not_found(argv0);
-		return (127);
-	}
-	write(STDERR_FILENO, display_arg, ft_strlen(display_arg));
-	write(STDERR_FILENO, ": Is a directory\n", 17);
-	return (126);
-}
-
-static int	ms_exec_precheck(char *argv0, char *display_arg, char *path)
-{
-	struct stat	file_info;
-
-	if (stat(path, &file_info) == -1)
-		return (ms_exec_error_code(display_arg, errno));
-	if (S_ISDIR(file_info.st_mode))
-		return (ms_exec_directory_status(argv0, display_arg));
-	return (-1);
-}
-
-static void	ms_adjust_envp_shlvl(char **envp)
-{
-	int		i;
-	int		val;
-	char	*new_val;
-	char	*new_entry;
-
-	if (!envp)
-		return ;
-	i = 0;
-	while (envp[i])
-	{
-		if (ft_strncmp(envp[i], "SHLVL=", 6) == 0)
-		{
-			val = ft_atoi(envp[i] + 6);
-			if (val <= 0)
-				return ;
-			val--;
-			new_val = ft_itoa(val);
-			if (!new_val)
-				return ;
-			new_entry = ms_str_join_three("SHLVL=", new_val, "");
-			free(new_val);
-			if (!new_entry)
-				return ;
-			free(envp[i]);
-			envp[i] = new_entry;
-			return ;
-		}
-		i++;
-	}
-}
-
-static int	ms_exec_external_command(t_shell *shell, char **argv)
-{
-	char	*path;
-	char	**envp;
-	char	*display_arg;
-	int		used_path;
-	int		status;
-	int		err_no;
-
-	path = ms_find_executable(shell, argv[0], &used_path);
-	if (!path)
-		return (ms_print_command_not_found(argv[0]), 127);
-	display_arg = argv[0];
-	if (used_path)
-		display_arg = path;
-	ms_update_underscore(shell, path);
-	status = ms_exec_precheck(argv[0], display_arg, path);
-	if (status >= 0)
-		return (free(path), status);
-	envp = ms_env_to_array(shell->env_list);
-	ms_adjust_envp_shlvl(envp);
-	execve(path, argv, envp);
-	err_no = errno;
-	ms_free_str_array(envp);
-	status = ms_exec_error_code(display_arg, err_no);
-	free(path);
-	return (status);
-}
 
 static int	ms_dup_and_close(int from, int to)
 {
@@ -207,17 +23,17 @@ static int	ms_dup_and_close(int from, int to)
 	return (0);
 }
 
-static void	ms_child_exit(t_shell *shell, t_command *cmd_list, int status)
+static void	ms_child_exit(t_exec_ctx *ctx, int status)
 {
-	if (shell && shell->current_line)
+	if (ctx->shell && ctx->shell->current_line)
 	{
-		free(shell->current_line);
-		shell->current_line = NULL;
+		free(ctx->shell->current_line);
+		ctx->shell->current_line = NULL;
 	}
-	if (cmd_list)
-		ms_free_command_list(cmd_list);
-	if (shell)
-		ms_free_shell(shell);
+	if (ctx->cmd_list)
+		ms_free_command_list(ctx->cmd_list);
+	if (ctx->shell)
+		ms_free_shell(ctx->shell);
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
 	close(STDERR_FILENO);
@@ -226,75 +42,66 @@ static void	ms_child_exit(t_shell *shell, t_command *cmd_list, int status)
 
 static void	ms_close_heredocs(t_command *cmd_list, t_command *current)
 {
-	t_command	*cl;
 	t_redir		*r;
 
-	cl = cmd_list;
-	while (cl)
+	while (cmd_list)
 	{
-		r = cl->redirections;
+		r = cmd_list->redirections;
 		while (r)
 		{
-			if (r->type == REDIR_HEREDOC && r->heredoc_fd >= 0 && cl != current)
+			if (r->type == REDIR_HEREDOC && r->heredoc_fd >= 0 
+				&& cmd_list != current)
 			{
 				close(r->heredoc_fd);
 				r->heredoc_fd = -1;
 			}
 			r = r->next;
 		}
-		cl = cl->next;
+		cmd_list = cmd_list->next;
 	}
 }
 
-void	ms_execute_child(t_shell *shell, t_command *cmd_list, t_command *cmd,
-		int in_fd, int out_fd)
+void	ms_execute_child(t_exec_ctx *ctx, t_command *cmd)
 {
 	int	status;
+	int	out_fd;
 
+	out_fd = STDOUT_FILENO;
+	if (cmd->next)
+		out_fd = ctx->pipe_fd[1];
 	ms_setup_child_signals();
-	if (ms_dup_and_close(in_fd, STDIN_FILENO) < 0)
-		ms_child_exit(shell, cmd_list, 1);
+	if (ms_dup_and_close(ctx->prev_read, STDIN_FILENO) < 0)
+		ms_child_exit(ctx, 1);
 	if (ms_dup_and_close(out_fd, STDOUT_FILENO) < 0)
-		ms_child_exit(shell, cmd_list, 1);
-	ms_close_heredocs(cmd_list, cmd);
+		ms_child_exit(ctx, 1);
+	ms_close_heredocs(ctx->cmd_list, cmd);
 	if (ms_apply_redirections(cmd->redirections) < 0)
-		ms_child_exit(shell, cmd_list, 1);
+		ms_child_exit(ctx, 1);
 	if (!cmd->argv || !cmd->argv[0])
-		ms_child_exit(shell, cmd_list, 0);
-	ms_update_underscore(shell, cmd->argv[0]);
+		ms_child_exit(ctx, 0);
+	ms_update_underscore(ctx->shell, cmd->argv[0]);
 	if (ms_is_builtin(cmd->argv[0]))
-	{
-		status = ms_run_builtin_child(shell, cmd->argv);
-		ms_child_exit(shell, cmd_list, status);
-	}
-	status = ms_exec_external_command(shell, cmd->argv);
-	ms_child_exit(shell, cmd_list, status);
+		ms_child_exit(ctx, ms_run_builtin_child(ctx->shell, cmd->argv));
+	status = ms_exec_external_command(ctx->shell, cmd->argv);
+	ms_child_exit(ctx, status);
 }
 
-// Juliyan to check pipe_fd
-//         write()                    read()
-//    pipe_fd[1]  ─────────▶  pipe_fd[0]
-
-int	ms_fork_and_execute(t_shell *shell, t_command *cmd_list, t_command *cmd,
-		int prev_read, int pipe_fd[2], pid_t *pids_to_free)
+int	ms_fork_and_execute(t_exec_ctx *ctx, t_command *cmd)
 {
 	pid_t	pid;
 
 	pid = fork();
 	if (pid < 0)
 	{
-		perror("fork\n");
+		perror("fork");
 		return (-1);
 	}
 	if (pid == 0)
 	{
-		ms_setup_child_signals();
 		if (cmd->next)
-			close(pipe_fd[0]);
-		if (pids_to_free)
-			free(pids_to_free);
-		ms_execute_child(shell, cmd_list, cmd, prev_read,
-			cmd->next ? pipe_fd[1] : STDOUT_FILENO);
+			close(ctx->pipe_fd[0]);
+		free(ctx->pids_to_free);
+		ms_execute_child(ctx, cmd);
 	}
 	return (pid);
 }

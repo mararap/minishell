@@ -69,4 +69,4 @@ int					ft_puthex(unsigned int x, int c);
 int					ft_putptr(void *ptr);
 int					ft_strcmp(const char *s1, const char *s2);
 
-#endif // LIBFT_H
+#endif

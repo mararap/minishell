@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   redirections.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/03/20 21:30:00 by marapovi          #+#    #+#             */
+/*   Updated: 2026/03/20 21:30:00 by marapovi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-static void	ms_redir_error(char *target)
+static void	ms_redir_sys_error(char *target)
 {
 	char	*msg;
 	char	*line;
@@ -11,97 +23,97 @@ static void	ms_redir_error(char *target)
 	if (!msg)
 		return ;
 	line = ms_str_join_three(msg, "\n", "");
-	free (msg);
+	free(msg);
 	if (!line)
 		return ;
 	write(STDERR_FILENO, line, ft_strlen(line));
 	free(line);
 }
 
-static int	ms_open_output_file(t_redir *redir)
+static int	ms_apply_input_redir(t_redir *redir)
 {
 	int	fd;
 
-	if (redir->type == REDIR_OUT)
-		fd = open(redir->target, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-	else
-		fd = open(redir->target, O_WRONLY | O_CREAT | O_APPEND, 0666);
+	fd = open(redir->target, O_RDONLY);
 	if (fd < 0)
-		ms_redir_error(redir->target);
-	return (fd);
+	{
+		ms_redir_sys_error(redir->target);
+		return (-1);
+	}
+	if (dup2(fd, STDIN_FILENO) < 0)
+	{
+		close(fd);
+		perror("dup2");
+		return (-1);
+	}
+	close(fd);
+	return (0);
 }
 
-static int ms_redir_ambiguous_error(char *target)
+static int	ms_apply_output_redir(t_redir *redir)
 {
-	char	*line;
+	int	fd;
+	int	flags;
 
-	if (!target)
-		target = "";
-	line = ms_str_join_three(target, ": ambiguous redirect", "\n");
-	if (!line)
+	flags = O_WRONLY | O_CREAT;	
+	if (redir->type == REDIR_OUT)
+		flags |= O_TRUNC;	
+	else
+		flags |= O_APPEND;
+	fd = open(redir->target, flags, 0666);	
+	if (fd < 0)
+	{
+		ms_redir_sys_error(redir->target);
 		return (-1);
-	write(STDERR_FILENO, line, ft_strlen(line));
-	free(line);
-	return (-1);
+	}
+	if (dup2(fd, STDOUT_FILENO) < 0)
+	{
+		close(fd);
+		perror("dup2");
+		return (-1);
+	}
+	close(fd);
+	return (0);
+}
+
+static int	ms_apply_heredoc_redir(t_redir *redir)
+{
+	if (redir->heredoc_fd < 0)
+ 		return (-1);
+	if (dup2(redir->heredoc_fd, STDIN_FILENO) < 0)
+	{
+		close(redir->heredoc_fd);
+		redir->heredoc_fd = -1;
+		perror("dup2");
+		return (-1);
+	}
+	close(redir->heredoc_fd);
+	redir->heredoc_fd = -1;
+	return (0);
 }
 
 int	ms_apply_redirections(t_redir *redirections)
 {
-	int	fd;
-
 	while (redirections)
 	{
 		if (redirections->ambiguous)
-			return (ms_redir_ambiguous_error(redirections->target));
-		if (redirections->type == REDIR_IN)
 		{
-			fd = open(redirections->target, O_RDONLY);
-			if (fd < 0)
-			{
-				ms_redir_error(redirections->target);
-				return (-1);
-			}
-			if (dup2(fd, STDIN_FILENO) < 0)
-			{
-				perror("dup2");
-				close(fd);
-				return (-1);
-			}
-			close(fd);
-		}
-		else if (redirections->type == REDIR_OUT
-			|| redirections->type == REDIR_APPEND)
-		{
-			fd = ms_open_output_file(redirections);
-			if (fd < 0)
-				return (-1);
-			//dup2(fd, STDOUT_FILENO);
-			if (dup2(fd, STDOUT_FILENO) < 0)
-			{
-				perror("dup2");
-				close(fd);
-				return (-1);
-			}
-			close(fd);
-		}
-		else if (redirections->type == REDIR_HEREDOC)
-		{
-			fd = redirections->heredoc_fd;
-			if (fd < 0)
-				return (-1);
-			//dup2(fd, STDIN_FILENO);
-			//close(fd);
-			if (dup2(fd, STDIN_FILENO) < 0)
-			{
-				perror("dup2");
-				close(fd);
-				redirections->heredoc_fd = -1;
-				return (-1);
-			}
-			close(fd);
-			redirections->heredoc_fd = -1;
-		}
-		redirections = redirections->next;
-	}
-	return (0);
+			write(STDERR_FILENO, redirections->target,
+				ft_strlen(redirections->target));
+			write(STDERR_FILENO, ": ambiguous redirect\n", 22);
+			return (-1);
+ 		}
+		if (redirections->type == REDIR_IN
+			&& ms_apply_input_redir(redirections) < 0)
+			return (-1);
+		if ((redirections->type == REDIR_OUT
+				|| redirections->type == REDIR_APPEND)
+			&& ms_apply_output_redir(redirections) < 0)
+			return (-1);
+		if (redirections->type == REDIR_HEREDOC
+			&& ms_apply_heredoc_redir(redirections) < 0)
+			return (-1);
+ 		redirections = redirections->next;
+ 	}
+ 	return (0);
 }

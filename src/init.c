@@ -12,8 +12,6 @@
 
 #include "minishell.h"
 
-/* Ensure basic env vars exist even when started with env -i */
-
 static void	ms_bootstrap_env(t_shell *shell)
 {
 	char	*cwd;
@@ -44,7 +42,7 @@ void	ms_init_shell(t_shell *shell, char **envp)
 	ms_bootstrap_env(shell);
 	shlvl_str = ms_env_get_value(shell->env_list, "SHLVL");
 	if (shlvl_str)
-		shlvl = ft_atoi(shlvl_str) + 1; // incremet SHLVL by one on startup
+		shlvl = ft_atoi(shlvl_str) + 1;
 	else
 		shlvl = 1;
 	new_shlvl = ft_itoa(shlvl);

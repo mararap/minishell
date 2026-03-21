@@ -100,37 +100,57 @@ SRC_DIR			:=		src
 LIBFT_DIR		:=		libft
 LIBFT			:=		$(LIBFT_DIR)/libft.a
 
-SRC				:=		main.c\
-						builtin/builtin_cd.c\
-						builtin/builtin_env.c\
-						builtin/builtin_exit.c\
-						builtin/builtin_export.c\
-						builtin/builtin_unset.c\
-						builtin/builtins.c\
-						builtin/builtin_echo.c\
-						builtin/builtin_pwd.c\
-						env_list.c\
-						exec/executor.c\
-						exec/fork.c\
-						init.c\
-						lexer/lexer.c\
-						lexer/collect_word.c\
-						lexer/collect_word_quotes.c\
-						lexer/token_utils.c\
-						loop.c\
-						expand/ifs_split.c\
-						expand/expand_variable.c\
-						parser/parser.c\
-						parser/parser_helpers.c\
-						parser/fill_command.c\
-						parser/handle_words.c\
-						parser/handle_redirs.c\
-						parser/free_command.c\
-						redirections.c\
-						heredoc.c \
-						signals.c\
-						utils.c
-
+SRC 	:= 		main.c \
+				init.c \
+				loop.c \
+				loop_syntax.c \
+				signals.c \
+				utils.c \
+				utils_command.c \
+				utils_perror.c \
+				utils_gnl.c \
+				env_list.c \
+				env_list_ops.c \
+				env_list_get.c \
+				env_list_unset.c \
+				env_list_array.c \
+				redirections.c \
+				heredoc_tmp.c \
+				heredoc_expand.c \
+				heredoc_read.c \
+				heredoc_build.c \
+				heredoc_prepare.c \
+				lexer/lexer.c \
+				lexer/collect_word.c \
+				lexer/collect_word_quotes.c \
+				lexer/token_utils.c \
+				expand/ifs_split.c \
+				expand/expand_variable.c \
+				parser/parser.c \
+				parser/parser_helpers.c \
+				parser/fill_command.c \
+				parser/handle_words.c \
+				parser/handle_redirs.c \
+				parser/free_command.c \
+				exec/executor.c \
+				exec/executor_wait.c \
+				exec/executor_spawn.c \
+				exec/exec_path.c \
+				exec/exec_error.c \
+				exec/exec_run.c \
+				exec/fork.c \
+				builtin/builtins.c \
+				builtin/builtin_cd.c \
+				builtin/builtin_cd_output.c \
+				builtin/builtin_echo.c \
+				builtin/builtin_env.c \
+				builtin/builtin_exit.c \
+				builtin/builtin_exit_parse.c\
+				builtin/builtin_export.c \
+				builtin/builtin_export_utils.c \
+				builtin/builtin_export_print.c \
+				builtin/builtin_pwd.c \
+				builtin/builtin_unset.c
 
 SRC				:=		$(addprefix $(SRC_DIR)/,$(SRC))
 OBJ				:=		$(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(SRC)))

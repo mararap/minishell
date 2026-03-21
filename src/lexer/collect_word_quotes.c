@@ -12,7 +12,6 @@
 
 #include "minishell.h"
 
-/* Mask IFS whitespace inside quotes so it won't split later */
 void	ms_mask_ifs(char *s)
 {
 	if (!s)
@@ -47,7 +46,7 @@ char	*ms_collect_single_quotes(char *str, int *idx)
 	return (tmp);
 }
 
-static char	*ms_collect_dq_chunk(t_shell *shell, char *str, int *idx,
+static char	*ms_collect_dq_chunk(t_shell *shell, char *str, int *idx, 
 	int allow_expansion)
 {
 	int	start;
@@ -61,7 +60,7 @@ static char	*ms_collect_dq_chunk(t_shell *shell, char *str, int *idx,
 	return (ft_substr(str, start, *idx - start));
 }
 
-char	*ms_collect_double_quotes(t_shell *shell, char *str, int *idx,
+char	*ms_collect_double_quotes(t_shell *shell, char *str, int *idx, 
 	int allow_expansion)
 {
 	char	*buf;
