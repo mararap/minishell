@@ -74,7 +74,7 @@ static char	*ms_next_field(const char *s, size_t *i)
 	field = ft_substr(s, start, *i - start);
 	if (!field)
 	{
-		write(STDERR_FILENO, SHELL_NAME 
+		write(STDERR_FILENO, SHELL_NAME
 			": malloc failed\n", ft_strlen(SHELL_NAME) + 16);
 		exit(1);
 	}
@@ -84,10 +84,10 @@ static char	*ms_next_field(const char *s, size_t *i)
 
 char	**ms_split_ifs_fields(const char *s)
 {
-	char **out;
-	size_t fields;
-	size_t i;
-	size_t j;
+	char	**out;
+	size_t	fields;
+	size_t	i;
+	size_t	j;
 
 	fields = ms_count_ifs_fields(s);
 	i = 0;

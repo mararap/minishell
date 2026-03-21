@@ -32,8 +32,5 @@ int	main(int argc, char **argv, char **envp)
 	ms_detect_interactive(&shell);
 	ms_main_loop(&shell);
 	ms_free_shell(&shell);
-	close(STDIN_FILENO);
-	close(STDOUT_FILENO);
-	close(STDERR_FILENO);
 	return (shell.last_exit_status);
 }

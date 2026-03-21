@@ -46,7 +46,7 @@ char	*ms_collect_single_quotes(char *str, int *idx)
 	return (tmp);
 }
 
-static char	*ms_collect_dq_chunk(t_shell *shell, char *str, int *idx, 
+static char	*ms_collect_dq_chunk(t_shell *shell, char *str, int *idx,
 	int allow_expansion)
 {
 	int	start;
@@ -60,7 +60,7 @@ static char	*ms_collect_dq_chunk(t_shell *shell, char *str, int *idx,
 	return (ft_substr(str, start, *idx - start));
 }
 
-char	*ms_collect_double_quotes(t_shell *shell, char *str, int *idx, 
+char	*ms_collect_double_quotes(t_shell *shell, char *str, int *idx,
 	int allow_expansion)
 {
 	char	*buf;
@@ -95,4 +95,3 @@ char	*ms_collect_locale_quotes(t_shell *shell, char *str, int *idx,
 	(*idx)++;
 	return (ms_collect_double_quotes(shell, str, idx, allow_expansion));
 }
-

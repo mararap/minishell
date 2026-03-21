@@ -25,6 +25,7 @@ static int	ms_env_exported_count(t_env_var *env_list)
 	}
 	return (count);
 }
+
 static char	*ms_env_make_entry(t_env_var *var)
 {
 	size_t	name_len;
@@ -42,9 +43,9 @@ static char	*ms_env_make_entry(t_env_var *var)
 
 char	**ms_env_to_array(t_env_var *env_list)
 {
-	char **envp;
-	int count;
-	int i;
+	char	**envp;
+	int		count;
+	int		i;
 
 	count = ms_env_exported_count(env_list);
 	envp = ms_xmalloc(sizeof(char *) * (count + 1));

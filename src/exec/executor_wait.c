@@ -47,7 +47,7 @@ int	ms_wait_for_children(pid_t last_pid, int count, int interactive)
 	t_wait_state	state;
 	int				status;
 	int				waited;
-	pid_t				pid;
+	pid_t			pid;
 
 	state.last_pid = last_pid;
 	state.interactive = interactive;

@@ -55,12 +55,12 @@ static int	ms_apply_output_redir(t_redir *redir)
 	int	fd;
 	int	flags;
 
-	flags = O_WRONLY | O_CREAT;	
+	flags = O_WRONLY | O_CREAT;
 	if (redir->type == REDIR_OUT)
-		flags |= O_TRUNC;	
+		flags |= O_TRUNC;
 	else
 		flags |= O_APPEND;
-	fd = open(redir->target, flags, 0666);	
+	fd = open(redir->target, flags, 0666);
 	if (fd < 0)
 	{
 		ms_redir_sys_error(redir->target);
@@ -79,7 +79,7 @@ static int	ms_apply_output_redir(t_redir *redir)
 static int	ms_apply_heredoc_redir(t_redir *redir)
 {
 	if (redir->heredoc_fd < 0)
- 		return (-1);
+		return (-1);
 	if (dup2(redir->heredoc_fd, STDIN_FILENO) < 0)
 	{
 		close(redir->heredoc_fd);
@@ -102,7 +102,7 @@ int	ms_apply_redirections(t_redir *redirections)
 				ft_strlen(redirections->target));
 			write(STDERR_FILENO, ": ambiguous redirect\n", 22);
 			return (-1);
- 		}
+		}
 		if (redirections->type == REDIR_IN
 			&& ms_apply_input_redir(redirections) < 0)
 			return (-1);
@@ -113,7 +113,7 @@ int	ms_apply_redirections(t_redir *redirections)
 		if (redirections->type == REDIR_HEREDOC
 			&& ms_apply_heredoc_redir(redirections) < 0)
 			return (-1);
- 		redirections = redirections->next;
- 	}
- 	return (0);
+		redirections = redirections->next;
+	}
+	return (0);
 }

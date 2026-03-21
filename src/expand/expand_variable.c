@@ -26,10 +26,10 @@ char	*ms_expand_variable(t_shell *shell, char *str, int *idx)
 	start = *idx + 1;
 	while (str[start] && (ft_isalnum(str[start]) || str[start] == '_'))
 		start++;
-	if (start == *idx + 1) /* If no valid var name chars... */
+	if (start == *idx + 1)
 	{
 		*idx = *idx + 1;
-		return (ft_strdup("$")); /* ...treat $ as literal */
+		return (ft_strdup("$"));
 	}
 	name = ft_substr(str, *idx + 1, start - (*idx + 1));
 	value = ms_env_get_value(shell->env_list, name);

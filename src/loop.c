@@ -39,7 +39,7 @@ static t_command	*ms_parse_line(t_shell *shell, char *line)
 
 static void	ms_execute_commands(t_shell *shell, t_command *commands)
 {
-	int status;
+	int	status;
 
 	status = ms_prepare_heredocs(shell, commands);
 	if (status == 0)
@@ -51,8 +51,9 @@ static void	ms_execute_commands(t_shell *shell, t_command *commands)
 static char	*ms_read_line(t_shell *shell)
 {
 	char	*line;
+
 	if (shell->is_interactive)
-	{	
+	{
 		line = readline(PROMPT_STR);
 		if (!line)
 			write(STDOUT_FILENO, "exit\n", 5);

@@ -32,6 +32,7 @@ int	ms_is_builtin(char *cmd_name)
 		return (1);
 	return (0);
 }
+
 int	ms_builtin_pwd(t_shell *shell)
 {
 	char	*cwd;

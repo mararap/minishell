@@ -47,6 +47,8 @@ static int	ms_parse_export_pair(char *arg, char **name, char **value)
 	{
 		free(*name);
 		free(*value);
+		*name = NULL;
+		*value = NULL;
 		return (1);
 	}
 	return (0);
@@ -65,7 +67,7 @@ static int	ms_export_name_only(t_shell *shell, char *name)
 	char	*old_val;
 
 	old_val = ms_env_get_value(shell->env_list, name);
-    if (!old_val)
+	if (!old_val)
 		old_val = "";
 	return (ms_env_set(&shell->env_list, name, old_val, 1));
 }

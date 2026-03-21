@@ -34,6 +34,7 @@ static void	ms_update_parent_fds(t_pipeline *pl)
 	if (pl->cmd->next)
 	{
 		close(pl->pipe_fd[1]);
+		pl->pipe_fd[1] = -1;
 		pl->prev_read = pl->pipe_fd[0];
 	}
 }
@@ -66,7 +67,7 @@ static int	ms_abort_pipeline(t_pipeline *pl)
 static pid_t	ms_launch_pipeline_cmd(t_pipeline *pl)
 {
 	t_exec_ctx	ctx;
-	pid_t			pid;
+	pid_t		pid;
 
 	if (ms_create_pipe_if_needed(pl) < 0)
 		return (-1);

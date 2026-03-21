@@ -12,19 +12,32 @@
 
 #include "minishell.h"
 
-static int	ms_dup_and_close(int from, int to)
+static void ms_close_fd(int fd)
 {
-	if (from != to)
+	if (fd < 0 || fd == STDIN_FILENO
+		|| fd == STDOUT_FILENO || fd == STDERR_FILENO)
+		return ;
+	close(fd);
+}
+
+static int ms_dup_and_close(int from, int to)
+{
+    if (from < 0 || from == to)
+		return (0);
+	if (dup2(from, to) < 0)
 	{
-		if (dup2(from, to) < 0)
-			return (-1);
-		close(from);
+		close (from);
+		return (-1);
 	}
-	return (0);
+	close (from);
+    return (0);
 }
 
 static void	ms_child_exit(t_exec_ctx *ctx, int status)
 {
+	ms_close_fd(ctx->prev_read);
+	ms_close_fd(ctx->pipe_fd[0]);
+	ms_close_fd(ctx->pipe_fd[1]);
 	if (ctx->shell && ctx->shell->current_line)
 	{
 		free(ctx->shell->current_line);
@@ -34,9 +47,6 @@ static void	ms_child_exit(t_exec_ctx *ctx, int status)
 		ms_free_command_list(ctx->cmd_list);
 	if (ctx->shell)
 		ms_free_shell(ctx->shell);
-	close(STDIN_FILENO);
-	close(STDOUT_FILENO);
-	close(STDERR_FILENO);
 	exit(status);
 }
 
@@ -49,7 +59,7 @@ static void	ms_close_heredocs(t_command *cmd_list, t_command *current)
 		r = cmd_list->redirections;
 		while (r)
 		{
-			if (r->type == REDIR_HEREDOC && r->heredoc_fd >= 0 
+			if (r->type == REDIR_HEREDOC && r->heredoc_fd >= 0
 				&& cmd_list != current)
 			{
 				close(r->heredoc_fd);
@@ -61,18 +71,31 @@ static void	ms_close_heredocs(t_command *cmd_list, t_command *current)
 	}
 }
 
+static int	ms_dup_child_fds(t_exec_ctx *ctx, t_command *cmd)
+{
+	if (ms_dup_and_close(ctx->prev_read, STDIN_FILENO) < 0)
+	{
+		ctx->prev_read = -1;
+		return (-1);
+	}
+	ctx->prev_read = -1;
+	if (!cmd->next)
+		return (0);
+	if (ms_dup_and_close(ctx->pipe_fd[1], STDOUT_FILENO) < 0)
+	{
+		ctx->pipe_fd[1] = -1;
+		return (-1);
+	}
+	ctx->pipe_fd[1] = -1;
+	return (0);
+}
+
 void	ms_execute_child(t_exec_ctx *ctx, t_command *cmd)
 {
 	int	status;
-	int	out_fd;
 
-	out_fd = STDOUT_FILENO;
-	if (cmd->next)
-		out_fd = ctx->pipe_fd[1];
 	ms_setup_child_signals();
-	if (ms_dup_and_close(ctx->prev_read, STDIN_FILENO) < 0)
-		ms_child_exit(ctx, 1);
-	if (ms_dup_and_close(out_fd, STDOUT_FILENO) < 0)
+	if (ms_dup_child_fds(ctx, cmd) < 0)
 		ms_child_exit(ctx, 1);
 	ms_close_heredocs(ctx->cmd_list, cmd);
 	if (ms_apply_redirections(cmd->redirections) < 0)
@@ -99,7 +122,10 @@ int	ms_fork_and_execute(t_exec_ctx *ctx, t_command *cmd)
 	if (pid == 0)
 	{
 		if (cmd->next)
+		{
 			close(ctx->pipe_fd[0]);
+			ctx->pipe_fd[0] = -1;
+		}
 		free(ctx->pids_to_free);
 		ms_execute_child(ctx, cmd);
 	}

@@ -61,6 +61,8 @@ static int	ms_env_split_entry(char *entry, char **name, char **value)
 	{
 		free(*name);
 		free(*value);
+		*name = NULL;
+		*value = NULL;
 		return (1);
 	}
 	return (0);

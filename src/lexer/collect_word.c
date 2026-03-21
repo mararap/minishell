@@ -78,21 +78,21 @@ static char	*ms_collect_piece(t_word_ctx *wctx)
 
 char	*ms_collect_word(t_word_ctx *wctx)
 {
- 	char	*buf;
- 	char	*tmp;
- 
- 	buf = ft_strdup("");
+	char	*buf;
+	char	*tmp;
+
+	buf = ft_strdup("");
 	*wctx->was_quoted = 0;
 	while (wctx->str[*wctx->idx] && wctx->str[*wctx->idx] != ' '
 		&& wctx->str[*wctx->idx] != '\t' && wctx->str[*wctx->idx] != '|'
 		&& wctx->str[*wctx->idx] != '<' && wctx->str[*wctx->idx] != '>')
- 	{
+	{
 		tmp = ms_collect_piece(wctx);
- 		if (!tmp || !ms_join_piece(&buf, tmp))
+		if (!tmp || !ms_join_piece(&buf, tmp))
 		{
 			free(buf);
 			return (NULL);
 		}
- 	}
- 	return (buf);
+	}
+	return (buf);
 }

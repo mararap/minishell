@@ -63,7 +63,7 @@ int	ms_execute_pipeline(t_shell *shell, t_command *command_list)
 
 	if (ms_count_commands(command_list) == 1
 		&& ms_use_parent_builtin(command_list))
- 		return (ms_run_builtin_parent(shell, command_list));
+		return (ms_run_builtin_parent(shell, command_list));
 	pl.shell = shell;
 	pl.command_list = command_list;
 	pl.cmd = command_list;
@@ -71,7 +71,7 @@ int	ms_execute_pipeline(t_shell *shell, t_command *command_list)
 			* ms_count_commands(command_list));
 	pl.prev_read = STDIN_FILENO;
 	pl.created = 0;
- 	ms_prepare_pipeline_signals(shell);
+	ms_prepare_pipeline_signals(shell);
 	status = ms_spawn_pipeline(&pl);
 	if (status != 0)
 		return (status);
