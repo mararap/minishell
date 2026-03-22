@@ -2,12 +2,9 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   heredoc_expand.c                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+
-	+:+     */
-/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+
-	+#+        */
-/*                                                +#+#+#+#+#+
-	+#+           */
+/*                                                    +:+ +:+         +:+     */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/20 21:30:00 by marapovi          #+#    #+#             */
 /*   Updated: 2026/03/20 21:30:00 by marapovi         ###   ########.fr       */
 /*                                                                            */
