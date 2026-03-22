@@ -59,3 +59,28 @@ int	ms_hd_open_tmp(char **out_path)
 	}
 	return (-1);
 }
+
+static void	ms_sigint_heredoc(int signo)
+{
+	(void)signo;
+	g_signal_number = SIGINT;
+	rl_done = 1;
+	write(STDOUT_FILENO, "\n", 1);
+}
+
+void	ms_setup_heredoc_child_signals(void)
+{
+	struct sigaction	sa_int;
+	struct sigaction	sa_quit;
+
+	ft_bzero(&sa_int, sizeof(sa_int));
+	ft_bzero(&sa_quit, sizeof(sa_quit));
+	sa_int.sa_handler = ms_sigint_heredoc;
+	sigemptyset(&sa_int.sa_mask);
+	sa_int.sa_flags = 0;
+	sa_quit.sa_handler = SIG_IGN;
+	sigemptyset(&sa_quit.sa_mask);
+	sa_quit.sa_flags = 0;
+	sigaction(SIGINT, &sa_int, NULL);
+	sigaction(SIGQUIT, &sa_quit, NULL);
+}

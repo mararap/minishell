@@ -30,8 +30,9 @@ void	ms_hd_run_child(t_hd_job *job)
 {
 	int	status;
 
-	ms_setup_child_signals();
-	signal(SIGQUIT, SIG_IGN);
+	g_signal_number = 0;
+	rl_signal_event_hook = NULL;
+	ms_setup_heredoc_child_signals();
 	status = ms_hd_child_loop(job->shell, job->redir, job->wfd);
 	ms_hd_child_exit(job, status);
 }
@@ -41,7 +42,7 @@ int	ms_hd_wait_child(pid_t pid, int *st)
 	if (pid < 0)
 		return (-1);
 	while (waitpid(pid, st, 0) < 0 && errno == EINTR)
-		;
+		continue ;
 	return (0);
 }
 
@@ -51,7 +52,8 @@ int	ms_hd_finalize_build(t_hd_job *job)
 
 	ms_restore_signals(job->shell);
 	close(job->wfd);
-	if (WIFSIGNALED(job->st) && WTERMSIG(job->st) == SIGINT)
+	if ((WIFSIGNALED(job->st) && WTERMSIG(job->st) == SIGINT)
+		|| ((WIFEXITED(job->st) && WEXITSTATUS(job->st) == 130)))
 	{
 		unlink(job->path);
 		free(job->path);

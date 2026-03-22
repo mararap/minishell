@@ -17,7 +17,13 @@ char	*ms_hd_read_line(t_shell *shell)
 	char	*line;
 
 	if (shell->is_interactive)
-		return (readline(HEREDOC_PROMPT));
+	{
+		write(STDERR_FILENO, HEREDOC_PROMPT, ft_strlen(HEREDOC_PROMPT));
+		line = ms_get_next_line(STDIN_FILENO);
+		if (line)
+			ms_chomp_eol(line);
+		return (line);
+	}
 	line = ms_get_next_line(STDIN_FILENO);
 	if (line)
 		ms_chomp_eol(line);
@@ -70,6 +76,8 @@ int	ms_hd_child_loop(t_shell *shell, t_redir *redir, int wfd)
 	while (1)
 	{
 		line = ms_hd_read_line(shell);
+		if (g_signal_number == SIGINT)
+			return (130);
 		cur_line++;
 		if (!line)
 		{

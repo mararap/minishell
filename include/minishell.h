@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 15:45:46 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/22 18:26:48 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/22 21:04:40 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,6 +184,7 @@ void					ms_setup_interactive_signals(void);
 void					ms_setup_child_signals(void);
 
 int						ms_prepare_heredocs(t_shell *shell, t_command *cmds);
+void					ms_setup_heredoc_child_signals(void);
 void					ms_tok_add_back(t_token **list, t_token *new_tok);
 void					ms_print_syntax_error(t_token *tok);
 t_redir					*ms_create_redir(int type, char *target,

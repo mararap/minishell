@@ -33,8 +33,13 @@ static ssize_t	ms_gnl_read_char(int fd, char *c)
 	while (1)
 	{
 		ret = read(fd, c, 1);
-		if (ret < 0 && (errno == EINTR || errno == EAGAIN
-				|| errno == EWOULDBLOCK))
+		if (ret < 0 && errno == EINTR)
+		{
+			if (g_signal_number == SIGINT)
+				return (-1);
+			continue ;
+		}
+		if (ret < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
 			continue ;
 		return (ret);
 	}

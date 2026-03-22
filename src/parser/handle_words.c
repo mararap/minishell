@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 16:29:52 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/11 19:45:23 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/22 22:04:28 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,10 @@ static void	ms_handle_split_word(t_command *cmd, t_token *tok)
 	i = 0;
 	while (parts[i])
 	{
-		cmd->argv = ms_add_word_to_argv(cmd->argv, parts[i]);
+		if (parts[i][0] != '\0' || tok->quoted)
+			cmd->argv = ms_add_word_to_argv(cmd->argv, parts[i]);
+		else
+			free(parts[i]);
 		parts[i] = NULL;
 		i++;
 	}
