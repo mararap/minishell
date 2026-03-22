@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parser.h                                           :+:      :+:    :+:   */
+/*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 15:45:46 by marapovi          #+#    #+#             */
-/*   Updated: 2026/02/22 16:49:30 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/22 18:26:48 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,7 +250,6 @@ int						ms_atoll_strict(const char *s, long long *out);
 
 void					*ms_xmalloc(size_t size);
 char					*ms_strdup_safe(const char *src);
-void					ms_perror(char *str, int err_no);
 void					ms_print_command_not_found(char *cmd);
 size_t					ms_str_arr_len(char **arr);
 void					ms_free_str_array(char **arr);

@@ -6,7 +6,7 @@
 #    By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2026/03/18 19:11:50 by marapovi         ###   ########.fr        #
+#    Updated: 2026/03/22 18:46:43 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -100,26 +100,25 @@ SRC_DIR			:=		src
 LIBFT_DIR		:=		libft
 LIBFT			:=		$(LIBFT_DIR)/libft.a
 
-SRC 	:= 		main.c \
-				init.c \
-				loop.c \
-				loop_syntax.c \
-				signals.c \
-				utils.c \
-				utils_command.c \
-				utils_perror.c \
-				utils_gnl.c \
-				env_list.c \
-				env_list_ops.c \
-				env_list_get.c \
-				env_list_unset.c \
-				env_list_array.c \
+SRC 	:= 		shell/main.c \
+				shell/init.c \
+				shell/loop.c \
+				shell/loop_syntax.c \
+				shell/signals.c \
+				utils/utils.c \
+				utils/utils_command.c \
+				utils/utils_gnl.c \
+				env/env_list.c \
+				env/env_list_ops.c \
+				env/env_list_get.c \
+				env/env_list_unset.c \
+				env/env_list_array.c \
 				redirections.c \
-				heredoc_tmp.c \
-				heredoc_expand.c \
-				heredoc_read.c \
-				heredoc_build.c \
-				heredoc_prepare.c \
+				heredoc/heredoc_tmp.c \
+				heredoc/heredoc_expand.c \
+				heredoc/heredoc_read.c \
+				heredoc/heredoc_build.c \
+				heredoc/heredoc_prepare.c \
 				lexer/lexer.c \
 				lexer/collect_word.c \
 				lexer/collect_word_quotes.c \
@@ -150,10 +149,11 @@ SRC 	:= 		main.c \
 				builtin/builtin_export_utils.c \
 				builtin/builtin_export_print.c \
 				builtin/builtin_pwd.c \
+				builtin/builtin_is_builtin.c \
 				builtin/builtin_unset.c
 
 SRC				:=		$(addprefix $(SRC_DIR)/,$(SRC))
-OBJ				:=		$(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(SRC)))
+OBJ				:=		$(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC))
 
 # **************************************************************************** #
 #                                   RULES                                      #
@@ -172,10 +172,8 @@ print_done:
 libft_always:
 	@$(MAKE) --no-print-directory -C $(LIBFT_DIR);
 
-vpath %.c $(SRC_DIR) $(SRC_DIR)/lexer $(SRC_DIR)/parser $(SRC_DIR)/exec $(SRC_DIR)/builtin $(SRC_DIR)/expand
-
-$(OBJ_DIR)/%.o: %.c
-	@mkdir -p $(OBJ_DIR)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(OBJ): %.o: $(HEADER)
