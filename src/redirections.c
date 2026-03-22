@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/20 21:30:00 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/20 21:30:00 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/22 17:08:35 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ int	ms_apply_redirections(t_redir *redirections)
 		{
 			write(STDERR_FILENO, redirections->target,
 				ft_strlen(redirections->target));
-			write(STDERR_FILENO, ": ambiguous redirect\n", 22);
+			write(STDERR_FILENO, ": ambiguous redirect\n", 21);
 			return (-1);
 		}
 		if (redirections->type == REDIR_IN
