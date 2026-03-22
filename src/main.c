@@ -6,12 +6,12 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/11 20:32:50 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/15 19:56:51 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/22 17:23:41 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
+//test
 volatile sig_atomic_t	g_signal_number = 0;
 
 static void	ms_detect_interactive(t_shell *shell)
