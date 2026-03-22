@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-static void	ms_close_fd(int fd)
+/*static void	ms_close_fd(int fd)
 {
 	if (fd < 0 || fd == STDIN_FILENO || fd == STDOUT_FILENO
 		|| fd == STDERR_FILENO)
@@ -31,13 +31,24 @@ static int	ms_dup_and_close(int from, int to)
 	}
 	close(from);
 	return (0);
+}*/
+
+static int	ms_dup_and_close(int from, int to)
+{
+	if (from != to)
+	{
+		if (dup2(from, to) < 0)
+			return (-1);
+		close(from);
+	}
+	return (0);
 }
 
 static void	ms_child_exit(t_exec_ctx *ctx, int status)
 {
-	ms_close_fd(ctx->prev_read);
-	ms_close_fd(ctx->pipe_fd[0]);
-	ms_close_fd(ctx->pipe_fd[1]);
+	//ms_close_fd(ctx->prev_read);
+	//ms_close_fd(ctx->pipe_fd[0]);
+	//ms_close_fd(ctx->pipe_fd[1]);
 	if (ctx->shell && ctx->shell->current_line)
 	{
 		free(ctx->shell->current_line);
@@ -47,6 +58,9 @@ static void	ms_child_exit(t_exec_ctx *ctx, int status)
 		ms_free_command_list(ctx->cmd_list);
 	if (ctx->shell)
 		ms_free_shell(ctx->shell);
+	close(STDIN_FILENO);
+	close(STDOUT_FILENO);
+	close(STDERR_FILENO);
 	exit(status);
 }
 
@@ -121,12 +135,14 @@ int	ms_fork_and_execute(t_exec_ctx *ctx, t_command *cmd)
 	}
 	if (pid == 0)
 	{
+		ms_setup_child_signals();
 		if (cmd->next)
 		{
 			close(ctx->pipe_fd[0]);
 			ctx->pipe_fd[0] = -1;
 		}
-		free(ctx->pids_to_free);
+		if (ctx->pids_to_free)
+			free(ctx->pids_to_free);
 		ms_execute_child(ctx, cmd);
 	}
 	return (pid);
