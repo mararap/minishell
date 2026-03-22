@@ -2,9 +2,12 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   heredoc_expand.c                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
+/*                                                    +:+ +:+
+	+:+     */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+
+	+#+        */
+/*                                                +#+#+#+#+#+
+	+#+           */
 /*   Created: 2026/03/20 21:30:00 by marapovi          #+#    #+#             */
 /*   Updated: 2026/03/20 21:30:00 by marapovi         ###   ########.fr       */
 /*                                                                            */
@@ -110,21 +113,15 @@ char	*ms_expand_heredoc_line(t_shell *shell, char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (line[i] == '$' && (line[i + 1] == '?'
-				|| ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
+		if (line[i] == '$' && (line[i + 1] == '?' || ft_isalnum(line[i + 1])
+				|| line[i + 1] == '_'))
 		{
 			if (ms_hd_append_status_or_var(shell, line, &i, &buf) < 0)
-			{
-				free(buf.buf);
-				return (NULL);
-			}
+				return (free(buf.buf), NULL);
 			continue ;
 		}
 		if (ms_hd_append_one(line, &i, &buf) < 0)
-		{
-			free(buf.buf);
-			return (NULL);
-		}
+			return (free(buf.buf), NULL);
 	}
 	return (buf.buf);
 }

@@ -2,9 +2,12 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   heredoc_build.c                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
+/*                                                    +:+ +:+
+	+:+     */
+/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+
+	+#+        */
+/*                                                +#+#+#+#+#+
+	+#+           */
 /*   Created: 2026/03/20 21:30:00 by marapovi          #+#    #+#             */
 /*   Updated: 2026/03/20 21:30:00 by marapovi         ###   ########.fr       */
 /*                                                                            */
@@ -87,12 +90,7 @@ int	ms_build_one_heredoc(t_shell *shell, t_command *cmds, t_redir *redir,
 	if (pid == 0)
 		ms_hd_run_child(&job);
 	if (ms_hd_wait_child(pid, &job.st) < 0)
-	{
-		ms_restore_signals(shell);
-		close(job.wfd);
-		unlink(job.path);
-		free(job.path);
-		return (-1);
-	}
+		return (ms_restore_signals(shell), close(job.wfd), unlink(job.path),
+			free(job.path), -1);
 	return (ms_hd_finalize_build(&job));
 }

@@ -69,10 +69,7 @@ char	*ms_get_next_line(int fd)
 	{
 		ret = ms_gnl_read_char(fd, &c);
 		if (ret < 0)
-		{
-			free(line);
-			return (NULL);
-		}
+			return (free(line), NULL);
 		if (ret == 0)
 			break ;
 		line = ms_gnl_append_char(line, c);
@@ -80,9 +77,6 @@ char	*ms_get_next_line(int fd)
 			break ;
 	}
 	if (*line == '\0')
-	{
-		free(line);
-		return (NULL);
-	}
+		return (free(line), NULL);
 	return (line);
 }

@@ -65,10 +65,7 @@ static char	*ms_redir_target_value(int type, t_token *target, int *ambiguous)
 		return (ms_redir_ambiguous_target(target));
 	}
 	if (target->value[0] == '\0')
-	{
-		*ambiguous = 0;
-		return (ft_strdup(""));
-	}
+		return (*ambiguous = 0, ft_strdup(""));
 	if (!ft_strchr(target->value, ' ') && !ft_strchr(target->value, '\t')
 		&& !ft_strchr(target->value, '\n'))
 	{
@@ -95,10 +92,7 @@ int	ms_process_redir_token(t_command *cmd, t_token **cursor, t_token *tok)
 	}
 	*cursor = (*cursor)->next;
 	if (!*cursor || (*cursor)->type != TOKEN_WORD)
-	{
-		ms_print_syntax_error(*cursor);
-		return (-1);
-	}
+		return (ms_print_syntax_error(*cursor), -1);
 	hd_expand = 0;
 	if (type == REDIR_HEREDOC && (*cursor)->quoted == 0)
 		hd_expand = 1;

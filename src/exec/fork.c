@@ -12,25 +12,25 @@
 
 #include "minishell.h"
 
-static void ms_close_fd(int fd)
+static void	ms_close_fd(int fd)
 {
-	if (fd < 0 || fd == STDIN_FILENO
-		|| fd == STDOUT_FILENO || fd == STDERR_FILENO)
+	if (fd < 0 || fd == STDIN_FILENO || fd == STDOUT_FILENO
+		|| fd == STDERR_FILENO)
 		return ;
 	close(fd);
 }
 
-static int ms_dup_and_close(int from, int to)
+static int	ms_dup_and_close(int from, int to)
 {
-    if (from < 0 || from == to)
+	if (from < 0 || from == to)
 		return (0);
 	if (dup2(from, to) < 0)
 	{
-		close (from);
+		close(from);
 		return (-1);
 	}
-	close (from);
-    return (0);
+	close(from);
+	return (0);
 }
 
 static void	ms_child_exit(t_exec_ctx *ctx, int status)
@@ -52,7 +52,7 @@ static void	ms_child_exit(t_exec_ctx *ctx, int status)
 
 static void	ms_close_heredocs(t_command *cmd_list, t_command *current)
 {
-	t_redir		*r;
+	t_redir	*r;
 
 	while (cmd_list)
 	{
