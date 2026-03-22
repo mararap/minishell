@@ -31,6 +31,7 @@ void	ms_hd_run_child(t_hd_job *job)
 	int	status;
 
 	ms_setup_child_signals();
+	signal(SIGQUIT, SIG_IGN);
 	status = ms_hd_child_loop(job->shell, job->redir, job->wfd);
 	ms_hd_child_exit(job, status);
 }
