@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/20 21:30:00 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/22 15:25:10 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/22 15:39:31 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,29 +97,4 @@ void	ms_execute_child(t_exec_ctx *ctx, t_command *cmd)
 		ms_child_exit(ctx, ms_run_builtin_child(ctx->shell, cmd->argv));
 	status = ms_exec_external_command(ctx->shell, cmd->argv);
 	ms_child_exit(ctx, status);
-}
-
-int	ms_fork_and_execute(t_exec_ctx *ctx, t_command *cmd)
-{
-	pid_t	pid;
-
-	pid = fork();
-	if (pid < 0)
-	{
-		perror("fork");
-		return (-1);
-	}
-	if (pid == 0)
-	{
-		ms_setup_child_signals();
-		if (cmd->next)
-		{
-			close(ctx->pipe_fd[0]);
-			ctx->pipe_fd[0] = -1;
-		}
-		if (ctx->pids_to_free)
-			free(ctx->pids_to_free);
-		ms_execute_child(ctx, cmd);
-	}
-	return (pid);
 }
