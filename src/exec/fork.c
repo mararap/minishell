@@ -6,32 +6,11 @@
 /*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/20 21:30:00 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/20 21:30:00 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/22 15:25:10 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-/*static void	ms_close_fd(int fd)
-{
-	if (fd < 0 || fd == STDIN_FILENO || fd == STDOUT_FILENO
-		|| fd == STDERR_FILENO)
-		return ;
-	close(fd);
-}
-
-static int	ms_dup_and_close(int from, int to)
-{
-	if (from < 0 || from == to)
-		return (0);
-	if (dup2(from, to) < 0)
-	{
-		close(from);
-		return (-1);
-	}
-	close(from);
-	return (0);
-}*/
 
 static int	ms_dup_and_close(int from, int to)
 {
@@ -46,9 +25,6 @@ static int	ms_dup_and_close(int from, int to)
 
 static void	ms_child_exit(t_exec_ctx *ctx, int status)
 {
-	//ms_close_fd(ctx->prev_read);
-	//ms_close_fd(ctx->pipe_fd[0]);
-	//ms_close_fd(ctx->pipe_fd[1]);
 	if (ctx->shell && ctx->shell->current_line)
 	{
 		free(ctx->shell->current_line);

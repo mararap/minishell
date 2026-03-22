@@ -72,20 +72,22 @@ static int	ms_prepare_command_heredocs(t_shell *shell, t_command *cmds,
 
 int	ms_prepare_heredocs(t_shell *shell, t_command *cmds)
 {
-	int	status;
-	int	hd_line_num;
+	int			status;
+	int			hd_line_num;
+	t_command	*head;
 
+	head = cmds;
 	hd_line_num = 1;
 	while (cmds)
 	{
-		status = ms_prepare_command_heredocs(shell, cmds, cmds, &hd_line_num);
+		status = ms_prepare_command_heredocs(shell, head, cmds, &hd_line_num);
 		if (status == 130)
 			g_signal_number = SIGINT;
 		if (status != 0)
 		{
 			if (status == 1)
 				perror("heredoc");
-			ms_close_all_heredocs(cmds);
+			ms_close_all_heredocs(head);
 			return (status);
 		}
 		cmds = cmds->next;
