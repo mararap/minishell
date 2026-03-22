@@ -7,3 +7,4 @@ mstest_output*/
 libft/*.o
 libft/*.a
 scripts/
+*.supp
