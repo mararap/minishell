@@ -6,7 +6,7 @@
 #    By: jatanaso <jatanaso@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2026/03/23 10:14:28 by jatanaso         ###   ########.fr        #
+#    Updated: 2026/03/23 10:26:32 by jatanaso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -160,9 +160,11 @@ OBJ				:=		$(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC))
 #                                   RULES                                      #
 # **************************************************************************** #
 
-all: $(NAME)
+all: libft $(NAME)
 
-$(LIBFT):
+.PHONY: all clean fclean re libft
+
+libft:
 	@$(MAKE) --no-print-directory -C $(LIBFT_DIR)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
@@ -187,5 +189,3 @@ fclean: clean
 	@echo "     🧹 LIBFT library removed."
 
 re: fclean all
-
-.PHONY: all clean fclean re 
