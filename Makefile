@@ -6,7 +6,7 @@
 #    By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2026/03/22 18:46:43 by marapovi         ###   ########.fr        #
+#    Updated: 2026/03/23 09:32:04 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -159,26 +159,16 @@ OBJ				:=		$(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC))
 #                                   RULES                                      #
 # **************************************************************************** #
 
-all: libft_always print_compile $(NAME)
+all: $(NAME)
 
-.PHONY: libft_always print_compile print_done
-
-print_compile:
-	@echo "     🛠️  Compiling sources..."
-
-print_done:
-	@echo "     ✅ Compilation finished."
-
-libft_always:
-	@$(MAKE) --no-print-directory -C $(LIBFT_DIR);
+$(LIBFT):
+	@$(MAKE) --no-print-directory -C $(LIBFT_DIR)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
-$(OBJ): %.o: $(HEADER)
-
-$(NAME): print_done $(OBJ) $(LIBFT)
+$(NAME): $(OBJ) $(LIBFT)
 	@echo "     🛠️  Linking executable..."
 	@$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) $(LDLIBS) -o $(NAME)
 	@printf "%b\n" "$$MONKEY"
