@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: jatanaso <jatanaso@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 15:45:46 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/22 21:04:40 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/23 10:13:03 by jatanaso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,6 +194,8 @@ int						ms_token_to_redir_type(t_token_type type);
 t_token					*ms_tok_new(t_token_type type, char *value,
 							char *raw, int quoted);
 void					ms_mask_ifs(char *s);
+int						ms_has_unclosed_quotes(char *line);
+t_command				*ms_syntax_error(t_shell *shell);
 char					*ms_collect_single_quotes(char *str, int *idx);
 char					*ms_collect_double_quotes(t_shell *shell, char *str,
 							int *idx, int allow_expansion);

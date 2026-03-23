@@ -58,7 +58,15 @@ static int	ms_parse_one_command(t_command **cmds, t_token **cursor)
 	}
 	ms_command_add_back(cmds, cmd);
 	if (*cursor && (*cursor)->type == TOKEN_PIPE)
+	{
 		*cursor = (*cursor)->next;
+		if (!*cursor)
+		{
+			ms_print_syntax_error(NULL);
+			ms_free_command_list(*cmds);
+			return (1);
+		}
+	}
 	return (0);
 }
 

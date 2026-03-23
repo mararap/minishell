@@ -3,14 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   loop.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: jatanaso <jatanaso@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/18 21:03:30 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/20 14:09:28 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/23 10:11:49 by jatanaso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static void	ms_execute_commands(t_shell *shell, t_command *commands)
+{
+	int	status;
+
+	status = ms_prepare_heredocs(shell, commands);
+	if (status == 0)
+		status = ms_execute_pipeline(shell, commands);
+	shell->last_exit_status = status;
+	ms_free_command_list(commands);
+}
 
 static t_command	*ms_parse_line(t_shell *shell, char *line)
 {
@@ -19,6 +30,8 @@ static t_command	*ms_parse_line(t_shell *shell, char *line)
 
 	if (!line || line[0] == '\0')
 		return (NULL);
+	if (ms_has_unclosed_quotes(line))
+		return (ms_syntax_error(shell));
 	tokens = ms_lex_line(shell, line);
 	if (!tokens)
 		return (NULL);
@@ -37,15 +50,14 @@ static t_command	*ms_parse_line(t_shell *shell, char *line)
 	return (commands);
 }
 
-static void	ms_execute_commands(t_shell *shell, t_command *commands)
+void	ms_handle_line(t_shell *shell, char *line)
 {
-	int	status;
+	t_command	*commands;
 
-	status = ms_prepare_heredocs(shell, commands);
-	if (status == 0)
-		status = ms_execute_pipeline(shell, commands);
-	shell->last_exit_status = status;
-	ms_free_command_list(commands);
+	commands = ms_parse_line(shell, line);
+	if (!commands)
+		return ;
+	ms_execute_commands(shell, commands);
 }
 
 static char	*ms_read_line(t_shell *shell)
@@ -63,16 +75,6 @@ static char	*ms_read_line(t_shell *shell)
 	if (line)
 		ms_chomp_eol(line);
 	return (line);
-}
-
-void	ms_handle_line(t_shell *shell, char *line)
-{
-	t_command	*commands;
-
-	commands = ms_parse_line(shell, line);
-	if (!commands)
-		return ;
-	ms_execute_commands(shell, commands);
 }
 
 void	ms_main_loop(t_shell *shell)
