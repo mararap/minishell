@@ -6,7 +6,7 @@
 #    By: jatanaso <jatanaso@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2026/03/23 10:26:32 by jatanaso         ###   ########.fr        #
+#    Updated: 2026/03/23 10:57:39 by jatanaso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -73,7 +73,7 @@ CPPFLAGS	:=	-I include -I libft
 
 # C compiler flags - needed for compiling src files AND for linking
 # CFLAGS		:=	-Wall -Wextra -Werror -O2 -march=native -g
-CFLAGS		:=	-Wall -Wextra -Werror -g
+CFLAGS		:=	-Wall -Wextra -Werror
 
 # Flags/Options passed to the linker
 LDFLAGS		:=	-L libft
