@@ -64,12 +64,19 @@ static void	ms_export_error(char *arg)
 
 static int	ms_export_name_only(t_shell *shell, char *name)
 {
-	char	*old_val;
+	t_env_var	*it;
 
-	old_val = ms_env_get_value(shell->env_list, name);
-	if (!old_val)
-		old_val = "";
-	return (ms_env_set(&shell->env_list, name, old_val, 1));
+	it = shell->env_list;
+	while (it)
+	{
+		if (ft_strcmp(it->name, name) == 0)
+		{
+			it->exported = 1;
+			return (0);
+		}
+		it = it->next;
+	}
+	return (ms_env_set(&shell->env_list, name, NULL, 1));
 }
 
 int	ms_export_one_arg(t_shell *shell, char *arg)
