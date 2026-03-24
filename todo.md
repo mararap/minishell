@@ -109,3 +109,13 @@ Then: 1_scmds.sh (simple commands) 🎯
 - [ ] remove -g from Makefile (?)
 - [ ] norminette & split functions / files
 
+
+#Vesta's test
+
+'export a' should not put a to env list, but only to export
+'export a=' should be added to env list
+'export la="a b c"' 
+export $la="haha"
+env' should set la=a b c and c=haha, but not set a= or b=
+
+
