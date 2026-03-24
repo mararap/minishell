@@ -12,6 +12,27 @@
 
 #include "minishell.h"
 
+static int ms_is_executable_file(char *candidate)
+{
+	struct stat st;
+
+	if (stat(candidate, &st) != 0 || S_ISDIR(st.st_mode))
+		return (0);
+	return (access(candidate, X_OK) == 0);
+}
+
+static void ms_remember_denied_path(char **saved, char *candidate)
+{
+	struct stat st;
+
+	if (*saved || access(candidate, F_OK) != 0)
+		return ;
+	if (stat(candidate, &st) != 0 || S_ISDIR(st.st_mode))
+		return ;
+	if (access(candidate, X_OK) != 0)
+		*saved = ft_strdup(candidate);
+}
+
 static char	*ms_join_search_dir(char *dir, char *cmd)
 {
 	if (dir[0] == '\0')
@@ -22,25 +43,33 @@ static char	*ms_join_search_dir(char *dir, char *cmd)
 static char	*ms_search_path_dirs(char **paths, char *cmd, int *used_path)
 {
 	char		*candidate;
-	struct stat	st;
+	char		*denied_path;
 	int			i;
 
+	denied_path = NULL;
 	i = 0;
 	while (paths[i])
 	{
 		candidate = ms_join_search_dir(paths[i], cmd);
-		if (access(candidate, F_OK) == 0 && stat(candidate, &st) == 0
-			&& !S_ISDIR(st.st_mode))
+		if (ms_is_executable_file(candidate))
 		{
+			free(denied_path);
 			ms_free_str_array(paths);
 			if (used_path)
 				*used_path = 1;
 			return (candidate);
 		}
+		ms_remember_denied_path(&denied_path, candidate);
 		free(candidate);
 		i++;
 	}
 	ms_free_str_array(paths);
+	if (denied_path)
+	{
+		if (used_path)
+			*used_path = 1;
+		return (denied_path);
+	}
 	return (NULL);
 }
 
