@@ -119,3 +119,10 @@ export $la="haha"
 env' should set la=a b c and c=haha, but not set a= or b=
 
 
+Trailing guideline for empty space PATH
+    - if PATH = "" -> .
+    - if PATH = "::" -> .
+    - if : at beginning or end of PATH-string -> should default to .
+
+in case of same file names in different directories, one accessable other one isn't, should search whole PATH for executable, not only first match
+
