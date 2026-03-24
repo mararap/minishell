@@ -39,6 +39,31 @@ static char	**ms_add_word_to_argv(char **argv, char *word)
 	return (new_argv);
 }
 
+static int ms_is_export_assign_raw(const t_command *cmd, const t_token *tok)
+{
+	int i;
+
+	if (!cmd->argv || !cmd->argv[0] || ft_strcmp(cmd->argv[0], "export") != 0)
+		return (0);
+	if (!tok->raw || (!ft_isalpha(tok->raw[0]) && tok->raw[0] != '_'))
+		return (0);
+	i = 1;
+	while (tok->raw[i] && tok->raw[i] != '=')
+	{
+		if (!ft_isalnum(tok->raw[i]) && tok->raw[i] != '_')
+			return (0);
+		i++;
+	}
+	return (tok->raw[i] == '=');
+}
+
+static void ms_add_unsplit_word(t_command *cmd, t_token *tok)
+{
+	ms_unmask_ifs(tok->value);
+	cmd->argv = ms_add_word_to_argv(cmd->argv, tok->value);
+	tok->value = NULL;
+}
+
 static void	ms_handle_split_word(t_command *cmd, t_token *tok)
 {
 	char	**parts;
@@ -76,13 +101,11 @@ void	ms_handle_word(t_command *cmd, t_token **cursor, t_token *tok)
 		free(tok->value);
 		tok->value = NULL;
 	}
+	else if (ms_is_export_assign_raw(cmd, tok))
+		ms_add_unsplit_word(cmd, tok);
 	else if (ms_word_has_ifs(tok->value))
 		ms_handle_split_word(cmd, tok);
 	else
-	{
-		ms_unmask_ifs(tok->value);
-		cmd->argv = ms_add_word_to_argv(cmd->argv, tok->value);
-		tok->value = NULL;
-	}
+		ms_add_unsplit_word(cmd, tok);
 	*cursor = tok->next;
 }
