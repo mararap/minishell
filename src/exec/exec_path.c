@@ -58,7 +58,7 @@ char	*ms_find_executable(t_shell *shell, char *cmd, int *used_path)
 	path_env = ms_env_get_value(shell->env_list, "PATH");
 	if (!path_env || path_env[0] == '\0')
 		return (ft_strdup(cmd));
-	paths = ft_split(path_env, ':');
+	paths = ms_split_path_keep_empty(path_env);
 	if (!paths)
 		return (NULL);
 	return (ms_search_path_dirs(paths, cmd, used_path));

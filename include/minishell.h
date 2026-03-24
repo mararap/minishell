@@ -6,7 +6,7 @@
 /*   By: jatanaso <jatanaso@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 15:45:46 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/23 10:13:03 by jatanaso         ###   ########.fr       */
+/*   Updated: 2026/03/24 15:09:12 by jatanaso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -276,5 +276,6 @@ void					ms_close_all_heredocs(t_command *cmds);
 int						ms_prepare_one_heredoc(t_shell *shell,
 							t_command *cmds, t_redir *redir,
 							int *hd_line_num);
+char					**ms_split_path_keep_empty(const char *s);
 
 #endif

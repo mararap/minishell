@@ -6,7 +6,7 @@
 #    By: jatanaso <jatanaso@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2026/03/23 10:57:39 by jatanaso         ###   ########.fr        #
+#    Updated: 2026/03/24 15:09:41 by jatanaso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -106,6 +106,7 @@ SRC 	:= 		shell/main.c \
 				shell/loop_syntax.c \
 				shell/signals.c \
 				utils/utils.c \
+				utils/utils_path.c \
 				utils/utils_command.c \
 				utils/utils_gnl.c \
 				env/env_list.c \
