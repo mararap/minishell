@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fork.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/20 21:30:00 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/22 15:39:31 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/25 21:24:40 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,8 @@ void	ms_execute_child(t_exec_ctx *ctx, t_command *cmd)
 		ms_child_exit(ctx, 1);
 	if (!cmd->argv || !cmd->argv[0])
 		ms_child_exit(ctx, 0);
-	ms_update_underscore(ctx->shell, cmd->argv[0]);
+	if (ctx->shell && cmd->argv && cmd->argv[0])
+		ms_env_set(&ctx->shell->env_list, "_", *cmd->argv, 1);
 	if (ms_is_builtin(cmd->argv[0]))
 		ms_child_exit(ctx, ms_run_builtin_child(ctx->shell, cmd->argv));
 	status = ms_exec_external_command(ctx->shell, cmd->argv);

@@ -12,6 +12,32 @@
 
 #include "minishell.h"
 
+static void	ms_adjust_envp_shlvl(char **envp)
+{
+	int		i;
+	int		val;
+	char	*new_val;
+	char	*new_entry;
+
+	i = 0;
+	while (envp && envp[i] && ft_strncmp(envp[i], "SHLVL=", 6) != 0)
+		i++;
+	if (!envp || !envp[i])
+		return ;
+	val = ft_atoi(envp[i] + 6) - 1;
+	if (val < 0)
+		return ;
+	new_val = ft_itoa(val);
+	if (!new_val)
+		return ;
+	new_entry = ms_str_join_three("SHLVL=", new_val, "");
+	free(new_val);
+	if (!new_entry)
+		return ;
+	free(envp[i]);
+	envp[i] = new_entry;
+}
+
 static int	ms_exec_run_path(t_shell *shell, char **argv, char *path,
 		char *display_arg)
 {
@@ -45,7 +71,8 @@ int	ms_exec_external_command(t_shell *shell, char **argv)
 	display_arg = argv[0];
 	if (used_path)
 		display_arg = path;
-	ms_update_underscore(shell, path);
+	if (shell && path && path[0])
+		ms_env_set(&shell->env_list, "_", path, 1);
 	status = ms_exec_precheck(argv[0], display_arg, path);
 	if (status >= 0)
 	{

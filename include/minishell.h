@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatanaso <jatanaso@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 15:45:46 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/24 15:09:12 by jatanaso         ###   ########.fr       */
+/*   Updated: 2026/03/25 21:26:44 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,7 +215,6 @@ int						ms_process_redir_token(t_command *cmd, t_token **cursor,
 							t_token *tok);
 int						ms_fill_command(t_command *cmd, t_token **cursor);
 void					ms_free_command_list(t_command *command_list);
-
 int						ms_execute_pipeline(t_shell *shell,
 							t_command *command_list);
 int						ms_spawn_pipeline(t_pipeline *pl);
@@ -231,8 +230,6 @@ int						ms_fork_and_execute(t_exec_ctx *ctx, t_command *cmd);
 void					ms_execute_child(t_exec_ctx *ctx, t_command *cmd);
 char					*ms_find_executable(t_shell *shell, char *cmd,
 							int *used_path);
-void					ms_update_underscore(t_shell *shell, char *value);
-void					ms_adjust_envp_shlvl(char **envp);
 int						ms_exec_error_code(char *arg, int err_no);
 int						ms_exec_precheck(char *argv0, char *display_arg,
 							char *path);

@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jatanaso <jatanaso@student.42vienna.com    +#+  +:+       +#+         #
+#    By: marapovi <marapovi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/20 21:31:57 by marapovi          #+#    #+#              #
-#    Updated: 2026/03/24 15:09:41 by jatanaso         ###   ########.fr        #
+#    Updated: 2026/03/25 21:27:24 by marapovi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -131,6 +131,7 @@ SRC 	:= 		shell/main.c \
 				parser/parser_helpers.c \
 				parser/fill_command.c \
 				parser/handle_words.c \
+				parser/handle_words_utils.c \
 				parser/handle_redirs.c \
 				parser/free_command.c \
 				exec/executor.c \
