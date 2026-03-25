@@ -6,7 +6,7 @@
 /*   By: jatanaso <jatanaso@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/24 15:07:45 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/25 18:38:12 by jatanaso         ###   ########.fr       */
+/*   Updated: 2026/03/25 18:43:04 by jatanaso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,11 @@ static size_t	ms_path_parts_count(const char *s)
 
 char	**ms_split_path_keep_empty(const char *s)
 {
-	char **out;
-	size_t i;
-	size_t start;
-	size_t j;
-	size_t n;
+	char	**out;
+	size_t	i;
+	size_t	start;
+	size_t	j;
+	size_t	n;
 
 	n = ms_path_parts_count(s);
 	out = (char **)ms_xmalloc(sizeof(char *) * (n + 1));

@@ -2,28 +2,31 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   exec_path.c                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/20 21:30:00 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/20 21:30:00 by marapovi         ###   ########.fr       */
+/*                                                    +:+ +:+
+	+:+     */
+/*   By: jatanaso <jatanaso@student.42vienna.com    +#+  +:+
+	+#+        */
+/*                                                +#+#+#+#+#+
+	+#+           */
+/*   Created: 2026/03/20 21:30:00 by jatanaso          #+#    #+#             */
+/*   Updated: 2026/03/20 21:30:00 by jatanaso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int ms_is_executable_file(char *candidate)
+static int	ms_is_executable_file(char *candidate)
 {
-	struct stat st;
+	struct stat	st;
 
 	if (stat(candidate, &st) != 0 || S_ISDIR(st.st_mode))
 		return (0);
 	return (access(candidate, X_OK) == 0);
 }
 
-static void ms_remember_denied_path(char **saved, char *candidate)
+static void	ms_remember_denied_path(char **saved, char *candidate)
 {
-	struct stat st;
+	struct stat	st;
 
 	if (*saved || access(candidate, F_OK) != 0)
 		return ;
@@ -42,9 +45,9 @@ static char	*ms_join_search_dir(char *dir, char *cmd)
 
 static char	*ms_search_path_dirs(char **paths, char *cmd, int *used_path)
 {
-	char		*candidate;
-	char		*denied_path;
-	int			i;
+	char	*candidate;
+	char	*denied_path;
+	int		i;
 
 	denied_path = NULL;
 	i = 0;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   handle_words.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: jatanaso <jatanaso@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 16:29:52 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/22 22:04:28 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/25 18:44:27 by jatanaso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,13 @@ static char	**ms_add_word_to_argv(char **argv, char *word)
 	}
 	new_argv[len] = word;
 	new_argv[len + 1] = NULL;
-	free (argv);
+	free(argv);
 	return (new_argv);
 }
 
-static int ms_is_export_assign_raw(const t_command *cmd, const t_token *tok)
+static int	ms_is_export_assign_raw(const t_command *cmd, const t_token *tok)
 {
-	int i;
+	int	i;
 
 	if (!cmd->argv || !cmd->argv[0] || ft_strcmp(cmd->argv[0], "export") != 0)
 		return (0);
@@ -57,7 +57,7 @@ static int ms_is_export_assign_raw(const t_command *cmd, const t_token *tok)
 	return (tok->raw[i] == '=');
 }
 
-static void ms_add_unsplit_word(t_command *cmd, t_token *tok)
+static void	ms_add_unsplit_word(t_command *cmd, t_token *tok)
 {
 	ms_unmask_ifs(tok->value);
 	cmd->argv = ms_add_word_to_argv(cmd->argv, tok->value);
