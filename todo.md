@@ -99,15 +99,15 @@ Then: 1_scmds.sh (simple commands) 🎯
 - [x] `1_scmds.sh` - simple commands (fork/exec)
 - [x] `2_path_check.sh` - PATH searching
 - [x] `1_redirs.sh` - file redirections (>, >>, <, <<)
-- [ ] `1_pipelines.sh` - multiple commands with pipes
+- [x] `1_pipelines.sh` - multiple commands with pipes
 /*from www.geeksforgeeks.com: Pipes behave FIFO(First in First out), Pipe behave like a queue data structure. Size of read and write don’t have to match here. check implementation! see test case line 180 in 1_pipelines.sh*/
 
 ### Phase 4: Final Integration
-- [ ] `9_go_wild.sh`
-- [ ] `2_correction.sh`
+- [x] `9_go_wild.sh`
+- [x] `2_correction.sh`
 
-- [ ] remove -g from Makefile (?)
-- [ ] norminette & split functions / files
+- [x] remove -g from Makefile (?)
+- [x] norminette & split functions / files
 
 
 #Vesta's test
