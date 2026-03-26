@@ -18,7 +18,7 @@ input line
 
 ---
 
-## 1) What a **token** is in your project
+## 1) What a **token** is in our project
 
 Our token struct is:
 
@@ -157,7 +157,7 @@ For:
 echo hello | wc -c
 ```
 
-you get two commands:
+we get two commands:
 
 #### command 1
 
@@ -232,7 +232,7 @@ So command = something the executor can run.
 
 # A concrete example
 
-Take this input:
+Input:
 
 ```bash
 echo "hi there" > out | cat

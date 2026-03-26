@@ -1,19 +1,19 @@
-Yes. In your `minishell.zip`, **working history is achieved by using the Readline history API**, not by a custom linked list or array in your own code.
+**working history is achieved by using the Readline history API**, not by a custom linked list or array in our own code.
 
 ## Core idea
 
-Your shell does two things:
+Our shell does two things:
 
 1. **reads commands with `readline()`**
 2. **stores each non-empty interactive command with `add_history()`**
 
-After that, **Readline itself** gives you the usual history behavior:
+After that, **Readline itself** handles the usual history behavior:
 
 * Up arrow → older command
 * Down arrow → newer command
 * editable recalled line
 
-So the “history feature” is mostly provided by the `readline` library, and your code just feeds commands into it.
+So the “history feature” is mostly provided by the `readline` library, and our code just feeds commands into it.
 
 ---
 
@@ -36,7 +36,7 @@ That gives access to:
 
 ### 2) The project links against Readline
 
-In your `Makefile`:
+In our `Makefile`:
 
 ```make
 LDLIBS := -lft -lreadline
@@ -83,7 +83,7 @@ This is the important part many people miss:
 * `add_history(line)` only stores the line
 * `readline()` is what later lets the user browse that stored history with arrow keys
 
-So your code does **not** manually implement:
+So our code does **not** manually implement:
 
 * previous/next command navigation
 * line recall
@@ -114,7 +114,7 @@ So once a command has been passed to `add_history()`, the next `readline()` call
 
 ## Interactive mode matters
 
-In `src/shell/main.c`, your shell detects whether it is attached to a terminal:
+In `src/shell/main.c`, our shell detects whether it is attached to a terminal:
 
 ```c
 if (isatty(STDIN_FILENO) && isatty(STDERR_FILENO))
@@ -153,18 +153,18 @@ inside `ms_free_shell()`.
 
 That clears Readline’s internal history list and frees its memory when the shell exits.
 
-So your history is cleaned up properly at shutdown.
+So the history is cleaned up properly at shutdown.
 
 ---
 
 ## Important limitation: history is only for the current session
 
-I checked your code and there is **no** call to:
+There is **no** call to:
 
 * `read_history(...)`
 * `write_history(...)`
 
-That means your shell **does not save history to a file** between runs.
+That means our shell **does not save history to a file** between runs.
 
 So this works:
 
@@ -178,7 +178,7 @@ press Up -> ls
 
 But after exiting and starting minishell again, that old history is gone.
 
-So your project has:
+So our project has:
 
 * **session history** ✅
 * **persistent history across restarts** ❌
@@ -189,7 +189,7 @@ For 42 minishell, session history is typically what “working history” means.
 
 ## Heredoc is separate
 
-Your heredoc input does **not** use `readline()` for history recall.
+Our heredoc input does **not** use `readline()` for history recall.
 
 In `src/heredoc/heredoc_read.c`, heredoc lines are read with:
 
@@ -216,6 +216,4 @@ Only the command itself may appear in history, not the inner heredoc lines.
 
 ## One-line summary
 
-Your minishell achieves “working history” by using **Readline’s built-in history system**: commands are read with `readline()`, stored with `add_history()` when interactive and non-empty, and later recalled automatically by Readline with the arrow keys.
-
-I can also explain this as “which exact line makes Up-arrow work” versus “which exact line stores the command,” side by side.
+Our minishell achieves “working history” by using **Readline’s built-in history system**: commands are read with `readline()`, stored with `add_history()` when interactive and non-empty, and later recalled automatically by Readline with the arrow keys.

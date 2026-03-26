@@ -1,4 +1,4 @@
-In this project, the normal shell prompt is achieved through the **Readline** library, and it is only used when the shell detects it is running interactively.
+The normal shell prompt is achieved through the **Readline** library, and it is only used when the shell detects it is running interactively.
 
 ### Where the prompt string is defined
 
@@ -167,8 +167,6 @@ Our minishell displays the prompt by detecting interactive mode with `isatty(...
 
 Here is a tiny call-flow diagram from `main()` to `readline()`:
 
-Here’s the exact prompt flow in your `minishell.zip`:
-
 ```text
 main()
  ├─ ms_init_shell(&shell, envp)
@@ -285,7 +283,7 @@ That is why the shell returns to a clean prompt instead of exiting.
 
 ### Separate case: heredoc prompt
 
-Your heredoc prompt is different from the normal shell prompt.
+Our heredoc prompt is different from the normal shell prompt.
 
 Normal prompt:
 
@@ -315,6 +313,4 @@ comes from two separate mechanisms:
 
 ### One-line summary
 
-Your minishell displays the “waiting for a new command” prompt by calling `readline(PROMPT_STR)` inside `ms_main_loop()`, but only when `isatty()` says the shell is running interactively.
-
-I can also draw the same flow as a smaller “command lifecycle” diagram from prompt → parse → execute → prompt.
+Our minishell displays the “waiting for a new command” prompt by calling `readline(PROMPT_STR)` inside `ms_main_loop()`, but only when `isatty()` says the shell is running interactively.

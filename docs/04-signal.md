@@ -25,25 +25,25 @@ This matches the intent of the subject very closely:
 * `sig_atomic_t` is meant for values that can be safely read/written across signal interruptions
 * `volatile` tells the compiler not to optimize reads/writes away, because the value may change asynchronously
 
-You’re already on the right track—these two keywords solve *different but complementary problems* when dealing with signals. Let’s unpack *why the type actually matters*, not just what it does.
+These two keywords solve *different but complementary problems* when dealing with signals.
 
 ---
 
 ### 1.1. Why `sig_atomic_t` matters
 
-Signals can interrupt your program **at literally any point**—even halfway through a variable update.
+Signals can interrupt your program **at literally any point** — even halfway through a variable update.
 
 On many systems, writing to a variable is **not guaranteed to be atomic** unless the type explicitly promises it.
 
 #### The problem without `sig_atomic_t`
 
-Imagine this:
+If
 
 ```c
 int flag = 0;
 ```
 
-If a signal handler does:
+and a signal handler does:
 
 ```c
 flag = 1;
@@ -122,7 +122,7 @@ volatile sig_atomic_t flag;
 
 ---
 
-### 1.3. Why you need BOTH
+### 1.3. Why we need BOTH
 
 These solve *different layers of the problem*:
 
@@ -131,7 +131,7 @@ These solve *different layers of the problem*:
 | Partial / torn reads-writes     | `sig_atomic_t` |
 | Compiler caching / optimization | `volatile`     |
 
-If you use only one:
+If we use only one:
 
 * `sig_atomic_t` without `volatile` → compiler may ignore updates
 * `volatile` without `sig_atomic_t` → you may get corrupted values
@@ -146,7 +146,7 @@ Even with:
 volatile sig_atomic_t flag;
 ```
 
-you are only safe for:
+we are only safe for:
 
 * **simple reads and writes**
 
@@ -168,26 +168,19 @@ Because that becomes:
 
 ### 1.5. Mental model
 
-Think of it like this:
-
 * **`sig_atomic_t`** → “The hardware won’t tear this apart”
 * **`volatile`** → “The compiler won’t pretend this never changes”
 
-You need both because signals break assumptions at *two levels*:
+We need both because signals break assumptions at *two levels*:
 
 * CPU execution (atomicity)
 * compiler optimization (visibility)
 
 ---
 
-If you want, I can show a real bug example where missing one of these causes an infinite loop or corrupted state—that usually makes it click instantly.
-
-
----
-
 ## 2) The main shell state is *not* global
 
-Your shell state is kept in a local variable inside `main()`:
+The shell state is kept in a local variable inside `main()`:
 
 ```c
 t_shell	shell;
@@ -268,7 +261,7 @@ So the handlers are following the intended pattern:
 
 This is the most important part.
 
-Instead of doing complex cleanup or state changes inside the handler, your program checks `g_signal_number` later in normal execution flow.
+Instead of doing complex cleanup or state changes inside the handler, our program checks `g_signal_number` later in normal execution flow.
 
 ### Prompt redisplay after Ctrl+C
 
@@ -308,7 +301,6 @@ if (ret < 0 && errno == EINTR)
 	continue ;
 }
 ```
-
 Again, the handler does not manipulate buffers or shell state.
 It only sets `g_signal_number`, and the normal read loop reacts later.
 
@@ -388,7 +380,7 @@ So the design is:
 That separation helps keep the global flag simple.
 
 
-You’re looking at a classic Unix shell design pattern, and it’s subtle but very intentional. Let’s break down what’s happening and *why* it’s done this way during pipeline execution.
+We’re looking at a classic Unix shell design pattern, and it’s subtle but very intentional. Let’s break down what’s happening and *why* it’s done this way during pipeline execution.
 
 ---
 
@@ -403,7 +395,7 @@ If the shell *also* reacts normally to `SIGINT`, you get problems:
 
 * the shell might interrupt itself while it’s supposed to just wait
 * it could print prompts mid-execution
-* it might corrupt internal state (like your global flag)
+* it might corrupt internal state (like our global flag)
 
 So the shell must **step out of the way temporarily**.
 
@@ -420,7 +412,7 @@ This tells the shell (parent process):
 
 👉 “Ignore Ctrl+C and Ctrl+\ completely for now.”
 
-This typically happens right before:
+This happens right before:
 
 ```c
 waitpid(...);  // waiting for pipeline children
@@ -477,7 +469,7 @@ So:
 
 ### 5.5. Why ignore instead of handle?
 
-You *could* handle `SIGINT` in the parent, but ignoring is safer here:
+We *could* handle `SIGINT` in the parent, but ignoring is safer here:
 
 #### If the shell handled it:
 
@@ -493,11 +485,11 @@ You *could* handle `SIGINT` in the parent, but ignoring is safer here:
 * Only children react
 * `waitpid` continues cleanly
 
-👉 This keeps your global signal flag untouched during execution.
+👉 This keeps our global signal flag untouched during execution.
 
 ---
 
-### 5.6. The “three-layer design” you described
+### 5.6. The “three-layer design”
 
 This is the key architectural idea:
 
@@ -568,14 +560,14 @@ This is how shells like bash behave internally.
 
 ### 5.8. What would go wrong without this?
 
-If you *didn’t* ignore signals in the parent:
+If we *didn’t* ignore signals in the parent:
 
 * Ctrl+C might:
 
   * interrupt `waitpid`
-  * set your global flag mid-execution
+  * set our global flag mid-execution
   * cause double handling (parent + children)
-* You’d need complicated logic like:
+* We’d need complicated logic like:
 
   * checking EINTR everywhere
   * resetting states manually
@@ -599,7 +591,7 @@ Then:
 
 ### 5.10. Summary
 
-Your design:
+Our design:
 
 * **Parent shell**
 
@@ -614,12 +606,7 @@ Your design:
 
   * temporary signal ignore + restore
 
-👉 This keeps your global signal flag simple, avoids interference, and mirrors real shell behavior.
-
----
-
-If you want, I can walk through a real `executor.c` flow (fork → pipe → waitpid) step by step with signal timing—that’s where this becomes crystal clear.
-
+👉 This keeps our global signal flag simple, avoids interference, and mirrors real shell behavior.
 
 ---
 
@@ -632,9 +619,9 @@ The subject warns against things like:
 * global arrays/lists storing extra signal context
 * global “Norm-friendly wrapper structs” that secretly expose application state
 
-Your code avoids that.
+Our code avoids that.
 
-I checked the project-level global definitions and the only one used for this purpose is:
+The only project-level global definition for this purpose is:
 
 ```c
 volatile sig_atomic_t g_signal_number
@@ -682,7 +669,7 @@ later, outside handler:
 
 ## Bottom line
 
-This requirement is achieved in your minishell by:
+This requirement is achieved in our minishell by:
 
 * defining exactly one global signal flag: `volatile sig_atomic_t g_signal_number`
 * keeping `t_shell` and all real shell data out of global scope
@@ -691,19 +678,15 @@ This requirement is achieved in your minishell by:
 
 So the handlers **signal what happened**, but they do **not** control the shell state directly.
 
-A small extra note: your handlers also call `write()` and, for heredoc, set Readline’s `rl_done`. They still do not access your own shell data structures, so they respect the spirit of the 42 requirement very well.
-
-Yes — in minishell terms:
+A small extra note: our handlers also call `write()` and, for heredoc, set Readline’s `rl_done`. They still do not access our own shell data structures, so they respect the spirit of the 42 requirement very well.
 
 * **`SIGINT`** is usually what you get from **Ctrl+C**
 * **`SIGQUIT`** is usually what you get from **Ctrl+\\**
-* **`sigaction()`** is the system call used to tell the OS **what your program should do when one of those signals arrives**
+* **`sigaction()`** is the system call used to tell the OS **what the program should do when one of those signals arrives**
 
 ## 1) What is a signal?
 
 A signal is a small asynchronous notification sent by the kernel to a process.
-
-You can think of it as:
 
 > “Something happened — react now.”
 
@@ -742,7 +725,7 @@ Instead, when idle at the prompt, the shell usually wants:
 * clear the current input line
 * show a fresh prompt
 
-That is exactly what your minishell does.
+That is exactly what our minishell does.
 
 In `src/shell/signals.c`:
 
@@ -772,7 +755,7 @@ if (g_signal_number == SIGINT)
 }
 ```
 
-That is what gives you the “clean new prompt” behavior.
+That is what ensures the “clean new prompt” behavior.
 
 ---
 
@@ -793,9 +776,9 @@ Default behavior is stronger than `SIGINT`:
 
 That is why shells often treat it differently.
 
-### In your interactive minishell
+### In our interactive minishell
 
-When waiting at the prompt, your shell ignores `SIGQUIT`:
+When waiting at the prompt, our shell ignores `SIGQUIT`:
 
 ```c
 sa_quit.sa_handler = SIG_IGN;
@@ -805,7 +788,7 @@ So pressing Ctrl+\ at the prompt does nothing visible.
 
 ### But for child processes
 
-Your shell resets child processes to default handling:
+Our shell resets child processes to default handling:
 
 ```c
 sa.sa_handler = SIG_DFL;
@@ -813,7 +796,7 @@ sigaction(SIGINT, &sa, NULL);
 sigaction(SIGQUIT, &sa, NULL);
 ```
 
-So if you run an external command and press Ctrl+\, the child behaves like a normal Unix program.
+So if an external command runs and Ctrl+\\ is pressed, the child behaves like a normal Unix program.
 
 Later, the parent shell checks how the child ended and prints:
 
@@ -830,7 +813,7 @@ That matches standard shell-style behavior.
 
 `sigaction()` installs a signal disposition: it tells the kernel:
 
-* which signal you care about
+* which signal we care about
 * what handler to run
 * which extra flags to use
 * which other signals to block while the handler runs
@@ -856,13 +839,13 @@ Meaning:
 
 `sigaction()` is the preferred modern POSIX interface because it is more explicit and reliable.
 
-It gives you control over:
+It gives provides control over:
 
 * `sa_handler` → function to run
 * `sa_mask` → which signals to block during handler execution
 * `sa_flags` → behavior options like `SA_RESTART`
 
-Your code uses both:
+Our code uses both:
 
 * **`sigaction()`** for the main signal setup
 * **`signal()`** in a few simpler places for quick ignore/default changes
@@ -873,7 +856,7 @@ That is common in student shells, though `sigaction()` is the more robust one.
 
 ## 6) What do the important `struct sigaction` fields mean?
 
-In your code:
+In our code:
 
 ```c
 struct sigaction	sa_int;
@@ -898,7 +881,7 @@ sa_int.sa_handler = ms_sigint_interactive;
 
 Signals to block while the handler is running.
 
-You do:
+We do:
 
 ```c
 sigemptyset(&sa_int.sa_mask);
@@ -912,7 +895,7 @@ meaning:
 
 Extra behavior options.
 
-Your shell uses:
+Our shell uses:
 
 ```c
 sa_int.sa_flags = SA_RESTART;
@@ -928,7 +911,7 @@ That helps avoid some annoying partial interruptions while waiting for input.
 
 ---
 
-## 7) How your minishell uses them in each context
+## 7) How our minishell uses them in each context
 
 ### A) At the interactive prompt
 
@@ -974,7 +957,7 @@ The parent ignores those signals temporarily while children are running.
 Why?
 Because the shell wants the foreground command to receive the signal, not the shell parent.
 
-Then after waiting, your code restores interactive handlers.
+Then after waiting, our code restores interactive handlers.
 
 ---
 
@@ -1003,13 +986,13 @@ So Ctrl+C during heredoc:
 
 ## 8) Why the global variable matters
 
-Your shell uses:
+Our shell uses:
 
 ```c
 volatile sig_atomic_t g_signal_number = 0;
 ```
 
-This is important because signal handlers should not manipulate your full shell state directly.
+This is important because signal handlers should not manipulate the full shell state directly.
 
 So instead of doing dangerous things like:
 
@@ -1023,13 +1006,11 @@ the handler only says:
 
 Then the main code reacts later, safely.
 
-That is exactly the right pattern for minishell.
-
 ---
 
 ## 9) What actually happens when you press Ctrl+C at the prompt?
 
-Flow in your shell:
+Flow in our shell:
 
 ```text
 Ctrl+C
@@ -1064,7 +1045,7 @@ Ctrl+\
 -> shell prints "Quit (core dumped)"
 ```
 
-That is why your shell behaves differently at the prompt versus inside a running command.
+That is why our shell behaves differently at the prompt versus inside a running command.
 
 ---
 
@@ -1080,11 +1061,11 @@ That is why your shell behaves differently at the prompt versus inside a running
   * restores default signal behavior in child processes
   * uses one global `g_signal_number` to remember which signal arrived
 
-If you want, I can now explain this as a **table of behaviors**:
+**table of behaviors**:
 
 **prompt / child process / heredoc / pipeline wait** → what `SIGINT` and `SIGQUIT` do in each case.
 
-Yes — here is the behavior matrix for **your** `minishell.zip`, based on the actual signal setup in the code.
+Here is a behavior matrix for **our** minishell, based on the actual signal setup in the code.
 
 ## Signal behavior by context
 
@@ -1101,7 +1082,7 @@ Yes — here is the behavior matrix for **your** `minishell.zip`, based on the a
 
 ### 1) Interactive prompt
 
-At the prompt, your shell installs this behavior in `ms_setup_interactive_signals()`:
+At the prompt, our shell installs this behavior in `ms_setup_interactive_signals()`:
 
 ```c
 sa_int.sa_handler = ms_sigint_interactive;
@@ -1150,7 +1131,7 @@ sigaction(SIGINT, &sa, NULL);
 sigaction(SIGQUIT, &sa, NULL);
 ```
 
-So once you are inside a child running a command, signals work like a normal process:
+So once inside a child running a command, signals work like a normal process:
 
 * `Ctrl+C` interrupts/kills it
 * `Ctrl+\` quits it
@@ -1175,7 +1156,7 @@ That means the **parent shell ignores both signals temporarily** while children 
 Why?
 
 Because otherwise both the shell and the command could react to the same `Ctrl+C` or `Ctrl+\`.
-Your code wants the **foreground command** to receive the signal, not the shell parent.
+Our code wants the **foreground command** to receive the signal, not the shell parent.
 
 After the pipeline finishes, `ms_finish_pipeline()` restores interactive handlers with:
 
@@ -1253,7 +1234,7 @@ Then `ms_restore_signals()` puts normal shell handlers back.
 
 ## Why `sigaction()` and `signal()` are both used
 
-Your project uses both APIs, but for different roles:
+Our project uses both APIs, but for different roles:
 
 ### `sigaction()`
 
@@ -1299,7 +1280,7 @@ So the table above is most accurate for:
 
 ## The simplest mental model
 
-Think of your minishell like this:
+Think of our minishell like this:
 
 ```text
 At prompt:
@@ -1319,6 +1300,4 @@ In heredoc child:
   SIGQUIT -> ignore
 ```
 
-That is the full signal strategy your project is using.
-
-I can also draw this as a tiny timeline: **prompt -> fork -> child runs -> parent waits -> restore prompt handlers**.
+That is the full signal strategy our project is using.
