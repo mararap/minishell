@@ -1,4 +1,4 @@
-Yes. In your `minishell.zip`, searching and launching the right executable is done by a small chain of execution functions.
+Searching and launching the right executable is done by a small chain of execution functions.
 
 ## The actual call flow
 
@@ -28,7 +28,7 @@ So the real “find the command and run it” logic lives mostly in:
 
 ## 1) Builtins are filtered out first
 
-In `src/exec/fork.c`, once the child is set up and redirections are applied, your shell decides whether the command is a builtin or an external executable:
+In `src/exec/fork.c`, once the child is set up and redirections are applied, our shell decides whether the command is a builtin or an external executable:
 
 ```c
 if (ms_is_builtin(cmd->argv[0]))
@@ -64,7 +64,7 @@ if (ft_strchr(cmd, '/'))
 	return (ft_strdup(cmd));
 ```
 
-If the command contains a slash, your minishell **does not search PATH**.
+If the command contains a slash, our minishell **does not search PATH**.
 
 So all of these are treated as explicit paths:
 
@@ -73,13 +73,13 @@ So all of these are treated as explicit paths:
 * `../prog` → relative path
 * `subdir/tool` → relative path
 
-Your shell just duplicates that string and tries to execute it as given.
+Our shell just duplicates that string and tries to execute it as given.
 
 ---
 
 ### Case B: command does not contain `/`
 
-If there is no slash, your shell looks up `PATH`:
+If there is no slash, our shell looks up `PATH`:
 
 ```c
 path_env = ms_env_get_value(shell->env_list, "PATH");
@@ -133,19 +133,19 @@ if (access(candidate, F_OK) == 0 && stat(candidate, &st) == 0
 }
 ```
 
-You’re already very close—let’s unpack what’s happening step by step and connect it to how a real shell behaves.
+Let’s unpack what’s happening step by step and connect it to how a real shell behaves.
 
 ---
 
 ### 3.1) Big picture: what this loop is doing
 
-When you type a command like:
+When the user types a command like:
 
 ```bash
 ls
 ```
 
-your shell doesn’t know where `ls` is located. It uses the `PATH` environment variable, which might look like:
+our shell doesn’t know where `ls` is located. It uses the `PATH` environment variable, which might look like:
 
 ```bash
 PATH=/usr/local/bin:/usr/bin:/bin
@@ -248,7 +248,7 @@ return (candidate);
 
 ### 3.4) Important missing check (real shells do this)
 
-Your code checks:
+Our code checks:
 
 * exists ✅
 * not directory ✅
@@ -261,7 +261,7 @@ access(candidate, X_OK)
 
 👉 This ensures the file is **executable**
 
-Otherwise, you'd accept files that exist but cannot be run.
+Otherwise, we'd accept files that exist but cannot be run.
 
 ---
 
@@ -401,7 +401,7 @@ That’s why many systems avoid putting `.` in `PATH`.
 
 ### 3.9) Summary
 
-Your function is doing exactly this:
+Our function is doing exactly this:
 
 1. Loop over each PATH directory
 2. Build:
@@ -421,10 +421,7 @@ Your function is doing exactly this:
 
 ---
 
-If you want, I can also show how this compares line-by-line with how Bash actually implements PATH lookup internally, or help you extend this with proper `X_OK` and error handling.
-
-
-So for each PATH entry, your shell builds:
+So for each PATH entry, our shell builds:
 
 ```text
 dir + "/" + cmd
@@ -500,9 +497,9 @@ ls: No such file or directory
 
 instead of a PATH-based lookup result.
 
-### One more nuance from your init code
+### One more nuance from our init code
 
-In `src/shell/init.c`, your shell bootstraps a default PATH if PATH is missing at startup:
+In `src/shell/init.c`, our shell bootstraps a default PATH if PATH is missing at startup:
 
 ```c
 if (!ms_env_get_value(shell->env_list, "PATH"))
@@ -548,7 +545,7 @@ with a normal PATH:
 
 ## 6) Pre-check before `execve()`
 
-Once a path is found or accepted, your code does a safety pre-check in `src/exec/exec_error.c`:
+Once a path is found or accepted, our code does a safety pre-check in `src/exec/exec_error.c`:
 
 ```c
 status = ms_exec_precheck(argv[0], display_arg, path);
@@ -601,7 +598,7 @@ ms_adjust_envp_shlvl(envp);
 execve(path, argv, envp);
 ```
 
-That means your shell launches the chosen executable by calling:
+That means our shell launches the chosen executable by calling:
 
 * `path` = resolved executable path
 * `argv` = parsed argument list
@@ -639,7 +636,7 @@ which is normal shell behavior.
 
 ---
 
-## 9) Examples using your current code
+## 9) Examples using our current code
 
 ### `ls`
 
@@ -690,7 +687,7 @@ which is normal shell behavior.
 
 ## 10) One small but useful detail: `_` is updated
 
-Your code updates `_` before and during execution:
+Our code updates `_` before and during execution:
 
 * in `ms_execute_child()` it first sets `_` to `argv[0]`
 * in `ms_exec_external_command()` it updates `_` again to the resolved `path`
@@ -701,6 +698,4 @@ So for external commands, `_` ends up tracking the actual executable path that w
 
 ## In one sentence
 
-Your minishell searches and launches executables by sending non-builtins into `ms_exec_external_command()`, resolving commands with `/` as explicit paths, resolving slash-less commands by scanning `PATH`, rejecting directories, and finally launching the chosen file with `execve()`.
-
-I can also turn this into a tiny decision tree like “contains slash?” → “search PATH?” → “execve or error,” using your exact function names.
+Our minishell searches and launches executables by sending non-builtins into `ms_exec_external_command()`, resolving commands with `/` as explicit paths, resolving slash-less commands by scanning `PATH`, rejecting directories, and finally launching the chosen file with `execve()`.
