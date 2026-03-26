@@ -60,7 +60,7 @@
 | `ms_main_loop` | Main interactive loop; reads lines, parses, executes, updates prompt | Core loop that keeps shell alive until `should_exit` or EOF | `src/shell/loop.c:80` |
 | `ms_read_line` | Uses readline (interactive) or `ms_get_next_line` (non-interactive) | Abstracts input source based on interactivity mode | `src/shell/loop.c:63` |
 | `ms_handle_line` | Parses line → executes commands → updates status | Orchestrates full line processing: parse + execute + feedback | `src/shell/loop.c:53` |
-| `ms_parse_line` | Lexes + parses tokens into command AST; handles empty/syntax error cases | Converts raw input to executable command list | `src/shell/loop.c:26` |
+| `ms_parse_line` | Lexes + parses tokens into command AST (abstract syntax tree); handles empty/syntax error cases | Converts raw input to executable command list | `src/shell/loop.c:26` |
 | `ms_execute_commands` | Prepares heredocs, executes pipeline, frees command list | Bridges parse → execution; ensures cleanup | `src/shell/loop.c:15` |
 
 ---
@@ -84,7 +84,7 @@
 
 | Function | Purpose | Why Needed | File |
 |----------|---------|-----------|------|
-| `ms_collect_single_quotes` | Extracts content between `'` markers; masks IFS chars | Prevents any interpretation inside single quotes | `src/lexer/collect_word_quotes.c:31` |
+| `ms_collect_single_quotes` | Extracts content between `'` markers; masks IFS chars (internal field separator - ususally `'\t'`, `' '`, `'\n'`) | Prevents any interpretation inside single quotes | `src/lexer/collect_word_quotes.c:31` |
 | `ms_collect_double_quotes` | Extracts content between `"` markers; still allows `$` expansion | Groups text while respecting bash double-quote semantics | `src/lexer/collect_word_quotes.c:63` |
 | `ms_collect_locale_quotes` | Handles `$'...'` (locale-specific quoting); delegates to double-quote logic | Supports bash `$'...'` syntax (treated as double-quote variant) | `src/lexer/collect_word_quotes.c:92` |
 | `ms_collect_dq_chunk` | Helper for double-quote processing; handles `$` or literal chunks | Processes character sequences within double quotes | `src/lexer/collect_word_quotes.c:49` |
@@ -108,7 +108,7 @@
 
 | Function | Purpose | Why Needed | File |
 |----------|---------|-----------|------|
-| `ms_parse_tokens` | Converts token list to command AST (linked list of `t_command`) | Structures tokens into runnable command objects | `src/parser/parser.c:73` |
+| `ms_parse_tokens` | Converts token list to command AST (abstract syntax tree, linked list of `t_command`) | Structures tokens into runnable command objects | `src/parser/parser.c:73` |
 | `ms_parse_one_command` | Parses one stage of pipeline; handles redirections and args | Builds individual command node with argv + redirections | `src/parser/parser.c:48` |
 | `ms_command_new` | Allocates empty command struct | Factory for command nodes | `src/parser/parser.c:15` |
 | `ms_command_add_back` | Appends command to pipeline list | Links commands in pipeline order | `src/parser/parser.c:26` |
@@ -189,7 +189,7 @@
 | Function | Purpose | Why Needed | File |
 |----------|---------|-----------|------|
 | `ms_builtin_echo` | Implements echo with `-n` flag support | Required builtin; handles newline suppression and SIGPIPE | `src/builtin/builtin_echo.c:75` |
-| `ms_is_valid_n_flag` | Checks if arg is `-n`, `-nn`, etc. (only 'n' chars after `-`) | Validates `-n` flag format | `src/builtin/builtin_echo.c:15` |
+| `ms_is_valid_n_flag` | Checks if arg is `-n`, `-nn`, etc. (only `n` chars after `-`) | Validates `-n` flag format | `src/builtin/builtin_echo.c:15` |
 | `ms_echo_skip_flags` | Parses consecutive `-n` flags; tracks newline suppression | Processes all leading `-n` arguments | `src/builtin/builtin_echo.c:31` |
 | `ms_echo_print_args` | Outputs arguments separated by spaces | Core output logic | `src/builtin/builtin_echo.c:45` |
 | `ms_ignore_sigpipe` | Installs SIG_IGN for SIGPIPE; saves old handler | Prevents crash if output piped to closed command | `src/builtin/builtin_echo.c:62` |
@@ -203,7 +203,7 @@
 | `ms_builtin_cd` | Changes directory; handles home, OLDPWD, PWD updates | Required builtin; must run in parent | `src/builtin/builtin_cd.c:74` |
 | `ms_cd_home` | Changes to HOME; updates PWD/OLDPWD | Implements `cd` with no args | `src/builtin/builtin_cd.c:42` |
 | `ms_cd_oldpwd` | Changes to OLDPWD and prints it; swaps PWD/OLDPWD | Implements `cd -` | `src/builtin/builtin_cd.c:57` |
-| `ms_update_pwd_vars` | Updates PWD to new cwd; saves old PWD as OLDPWD | Maintains env consistency | `src/builtin/builtin_cd.c:28` |
+| `ms_update_pwd_vars` | Updates PWD to new cwd (current working directory); saves old PWD as OLDPWD | Maintains env consistency | `src/builtin/builtin_cd.c:28` |
 | `cd_error_with_path` | Prints cd error message | Error reporting for cd | `src/builtin/builtin_cd.c:15` |
 
 ---

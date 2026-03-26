@@ -1,4 +1,4 @@
-Yes. In your `minishell.zip`, `$?` is handled with a very clear two-step design:
+In our minishell, `$?` is handled with a very clear two-step design:
 
 1. the shell keeps the latest status in `shell->last_exit_status`
 2. when the lexer sees `$?`, it replaces it with that integer converted to a string

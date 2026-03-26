@@ -1,4 +1,4 @@
-In our minishell, there are three different levels of the same input.
+There are three different levels of the same input.
 
 ## The short version
 

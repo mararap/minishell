@@ -1,4 +1,4 @@
-Here’s how `exit` is implemented in your `minishell.zip`.
+Here’s how `exit` is implemented in our minishell.
 
 ## Why `exit` is special
 
