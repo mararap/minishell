@@ -1,4 +1,4 @@
-Yes — in your `minishell.zip`, they are three different levels of the same input.
+In our minishell, there are three different levels of the same input.
 
 ## The short version
 
@@ -20,7 +20,7 @@ input line
 
 ## 1) What a **token** is in your project
 
-Your actual token struct is:
+Our token struct is:
 
 ```c
 typedef struct s_token
@@ -66,9 +66,9 @@ Only some tokens are `TOKEN_WORD`.
 
 ---
 
-## 2) What a **word** is in your project
+## 2) What a **word** is in our project
 
-In your lexer, a **word** is the text collected by `ms_collect_word()` before it gets wrapped into a token.
+In our lexer, a **word** is the text collected by `ms_collect_word()` before it gets wrapped into a token.
 
 In `lexer.c`:
 
@@ -91,7 +91,7 @@ Examples of things that become a word:
 * `"hello $USER"`
 * `outfile.txt`
 
-### But your project has a subtlety
+### But:
 
 A word exists in two forms inside the token:
 
@@ -109,13 +109,13 @@ might give a token like:
 * `raw = "\"$HOME\""`
 * `value = "/home/user"`
 
-So in your minishell, “word” often means the **content tokenized as `TOKEN_WORD`**, not just raw characters.
+So in our minishell, “word” often means the **content tokenized as `TOKEN_WORD`**, not just raw characters.
 
 ---
 
-## 3) What a **command** is in your project
+## 3) What a **command** is in our project
 
-Your command struct is:
+Our command struct is:
 
 ```c
 typedef struct s_command
@@ -256,7 +256,7 @@ Operators are:
 
 ## B) Tokens produced by the lexer
 
-Your lexer turns that into something like:
+Our lexer turns that into something like:
 
 ```text
 TOKEN_WORD("echo")
@@ -295,7 +295,7 @@ So the parser uses tokens to build commands.
 
 ---
 
-# Where each stage happens in your code
+# Where each stage happens in our code
 
 ## Word collection
 
@@ -348,7 +348,7 @@ This stage decides:
 
 # One subtle point: not every word becomes an argv entry directly
 
-This is important in your parser.
+This is important in our parser.
 
 In `ms_handle_word()`, a `TOKEN_WORD` may:
 
@@ -387,6 +387,4 @@ Think of it like this:
 
 # In one sentence
 
-In your minishell, a **word** is a piece of shell text collected by the lexer, a **token** is the lexer’s typed object for either a word or an operator, and a **command** is the parser’s higher-level structure that groups word tokens and redirections into one executable pipeline stage.
-
-I can also draw this as a tiny staged diagram for one example line, from raw input -> token list -> command list -> exec.
+In our minishell, a **word** is a piece of shell text collected by the lexer, a **token** is the lexer’s typed object for either a word or an operator, and a **command** is the parser’s higher-level structure that groups word tokens and redirections into one executable pipeline stage.

@@ -1,4 +1,4 @@
-Yes. In this project, the normal shell prompt is achieved through the **Readline** library, and it is only used when the shell detects it is running interactively.
+In this project, the normal shell prompt is achieved through the **Readline** library, and it is only used when the shell detects it is running interactively.
 
 ### Where the prompt string is defined
 
@@ -163,9 +163,9 @@ So:
 
 ### In one sentence
 
-Your minishell displays the prompt by detecting interactive mode with `isatty(...)`, then calling `readline(PROMPT_STR)` inside the main loop each time it is ready to read a new command.
+Our minishell displays the prompt by detecting interactive mode with `isatty(...)`, then calling `readline(PROMPT_STR)` inside the main loop each time it is ready to read a new command.
 
-I can also draw this as a tiny call-flow diagram from `main()` to `readline()` using your exact files.
+Here is a tiny call-flow diagram from `main()` to `readline()`:
 
 Here’s the exact prompt flow in your `minishell.zip`:
 
