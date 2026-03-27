@@ -41,7 +41,7 @@ int	ms_exec_error_code(char *arg, int err_no)
 {
 	if (err_no == 0)
 		err_no = ENOENT;
-	if (err_no == ENOTDIR)
+	if (err_no == ENOTDIR || err_no == EACCES || err_no == ENOENT)
 	{
 		write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
 		write(STDERR_FILENO, ": ", 2);

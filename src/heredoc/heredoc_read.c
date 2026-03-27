@@ -32,18 +32,11 @@ char	*ms_hd_read_line(t_shell *shell)
 
 void	ms_hd_warn_eof(t_redir *redir)
 {
-	char	*line_num;
-
-	line_num = ft_itoa(redir->heredoc_line + 1);
-	if (!line_num)
-		return ;
-	write(STDERR_FILENO, SHELL_NAME ": warning: here-document at line ",
-		ft_strlen(SHELL_NAME) + 33);
-	write(STDERR_FILENO, line_num, ft_strlen(line_num));
+	write(STDERR_FILENO, SHELL_NAME ": warning: here-document",
+		ft_strlen(SHELL_NAME) + 24);
 	write(STDERR_FILENO, " delimited by end-of-file (wanted `", 35);
 	write(STDERR_FILENO, redir->target, ft_strlen(redir->target));
 	write(STDERR_FILENO, "')\n", 3);
-	free(line_num);
 }
 
 int	ms_hd_write_line(t_shell *shell, t_redir *redir, int wfd, char *line)
