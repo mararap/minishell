@@ -94,6 +94,7 @@ void	ms_print_command_not_found(char *cmd)
 {
 	char	*display;
 	char	*msg;
+	char	*msg2;
 
 	display = ms_format_cmd_name(cmd);
 	if (!display)
@@ -102,6 +103,8 @@ void	ms_print_command_not_found(char *cmd)
 	free(display);
 	if (!msg)
 		return ;
-	write(STDERR_FILENO, msg, ft_strlen(msg));
+	msg2 = ms_str_join_three(SHELL_NAME, ": ", msg);
+	write(STDERR_FILENO, msg2, ft_strlen(msg2));
 	free(msg);
+	free(msg2);
 }
