@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 15:45:46 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/27 20:33:43 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/27 21:12:39 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 # include <unistd.h>
 # include <limits.h>
 # include <sys/stat.h>
+# include <termios.h>
 
 # define SHELL_NAME "juma[n]she"
 # define PROMPT_STR "juma[n]she$ "

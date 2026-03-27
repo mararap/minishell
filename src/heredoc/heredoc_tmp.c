@@ -72,6 +72,7 @@ void	ms_setup_heredoc_child_signals(void)
 {
 	struct sigaction	sa_int;
 	struct sigaction	sa_quit;
+	struct termios		term;
 
 	ft_bzero(&sa_int, sizeof(sa_int));
 	ft_bzero(&sa_quit, sizeof(sa_quit));
@@ -83,4 +84,9 @@ void	ms_setup_heredoc_child_signals(void)
 	sa_quit.sa_flags = 0;
 	sigaction(SIGINT, &sa_int, NULL);
 	sigaction(SIGQUIT, &sa_quit, NULL);
+	if (tcgetattr(STDIN_FILENO, &term) == 0)
+	{
+		term.c_lflag &= ~ECHOCTL;
+		tcsetattr(STDIN_FILENO, TCSANOW, &term);
+	}
 }
