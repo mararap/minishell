@@ -63,24 +63,22 @@ int	ms_hd_write_line(t_shell *shell, t_redir *redir, int wfd, char *line)
 int	ms_hd_child_loop(t_shell *shell, t_redir *redir, int wfd)
 {
 	char	*line;
-	int		cur_line;
 
-	cur_line = redir->heredoc_line;
 	while (1)
 	{
 		line = ms_hd_read_line(shell);
 		if (g_signal_number == SIGINT)
 			return (130);
-		cur_line++;
 		if (!line)
 		{
+			write (STDOUT_FILENO, "\n", 1);
 			ms_hd_warn_eof(redir);
-			return (cur_line - redir->heredoc_line);
+			return (0);
 		}
 		if (ft_strcmp(line, redir->target) == 0)
 		{
 			free(line);
-			return (cur_line - redir->heredoc_line);
+			return (0);
 		}
 		if (ms_hd_write_line(shell, redir, wfd, line) != 0)
 			return (1);

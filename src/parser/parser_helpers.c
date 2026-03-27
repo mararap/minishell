@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_helpers.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/25 20:53:48 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/16 13:32:12 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/27 20:35:40 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,6 @@ t_redir	*ms_create_redir(int type, char *target, int heredoc_expand,
 	redir->ambiguous = ambiguous;
 	redir->heredoc_fd = -1;
 	redir->heredoc_expand = heredoc_expand;
-	redir->heredoc_line = 0;
 	redir->next = NULL;
 	return (redir);
 }
