@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatanaso <jatanaso@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 15:45:46 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/27 19:13:25 by jatanaso         ###   ########.fr       */
+/*   Updated: 2026/03/27 20:33:43 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,6 @@ typedef struct s_redir
 	int							ambiguous;
 	int							heredoc_fd;
 	int							heredoc_expand;
-	int							heredoc_line;
 	struct s_redir				*next;
 }	t_redir;
 
@@ -271,8 +270,7 @@ int						ms_build_one_heredoc(t_shell *shell, t_command *cmds,
 							t_redir *redir, int *lines_read);
 void					ms_close_all_heredocs(t_command *cmds);
 int						ms_prepare_one_heredoc(t_shell *shell,
-							t_command *cmds, t_redir *redir,
-							int *hd_line_num);
+							t_command *cmds, t_redir *redir);
 char					**ms_split_path_keep_empty(const char *s);
 
 #endif
