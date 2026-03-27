@@ -14,7 +14,8 @@
 
 static int	ms_exec_exit_code(int err_no)
 {
-	if (err_no == EISDIR || err_no == ENOEXEC || err_no == EACCES)
+	if (err_no == EISDIR || err_no == ENOEXEC || err_no == EACCES
+		|| err_no == ENOTDIR)
 		return (126);
 	return (127);
 }
@@ -40,6 +41,11 @@ int	ms_exec_error_code(char *arg, int err_no)
 {
 	if (err_no == 0)
 		err_no = ENOENT;
+	if (err_no == ENOTDIR)
+	{
+		write(STDERR_FILENO, SHELL_NAME, ft_strlen(SHELL_NAME));
+		write(STDERR_FILENO, ": ", 2);
+	}
 	write(STDERR_FILENO, arg, ft_strlen(arg));
 	write(STDERR_FILENO, ": ", 2);
 	ms_write_exec_message(err_no);
