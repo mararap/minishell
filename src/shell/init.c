@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/16 16:10:01 by marapovi          #+#    #+#             */
-/*   Updated: 2026/03/18 16:22:39 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/28 16:16:35 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void	ms_init_shell(t_shell *shell, char **envp)
 	shell->is_interactive = 0;
 	shell->input_line_num = 1;
 	shell->should_exit = 0;
-	shell->main_pid = getpid();
+	//shell->main_pid = getpid();
 	shell->current_line = NULL;
 	rl_signal_event_hook = ms_rl_event_hook;
 }

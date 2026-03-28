@@ -2,23 +2,57 @@
 
 # Minishell
 
-Minishell is a small UNIX shell written in C, inspired by **bash**.  
-It was built as part of the 42 curriculum to practice process management, file descriptors, parsing/expansion, and signal handling.
+Minishell is a simple UNIX shell written in C.
 
 ## Description
 
 The goal of this project is to reproduce a minimal interactive shell that:
 - Displays a prompt and reads user input
+
 - Keeps a working command history
+
 - Executes binaries found via `$PATH` or via relative/absolute paths
+
 - Handles quoting and variable expansion (`$VAR`, `$?`)
+
 - Supports redirections (`<`, `>`, `>>`, `<<`) and pipelines (`|`)
+
 - Implements a required set of builtins
-- Handles `ctrl-C`, `ctrl-D`, and `ctrl-\` like bash in interactive mode
+	* `echo` with option -n
+	* `cd` with only a relative or absolute path
+	* `pwd` with no options
+	* `export` with no options
+	* `unset` with no options
+	* `env` with no options or arguments
+	* `exit` with no options
+
+- Acts like bash in interactive mode for
+	* `ctrl-C`: displays a new prompt on a new line
+	* `ctrl-D`: exits the shell
+	* `ctrl-\`: does nothing.
 
 ## Instructions
 
-Minishell is a simple Unix shell written in C that supports basic commands, pipes, redirections, environment variable expansion, and signal handling. To build the project, you need a C compiler (cc), make, and the readline development library for command input and history. Compile the project using make, then run it with ./minishell. Build files can be cleaned with make clean, make fclean, or rebuilt using make re. The shell includes several built-in commands such as echo (with -n support), cd (with relative or absolute paths), pwd, export, unset, env, and exit. It also supports input and output redirections (<, >, >>), heredoc (<< DELIM), and pipelines (cmd1 | cmd2 | cmd3). Environment variable expansion using `$NAME` and the last command’s exit status using `$?` are implemented as well. In interactive mode, Ctrl+C prints a new prompt on a new line, Ctrl+D exits the shell, and Ctrl+\ is ignored.
+To build the project, you need a **C compiler** (cc), **make**, and the **readline development library** for command input and history.
+
+Compile the project using `make`, then run it with `./minishell`.
+
+Build files can be cleaned with `make clean`, `make fclean`, or rebuilt using `make re`.
+
+The shell includes several built-in commands such as
+* `echo` (with -n support)
+* `cd` (with relative or absolute paths)
+* `pwd`
+* `export`
+* `unset`
+* `env`
+* `exit`
+
+It also supports input and output redirections (`<`, `>`, `>>`), heredoc (`<<` DELIM), and pipelines (`cmd1 | cmd2 | cmd3`).
+
+Environment variable expansion using `$NAME` and the last command’s exit status using `$?` are implemented as well.
+
+In interactive mode, `Ctrl+C` prints a new prompt on a new line, `Ctrl+D` exits the shell, and `Ctrl+\` is ignored.
 
 ## Resources
 - Bash Reference Manual (GNU): https://www.gnu.org/software/bash/manual/bash.html
