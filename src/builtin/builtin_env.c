@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 15:24:30 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/28 23:20:08 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/28 23:31:11 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,10 @@ static void	print_env_entry(char *name, char *value)
 	size_t	total_len;
 	char	*line;
 
+	name_len = 0;
+	val_len = 0;
+	total_len = 0;
+	line = NULL;
 	name_len = ft_strlen(name);
 	val_len = ft_strlen(value);
 	total_len = name_len + 1 + val_len + 1;
@@ -43,8 +47,8 @@ int	ms_builtin_env(t_shell *shell, char **argv)
 	if (argv[1])
 	{
 		msg = ms_str_join_three("env: ", argv[1],
-			": No such file or directory\n");
-		write (STDERR_FILENO, msg, ft_strlen(msg));
+				": No such file or directory\n");
+		write(STDERR_FILENO, msg, ft_strlen(msg));
 		return (EXIT_FAILURE);
 	}
 	iter = shell->env_list;

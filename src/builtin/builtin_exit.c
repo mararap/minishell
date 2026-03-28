@@ -6,7 +6,7 @@
 /*   By: marapovi <marapovi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 15:24:40 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/28 16:16:58 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/28 23:31:32 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ int	ms_builtin_exit(t_shell *shell, char **argv)
 {
 	long long	value;
 
-	if (shell->is_interactive /* && getpid() == shell->main_pid */)
+	if (shell->is_interactive)
 		write(STDOUT_FILENO, "exit\n", 5);
 	if (!argv[1])
 		return (ms_mark_exit(shell, shell->last_exit_status));
