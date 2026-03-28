@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_env.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marapovi <marapovi@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 15:24:30 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/20 11:44:12 by marapovi         ###   ########.fr       */
+/*   Updated: 2026/03/28 23:20:08 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,14 +34,17 @@ static void	print_env_entry(char *name, char *value)
 int	ms_builtin_env(t_shell *shell, char **argv)
 {
 	t_env_var	*iter;
+	char		*msg;
 
+	iter = NULL;
+	msg = NULL;
 	if (argv[1] && ft_strcmp(argv[1], "-i") == 0 && argv[2] == NULL)
 		return (EXIT_SUCCESS);
 	if (argv[1])
 	{
-		ft_putstr_fd("env: ", STDERR_FILENO);
-		ft_putstr_fd(argv[1], STDERR_FILENO);
-		ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);
+		msg = ms_str_join_three("env: ", argv[1],
+			": No such file or directory\n");
+		write (STDERR_FILENO, msg, ft_strlen(msg));
 		return (EXIT_FAILURE);
 	}
 	iter = shell->env_list;

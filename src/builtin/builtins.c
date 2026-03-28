@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatanaso <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: marapovi <marapovi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 15:25:10 by jatanaso          #+#    #+#             */
-/*   Updated: 2026/03/15 15:25:12 by jatanaso         ###   ########.fr       */
+/*   Updated: 2026/03/28 22:47:34 by marapovi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@ int	ms_builtin_needs_parent(char *cmd_name)
 
 int	ms_run_builtin_child(t_shell *shell, char **argv)
 {
+	char	*abs;
+	
 	if (!argv || !argv[0])
 		return (0);
 	if (ft_strncmp(argv[0], "echo", 5) == 0)
@@ -38,7 +40,12 @@ int	ms_run_builtin_child(t_shell *shell, char **argv)
 	if (ft_strncmp(argv[0], "pwd", 4) == 0)
 		return (ms_builtin_pwd(shell));
 	if (ft_strncmp(argv[0], "env", 4) == 0)
-		return (ms_builtin_env(shell, argv));
+	{
+		abs = ms_find_executable(shell, "env", NULL);
+		if (abs)
+			ms_env_set(&shell->env_list, "_", abs, 1);
+		return (free (abs), ms_builtin_env(shell, argv));
+	}
 	if (ft_strncmp(argv[0], "export", 7) == 0)
 		return (ms_builtin_export(shell, argv));
 	if (ft_strncmp(argv[0], "unset", 6) == 0)
