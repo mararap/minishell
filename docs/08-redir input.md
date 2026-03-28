@@ -1,4 +1,4 @@
-Yes. In your `minishell.zip`, `<` input redirection is implemented in three stages:
+Input redirection is implemented in three stages:
 
 ```text
 lexer  -> parser  -> executor
@@ -50,7 +50,7 @@ TOKEN_WORD("infile")
 
 ## 2) Parser: `< infile` becomes a `t_redir` node on the command
 
-Your redirection struct is in `include/minishell.h`:
+Our redirection struct is in `include/minishell.h`:
 
 ```c
 typedef struct s_redir
@@ -60,7 +60,6 @@ typedef struct s_redir
 	int				ambiguous;
 	int				heredoc_fd;
 	int				heredoc_expand;
-	int				heredoc_line;
 	struct s_redir	*next;
 }	t_redir;
 ```
@@ -127,7 +126,7 @@ The actual input redirection logic is in `src/redirections.c`.
 
 ### The key function
 
-For `<`, your shell uses `ms_apply_input_redir()`:
+For `<`, our shell uses `ms_apply_input_redir()`:
 
 ```c
 static int	ms_apply_input_redir(t_redir *redir)
@@ -337,7 +336,7 @@ For:
 wc -l < infile
 ```
 
-your shell does this:
+our shell does this:
 
 ### Lexing
 
@@ -374,13 +373,11 @@ After that, `wc` reads from `infile` through standard input.
 
 ## Bottom line
 
-Your minishell implements `<` by:
+Our minishell implements `<` by:
 
 * lexing `<` as `TOKEN_REDIR_IN` in `src/lexer/lexer.c`
 * parsing the following word into a `t_redir` node in `src/parser/handle_redirs.c`
 * applying it before execution with `open(target, O_RDONLY)` and `dup2(fd, STDIN_FILENO)` in `src/redirections.c`
 
-So “redirect input” in your project literally means:
+So “redirect input” in our project literally means:
 **replace file descriptor 0 with the opened input file before the command runs.**
-
-Next I can explain `>` in the same style, since it is the same pipeline but with `STDOUT_FILENO` and different `open` flags.

@@ -1,6 +1,7 @@
-The normal shell prompt is achieved through the **Readline** library, and it is only used when the shell detects it is running interactively.
+## 1) The normal shell prompt
+is achieved through the **Readline** library, and it is only used when the shell detects it is running interactively.
 
-### Where the prompt string is defined
+### 1.1) Where the prompt string is defined
 
 In `include/minishell.h:32`:
 
@@ -14,7 +15,7 @@ So the visible prompt text is:
 juma[n]she$
 ```
 
-### Where interactive mode is decided
+### 1.2) Where interactive mode is decided
 
 In `src/shell/main.c:17-23`:
 
@@ -31,7 +32,7 @@ static void	ms_detect_interactive(t_shell *shell)
 This means the shell shows a prompt only when it is connected to a terminal.
 When input is piped in or redirected from a file, `is_interactive` becomes `0`, so no prompt is shown.
 
-### Where the prompt is actually displayed
+### 1.3) Where the prompt is actually displayed
 
 In `src/shell/loop.c:63-77`:
 
@@ -68,7 +69,7 @@ line = readline(PROMPT_STR);
 So the prompt is not printed manually with `write()` for normal commands.
 Instead, Readline handles it.
 
-### How it fits into the shell loop
+### 1.4) How it fits into the shell loop
 
 In `src/shell/loop.c:80-99`:
 
@@ -107,7 +108,7 @@ So the flow is:
 → loop repeats
 → prompt appears again
 
-### What happens on Ctrl+C
+### 1.5) What happens on Ctrl+C
 
 The prompt is also refreshed cleanly when the user presses `Ctrl+C`.
 
@@ -135,33 +136,27 @@ int	ms_rl_event_hook(void)
 
 This is what makes Readline redraw a fresh prompt after an interrupt.
 
-### Important distinction: heredoc prompt is different
+#### Ctrl+C redraw flow
 
-The normal command prompt uses `readline(PROMPT_STR)`, but the heredoc prompt does **not**.
+When you press `Ctrl+C` at the prompt, this is the refresh path:
 
-In `include/minishell.h:33`:
-
-```c
-# define HEREDOC_PROMPT "> "
+```text
+SIGINT
+ └─ ms_sigint_interactive()
+     ├─ g_signal_number = SIGINT
+     └─ write("\n")
+ 
+Readline hook runs:
+ └─ ms_rl_event_hook()
+     ├─ rl_on_new_line()
+     ├─ rl_replace_line("", 0)
+     └─ rl_redisplay()
+          └─ fresh prompt is shown again
 ```
 
-And in `src/heredoc/heredoc_read.c:19-25`:
+That is why the shell returns to a clean prompt instead of exiting.
 
-```c
-if (shell->is_interactive)
-{
-	write(STDERR_FILENO, HEREDOC_PROMPT, ft_strlen(HEREDOC_PROMPT));
-	line = ms_get_next_line(STDIN_FILENO);
-	...
-}
-```
-
-So:
-
-* **new command prompt** → `readline(PROMPT_STR)`
-* **heredoc prompt** → manual `write("> ")`
-
-### In one sentence
+### 1.6) In one sentence
 
 Our minishell displays the prompt by detecting interactive mode with `isatty(...)`, then calling `readline(PROMPT_STR)` inside the main loop each time it is ready to read a new command.
 
@@ -205,7 +200,7 @@ main()
               └─ prompt appears again on next readline(PROMPT_STR)
 ```
 
-### The important part
+#### The important part
 
 The normal shell prompt is not printed manually with `write()`.
 
@@ -220,7 +215,7 @@ So `readline()` is doing both jobs:
 * showing the prompt
 * waiting for the next command
 
-### Prompt text source
+#### Prompt text source
 
 In `include/minishell.h`:
 
@@ -228,7 +223,7 @@ In `include/minishell.h`:
 # define PROMPT_STR "juma[n]she$ "
 ```
 
-### Why the prompt only appears in terminal mode
+#### Why the prompt only appears in terminal mode
 
 In `src/shell/main.c`:
 
@@ -258,45 +253,43 @@ echo "ls" | ./minishell
 does not show a prompt, because it reads from stdin non-interactively.
 
 ---
+### One-line summary
 
-### Ctrl+C redraw flow
-
-When you press `Ctrl+C` at the prompt, this is the refresh path:
-
-```text
-SIGINT
- └─ ms_sigint_interactive()
-     ├─ g_signal_number = SIGINT
-     └─ write("\n")
- 
-Readline hook runs:
- └─ ms_rl_event_hook()
-     ├─ rl_on_new_line()
-     ├─ rl_replace_line("", 0)
-     └─ rl_redisplay()
-          └─ fresh prompt is shown again
-```
-
-That is why the shell returns to a clean prompt instead of exiting.
+Our minishell displays the “waiting for a new command” prompt by calling `readline(PROMPT_STR)` inside `ms_main_loop()`, but only when `isatty()` says the shell is running interactively.
 
 ---
+## 2) heredoc prompt is different
+Important distinction: The normal command prompt uses `readline(PROMPT_STR)`, but the heredoc prompt does **not**.
 
+<<<<<<< HEAD
 ### Separate case: heredoc prompt
 
 Our heredoc prompt is different from the normal shell prompt.
 
 Normal prompt:
+=======
+In `include/minishell.h:33`:
+>>>>>>> docs
 
 ```c
-readline(PROMPT_STR);
+# define HEREDOC_PROMPT "> "
 ```
 
-Heredoc prompt in `src/heredoc/heredoc_read.c`:
+And in `src/heredoc/heredoc_read.c:19-25`:
 
 ```c
-write(STDERR_FILENO, HEREDOC_PROMPT, ft_strlen(HEREDOC_PROMPT));
-line = ms_get_next_line(STDIN_FILENO);
+if (shell->is_interactive)
+{
+	write(STDERR_FILENO, HEREDOC_PROMPT, ft_strlen(HEREDOC_PROMPT));
+	line = ms_get_next_line(STDIN_FILENO);
+	...
+}
 ```
+
+So:
+
+* **new command prompt** → `readline(PROMPT_STR)`
+* **heredoc prompt** → manual `write("> ")`
 
 So:
 
@@ -311,6 +304,107 @@ comes from two separate mechanisms:
 * `juma[n]she$ ` → `readline(PROMPT_STR)`
 * `> ` → manual `write(HEREDOC_PROMPT, ...)`
 
-### One-line summary
+---
 
+<<<<<<< HEAD
 Our minishell displays the “waiting for a new command” prompt by calling `readline(PROMPT_STR)` inside `ms_main_loop()`, but only when `isatty()` says the shell is running interactively.
+=======
+### 2.1) Is there a reason to use `ms_get_next_line`?
+
+**Pros:**
+
+* Very simple input loop
+* No readline side-effects (signals, history, prompt handling)
+* Easy to control exact behavior
+* No need to deal with readline quirks in child processes
+
+**Cons:**
+
+* No prompt like `> `
+* No line editing
+* No arrow keys
+* No Ctrl+D formatting (must be handled manually)
+* No Ctrl+C handling “for free”
+
+This is why additional handling is required:
+
+* manually printing a newline
+* manually handling signals
+* manually fixing Ctrl+\ behavior
+
+---
+
+### 1.2) Could we use `readline` instead?
+
+Yes — we could replace:
+
+```
+line = ms_get_next_line(STDIN_FILENO);
+```
+
+with:
+
+```c
+line = readline("> ");
+```
+
+
+**But:**
+
+__*1.2.1) History*__
+
+The subject states that heredoc **does not have to update history**.
+
+So we must **not** call:
+
+```c
+add_history(line);
+```
+
+---
+__*1.2.2) Signals*__
+
+`readline` already handles:
+
+* Ctrl+C
+* Ctrl+D
+* prompt redisplay
+
+However, in a child process, **readline signal behavior can become unpredictable** unless carefully configured.
+
+
+### 1.3) Why we decicded not to use `readline` in heredoc
+
+`readline` is designed for interactive shells, not child processes.
+
+Common issues include:
+
+* signal duplication
+* prompt glitches
+* double newlines
+* internal readline state conflicts
+
+---
+
+### 1.4) Our current design
+
+* fork a heredoc child
+* read lines using `ms_get_next_line`
+* write to a temporary file (`~/tmp/...`)
+
+is clean and robust.
+
+---
+### 1.5) Comparison
+
+| Feature            | GNL    | Readline               |
+| ------------------ | ------ | ---------------------- |
+| Simplicity         | Yes    | No                     |
+| Control            | Yes    | Less                   |
+| Signals            | Manual | Automatic (but tricky) |
+| Prompt `> `        | Manual | Built-in               |
+| Stability in child | Yes    | Potential issues       |
+| Subject compliance | Yes    | Yes                    |
+
+---
+>>>>>>> docs

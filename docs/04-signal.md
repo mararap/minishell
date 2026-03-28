@@ -1,5 +1,3 @@
-Yes. In this `minishell.zip`, that requirement is achieved in a clean, standard way:
-
 ## 1) There is exactly one project-level global signal variable
 
 In `src/shell/main.c:15`:
@@ -80,7 +78,7 @@ volatile sig_atomic_t flag = 0;
 
 ### 1.2. Why `volatile` matters
 
-Even if the operation is atomic, the compiler might still break your logic.
+Even if the operation is atomic, the compiler might still break our logic.
 
 #### The problem without `volatile`
 
@@ -105,7 +103,7 @@ Why? Because from the compiler’s perspective:
 * nothing in the loop changes `flag`
 * it assumes no external modification
 
-But a **signal handler *can* change it**, and the compiler doesn’t know that unless you tell it.
+But a **signal handler *can* change it**, and the compiler doesn’t know that unless we tell it.
 
 #### What `volatile` guarantees
 
@@ -386,12 +384,12 @@ We’re looking at a classic Unix shell design pattern, and it’s subtle but ve
 
 ### 5.1. The core problem: who should handle Ctrl+C?
 
-When you press **Ctrl+C**, the terminal sends `SIGINT` to **every process in the foreground process group**:
+When the user presses **Ctrl+C**, the terminal sends `SIGINT` to **every process in the foreground process group**:
 
 * the shell (parent)
 * all child processes in the pipeline (`ls | grep foo | wc`, etc.)
 
-If the shell *also* reacts normally to `SIGINT`, you get problems:
+If the shell *also* reacts normally to `SIGINT`, it might cause problems:
 
 * the shell might interrupt itself while it’s supposed to just wait
 * it could print prompts mid-execution
@@ -560,12 +558,12 @@ This is how shells like bash behave internally.
 
 ### 5.8. What would go wrong without this?
 
-If we *didn’t* ignore signals in the parent:
+If signals *wheren't* ignored in the parent:
 
 * Ctrl+C might:
 
   * interrupt `waitpid`
-  * set our global flag mid-execution
+  * set the global flag mid-execution
   * cause double handling (parent + children)
 * We’d need complicated logic like:
 
@@ -684,7 +682,7 @@ A small extra note: our handlers also call `write()` and, for heredoc, set Readl
 * **`SIGQUIT`** is usually what you get from **Ctrl+\\**
 * **`sigaction()`** is the system call used to tell the OS **what the program should do when one of those signals arrives**
 
-## 1) What is a signal?
+## 8) What is a signal?
 
 A signal is a small asynchronous notification sent by the kernel to a process.
 
@@ -701,7 +699,7 @@ Signals can arrive at any moment, which is why handlers must stay very simple.
 
 ---
 
-## 2) What is `SIGINT`?
+## 9) What is `SIGINT`?
 
 `SIGINT` means **interrupt**.
 
@@ -759,7 +757,7 @@ That is what ensures the “clean new prompt” behavior.
 
 ---
 
-## 3) What is `SIGQUIT`?
+## 10) What is `SIGQUIT`?
 
 `SIGQUIT` means **quit**.
 
@@ -809,7 +807,7 @@ That matches standard shell-style behavior.
 
 ---
 
-## 4) What does `sigaction()` do?
+## 11) What does `sigaction()` do?
 
 `sigaction()` installs a signal disposition: it tells the kernel:
 
@@ -835,7 +833,7 @@ Meaning:
 
 ---
 
-## 5) Why use `sigaction()` instead of `signal()`?
+## 12) Why use `sigaction()` instead of `signal()`?
 
 `sigaction()` is the preferred modern POSIX interface because it is more explicit and reliable.
 
@@ -854,7 +852,7 @@ That is common in student shells, though `sigaction()` is the more robust one.
 
 ---
 
-## 6) What do the important `struct sigaction` fields mean?
+## 13) What do the important `struct sigaction` fields mean?
 
 In our code:
 
@@ -911,9 +909,9 @@ That helps avoid some annoying partial interruptions while waiting for input.
 
 ---
 
-## 7) How our minishell uses them in each context
+## 15) How our minishell uses them in each context
 
-### A) At the interactive prompt
+### 15.1) At the interactive prompt
 
 In `ms_setup_interactive_signals()`:
 
@@ -927,7 +925,7 @@ So:
 
 ---
 
-### B) In child processes
+### 15.2) In child processes
 
 In `ms_setup_child_signals()`:
 
@@ -943,7 +941,7 @@ Example:
 
 ---
 
-### C) While the parent waits for pipeline children
+### 15.3) While the parent waits for pipeline children
 
 In `src/exec/executor.c`:
 
@@ -961,7 +959,7 @@ Then after waiting, our code restores interactive handlers.
 
 ---
 
-### D) In heredoc
+### 15.4) In heredoc
 
 In `src/heredoc/heredoc_tmp.c`:
 
@@ -984,7 +982,7 @@ So Ctrl+C during heredoc:
 
 ---
 
-## 8) Why the global variable matters
+## 16) Why the global variable matters
 
 Our shell uses:
 
@@ -1008,7 +1006,7 @@ Then the main code reacts later, safely.
 
 ---
 
-## 9) What actually happens when you press Ctrl+C at the prompt?
+## 17) What actually happens when you press Ctrl+C at the prompt?
 
 Flow in our shell:
 
@@ -1030,7 +1028,7 @@ So the handler itself stays tiny, and the real UI cleanup happens afterward.
 
 ---
 
-## 10) What happens when you press Ctrl+\ while running a command?
+## 18) What happens when you press Ctrl+\ while running a command?
 
 Example: run an external program.
 
@@ -1049,7 +1047,7 @@ That is why our shell behaves differently at the prompt versus inside a running 
 
 ---
 
-## 11) Tiny summary
+## 19) Tiny summary
 
 * **`SIGINT`** = interrupt, usually **Ctrl+C**
 * **`SIGQUIT`** = quit, usually **Ctrl+\**
@@ -1080,7 +1078,7 @@ Here is a behavior matrix for **our** minishell, based on the actual signal setu
 
 ## What each case really means
 
-### 1) Interactive prompt
+### 19.1) Interactive prompt
 
 At the prompt, our shell installs this behavior in `ms_setup_interactive_signals()`:
 
@@ -1115,7 +1113,7 @@ Ctrl+\ -> nothing
 
 ---
 
-### 2) Child process after `fork()`
+### 19.2) Child process after `fork()`
 
 In `ms_execute_child()`:
 
@@ -1140,7 +1138,7 @@ That is why commands like `cat`, `grep`, `sleep`, etc. behave normally.
 
 ---
 
-### 3) Parent shell while waiting for pipeline children
+### 19.3) Parent shell while waiting for pipeline children
 
 Before spawning a pipeline, the parent shell does:
 
@@ -1166,7 +1164,7 @@ ms_setup_interactive_signals();
 
 ---
 
-### 4) How the shell reports child termination
+### 19.4) How the shell reports child termination
 
 When waiting, `ms_wait_for_children()` checks whether the last child died from a signal.
 
@@ -1190,7 +1188,7 @@ That matches normal shell behavior.
 
 ---
 
-### 5) Heredoc behavior
+### 19.5) Heredoc behavior
 
 Heredoc is a little different.
 

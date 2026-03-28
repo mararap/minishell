@@ -1,4 +1,4 @@
-Yes. In your `minishell.zip`, single quotes are handled by the **lexer**, and the design is actually pretty solid.
+**Single quotes** are handled by the **lexer**.
 
 ## The main idea
 
@@ -24,7 +24,7 @@ if (wctx->str[*wctx->idx] == '\'')
 }
 ```
 
-So as soon as the current character is `'`, your shell does **not** continue normal word scanning.
+So as soon as the current character is `'`, our shell does **not** continue normal word scanning.
 It explicitly delegates to:
 
 ```c
@@ -142,7 +142,7 @@ Inside single quotes, `$HOME` is collected literally.
 
 Why? Because `ms_collect_single_quotes()` never calls `ms_expand_variable()`.
 
-Compare that with double quotes, where your code does call expansion logic.
+Compare that with double quotes, where our code does call expansion logic.
 
 So:
 
@@ -177,7 +177,7 @@ The lexer will not create redirection or pipe tokens from those characters.
 
 This is an important extra detail.
 
-After extracting the quoted text, your code does:
+After extracting the quoted text, our code does:
 
 ```c
 ms_mask_ifs(tmp);
@@ -194,7 +194,7 @@ else if (*s == '\n')
 	*s = MS_MASK_NL;
 ```
 
-This matters because later, during argument handling, your shell may split words on IFS whitespace.
+This matters because later, during argument handling, our shell may split words on IFS whitespace.
 But quoted whitespace must **not** split the argument.
 
 So for:
@@ -288,7 +288,7 @@ The quoting effect has already been applied during lexing.
 
 ## Why empty single quotes still work
 
-Your token stores whether it was quoted:
+Our token stores whether it was quoted:
 
 ```c
 tok->quoted = quoted;
@@ -325,7 +325,7 @@ That is an important and correct detail.
 
 ## Unclosed single quotes are rejected earlier
 
-Before lexing, your shell checks for unclosed quotes with `ms_has_unclosed_quotes()`.
+Before lexing, our shell checks for unclosed quotes with `ms_has_unclosed_quotes()`.
 
 So something like:
 
@@ -388,13 +388,11 @@ argv[1] = "a|$HOME b"
 
 ## Bottom line
 
-Your minishell handles single quotes by sending `'...'` into `ms_collect_single_quotes()`, which reads everything literally until the matching closing quote, strips the quote characters, masks internal whitespace so it is not field-split later, and never performs expansion or metacharacter tokenization on the quoted content.
+Our minishell handles single quotes by sending `'...'` into `ms_collect_single_quotes()`, which reads everything literally until the matching closing quote, strips the quote characters, masks internal whitespace so it is not field-split later, and never performs expansion or metacharacter tokenization on the quoted content.
 
-So in your implementation, single quotes correctly make the enclosed sequence **literal**:
+So in our implementation, single quotes correctly make the enclosed sequence **literal**:
 
 * no pipe parsing
 * no redirection parsing
 * no variable expansion
 * no whitespace splitting inside the quoted part
-
-I can do the same kind of breakdown next for **double quotes**, where your shell behaves differently because `$` can still expand there.
