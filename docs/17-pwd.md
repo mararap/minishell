@@ -1,243 +1,193 @@
-Here’s how `cd` is implemented in your `minishell.zip`.
+Here’s how `pwd` is implemented in your `minishell.zip`.
 
-## Why `cd` is special
+## What `pwd` is supposed to do
 
-`cd` must change the **shell process’s current working directory**. If it ran in a child, the parent shell would stay in the old directory.
+The `pwd` builtin prints the shell’s **current working directory** to standard output, followed by a newline.
 
-Your project handles that correctly:
+In your project, `pwd` does that by calling `getcwd()` directly.
 
-* `cd` is recognized as a builtin
-* `cd` is marked as a builtin that **needs the parent**
-* when there is a single builtin command, the executor runs it with `ms_run_builtin_parent(...)`
-
-So a successful `cd` really changes the shell’s directory.
+That is important because it means your shell prints the **real current directory from the kernel**, not just the value stored in the `PWD` environment variable.
 
 ---
 
-## Where `cd` is dispatched
+## Where `pwd` is recognized as a builtin
 
-In `src/builtin/builtins.c`:
+In `src/builtin/builtin_is_builtin.c`:
 
 ```c
-if (ft_strncmp(argv[0], "cd", 3) == 0)
-	return (ms_builtin_cd(shell, argv));
+if (ft_strncmp(cmd_name, "pwd", 4) == 0)
+	return (1);
 ```
 
-And it is marked as parent-only here:
+So the shell knows `pwd` is one of the builtins.
+
+Then in `src/builtin/builtins.c` it is dispatched here:
+
+```c
+if (ft_strncmp(argv[0], "pwd", 4) == 0)
+	return (ms_builtin_pwd(shell));
+```
+
+So when the executor decides a command is a builtin, `pwd` is routed to `ms_builtin_pwd(...)`.
+
+---
+
+## Does `pwd` have to run in the parent?
+
+No.
+
+Unlike `cd`, `export`, `unset`, and `exit`, your `pwd` builtin is **not** marked as a builtin that must run in the parent process.
+
+In `src/builtin/builtins.c`, only these are parent-required:
 
 ```c
 if (ft_strncmp(cmd_name, "cd", 3) == 0)
 	return (1);
+if (ft_strncmp(cmd_name, "export", 7) == 0)
+	return (1);
+if (ft_strncmp(cmd_name, "unset", 6) == 0)
+	return (1);
+if (ft_strncmp(cmd_name, "exit", 5) == 0)
+	return (1);
 ```
 
-Then `src/exec/executor.c` does:
+Since `pwd` only prints information and does not need to modify the parent shell state, this is correct.
 
-```c
-if (ms_count_commands(command_list) == 1
-	&& ms_use_parent_builtin(command_list))
-	return (ms_run_builtin_parent(shell, command_list));
-```
+That means:
 
-So plain `cd something` runs in the parent shell.
+* `pwd` can safely run in the child execution path
+* `pwd` still works in pipelines
+* it does not need special parent-only handling like `cd`
 
 ---
 
-## The actual `cd` logic
+## The actual implementation
 
-The implementation is in `src/builtin/builtin_cd.c`:
+The real logic is in `src/builtin/builtin_pwd.c`:
 
 ```c
-int	ms_builtin_cd(t_shell *shell, char **argv)
+int	ms_builtin_pwd(t_shell *shell)
+{
+	char	*cwd;
+
+	(void)shell;
+	cwd = getcwd(NULL, 0);
+	if (!cwd)
+	{
+		perror("getcwd");
+		return (1);
+	}
+	write(STDOUT_FILENO, cwd, ft_strlen(cwd));
+	write(STDOUT_FILENO, "\n", 1);
+	free(cwd);
+	return (0);
+}
 ```
+
+This function is very direct.
 
 Its flow is:
 
-1. save current directory with `getcwd(NULL, 0)` into `old_pwd`
-2. inspect arguments
-3. call `chdir(...)`
-4. if successful, update `OLDPWD` and `PWD`
+1. ignore the `shell` argument because `pwd` does not need shell state
+2. call `getcwd(NULL, 0)` to allocate and retrieve the current directory
+3. if `getcwd()` fails, print an error with `perror("getcwd")` and return `1`
+4. otherwise write the directory path to `stdout`
+5. write a newline
+6. free the allocated buffer
+7. return `0`
 
 ---
 
-## How it handles the path argument
+## Why `getcwd(NULL, 0)` matters
 
-### Normal case: relative or absolute path
+This call asks the system to:
 
-This is the key line:
+* determine the current working directory
+* allocate enough memory for the full path
 
-```c
-else if (chdir(argv[1]) != 0)
-	result = (ms_cd_output(argv[1]), 1);
-```
+So your implementation does **not** rely on a fixed-size buffer.
 
-That means your shell simply passes the user’s argument directly to `chdir()`.
+That is a good and simple design for this project.
 
-So these both work naturally:
-
-```bash
-cd ../src
-cd /usr/bin
-```
-
-Because `chdir()` already understands:
-
-* relative paths
-* absolute paths
-
-### Important consequence
-
-Your `cd` does **not** search `PATH`.
-It does **not** treat `cd name` like an executable search.
-
-It only changes directory to exactly the path string given in `argv[1]`.
-
-That matches the requirement well: **relative or absolute path**.
-
----
-
-## No option parsing
-
-Your implementation does not parse options like `-P` or `-L`.
-
-It only has these cases:
-
-* no argument
-* `cd -`
-* one normal path
-* too many arguments
-
-So in the required 42 sense, it behaves like “cd with no options”.
-
----
-
-## Supported branches in your code
-
-### 1) No argument → go to `HOME`
-
-```c
-if (!argv[1] || argv[1][0] == '\0')
-	result = ms_cd_home(shell, old_pwd);
-```
-
-`ms_cd_home()` does:
-
-* lookup `HOME`
-* `chdir(home)`
-* update `PWD` / `OLDPWD`
-
-So this is extra behavior beyond the minimal “relative or absolute path” requirement, but it is valid shell behavior.
-
----
-
-### 2) `cd -` → go to `OLDPWD`
-
-```c
-else if (ft_strncmp(argv[1], "-", 2) == 0 && !argv[2])
-	result = ms_cd_oldpwd(shell, old_pwd);
-```
-
-That function:
-
-* looks up `OLDPWD`
-* changes directory there
-* prints the new path to stdout
-* updates `PWD` / `OLDPWD`
-
-Again, this is extra behavior beyond the strict minimum, but fine.
-
----
-
-### 3) Too many arguments
-
-```c
-else if (argv[2])
-	result = cd_error_with_path(NULL, "too many arguments");
-```
-
-So:
-
-```bash
-cd a b
-```
-
-fails with an error and returns status `1`.
-
----
-
-### 4) One path argument
-
-```c
-else if (chdir(argv[1]) != 0)
-	result = (ms_cd_output(argv[1]), 1);
-else
-	result = ms_update_pwd_vars(shell, old_pwd);
-```
-
-This is the core required behavior.
-
----
-
-## How `PWD` and `OLDPWD` are updated
-
-After a successful directory change, your shell calls:
-
-```c
-ms_update_pwd_vars(shell, old_pwd);
-```
-
-That function does:
-
-```c
-cwd = getcwd(NULL, 0);
-if (old_pwd)
-	ms_env_set(&shell->env_list, "OLDPWD", old_pwd, 1);
-ms_env_set(&shell->env_list, "PWD", cwd, 1);
-```
-
-So after success:
-
-* `OLDPWD` becomes the previous directory
-* `PWD` becomes the new current directory
-
-That keeps the shell environment in sync with the real cwd.
+It also means the output comes from the actual current directory of the process, not from `shell->env_list`.
 
 ---
 
 ## Error handling
 
-There are two styles of error output.
-
-### Generic `cd:` errors
-
-For things like:
-
-* `HOME not set`
-* `OLDPWD not set`
-* too many arguments
-
-your helper prints:
+If `getcwd()` fails, your code does:
 
 ```c
-write(STDERR_FILENO, "cd: ", 4);
-...
-write(STDERR_FILENO, msg, ft_strlen(msg));
+perror("getcwd");
+return (1);
 ```
 
-### System `chdir()` failures
+So the error message format comes from the system, for example:
 
-For things like:
+```text
+getcwd: <system error message>
+```
 
-* no such file
-* not a directory
-* permission denied
+and the builtin exits with status `1`.
 
-your code calls `ms_cd_output(argv[1])`, which prints:
+On success it returns `0`.
+
+---
+
+## Output behavior
+
+On success, your `pwd` prints exactly:
+
+```text
+<current-directory>\n
+```
+
+because it does:
 
 ```c
-SHELL_NAME ": cd: " + path + ": " + strerror(errno)
+write(STDOUT_FILENO, cwd, ft_strlen(cwd));
+write(STDOUT_FILENO, "\n", 1);
 ```
 
-So `chdir()` failures are reported using the real system error string.
+So a command like:
+
+```bash
+pwd
+```
+
+produces something like:
+
+```text
+/home/user/minishell
+```
+
+with a trailing newline.
+
+---
+
+## Relationship with `PWD`
+
+Your shell also bootstraps the `PWD` variable during initialization if it is missing.
+
+However, your `pwd` builtin does **not** print that variable directly.
+
+Instead, it always asks the operating system for the real current directory using `getcwd()`.
+
+So even if `PWD` were stale or manually modified, `pwd` would still print the actual directory of the running shell process.
+
+---
+
+## Arguments and options
+
+Your implementation does **not** parse options.
+
+That matches the project requirement well: **`pwd` with no options**.
+
+Also, `ms_builtin_pwd()` receives only `shell`, not `argv`, so it does not inspect extra arguments at all.
+
+That means the current implementation simply prints the working directory and returns success, rather than validating unsupported `pwd` arguments.
+
+For the 42 mandatory requirement, this is acceptable because the subject only asks for `pwd` with no options.
 
 ---
 
@@ -246,70 +196,45 @@ So `chdir()` failures are reported using the real system error string.
 For:
 
 ```bash
-cd ../src
+pwd
 ```
 
-your shell does:
+your shell does roughly this:
 
 ```text
-recognize builtin cd
--> run in parent
--> old_pwd = getcwd()
--> chdir("../src")
--> getcwd() again
--> set OLDPWD = old_pwd
--> set PWD = new cwd
+recognize builtin pwd
+-> dispatch to ms_builtin_pwd(shell)
+-> call getcwd(NULL, 0)
+-> write the returned path to stdout
+-> write "\n"
+-> free the allocated path
 -> return 0
 ```
 
-For:
-
-```bash
-cd /no/such/dir
-```
-
-it does:
+If `getcwd()` failed, it would instead do:
 
 ```text
-old_pwd = getcwd()
--> chdir("/no/such/dir") fails
--> print "minishell: cd: /no/such/dir: No such file or directory"
+perror("getcwd")
 -> return 1
 ```
 
 ---
 
-## One subtle detail
-
-In `src/shell/init.c`, your shell bootstraps `PWD` and `OLDPWD` at startup if needed:
-
-```c
-if (!ms_env_get_value(shell->env_list, "PWD"))
-	...
-if (!ms_env_get_value(shell->env_list, "OLDPWD"))
-	ms_env_set(&shell->env_list, "OLDPWD", NULL, 1);
-```
-
-So `cd` has those variables available to update consistently.
-
----
-
 ## Bottom line
 
-Your `cd` implementation satisfies the requirement by:
+Your `pwd` implementation is simple and correct for the minishell mandatory part because it:
 
-* recognizing `cd` as a builtin that must run in the **parent**
-* taking the user’s single argument and passing it directly to `chdir(argv[1])`
-* therefore supporting **relative and absolute paths**
-* rejecting extra arguments
-* updating `PWD` and `OLDPWD` after success
+* recognizes `pwd` as a builtin
+* dispatches it to `ms_builtin_pwd(...)`
+* calls `getcwd()` to retrieve the real current directory
+* prints that directory followed by a newline
+* frees allocated memory
+* returns `0` on success and `1` on failure
 
-The most important line for the requirement is this one:
+The most important line is this one:
 
 ```c
-chdir(argv[1])
+cwd = getcwd(NULL, 0);
 ```
 
-That is the actual “change directory to the given relative or absolute path” operation.
-
-Next is `pwd`.
+That is the actual operation that makes your `pwd` print the current working directory.
