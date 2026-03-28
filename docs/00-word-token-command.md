@@ -106,7 +106,7 @@ echo "$HOME"
 
 might give a token like:
 
-* `raw = "\"$HOME\""`
+* `raw = "$HOME"`
 * `value = "/home/user"`
 
 So in our minishell, “word” often means the **content tokenized as `TOKEN_WORD`**, not just raw characters.
@@ -120,8 +120,8 @@ Our command struct is:
 ```c
 typedef struct s_command
 {
-	char			**argv;
-	t_redir			*redirections;
+	char				**argv;
+	t_redir				*redirections;
 	struct s_command	*next;
 }	t_command;
 ```
@@ -346,7 +346,7 @@ This stage decides:
 
 ---
 
-# One subtle point: not every word becomes an argv entry directly
+**One subtle point: not every word becomes an argv entry directly**
 
 This is important in our parser.
 
@@ -387,4 +387,4 @@ Think of it like this:
 
 # In one sentence
 
-In our minishell, a **word** is a piece of shell text collected by the lexer, a **token** is the lexer’s typed object for either a word or an operator, and a **command** is the parser’s higher-level structure that groups word tokens and redirections into one executable pipeline stage.
+In our minishell, a **word** is a piece of shell text collected by the lexer, a **token** is the lexer’s typed object (object with assigned token type) for either a word or an operator, and a **command** is the parser’s higher-level structure that groups word tokens and redirections into one executable pipeline stage.

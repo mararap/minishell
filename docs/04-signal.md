@@ -1,5 +1,3 @@
-Yes. In this `minishell.zip`, that requirement is achieved in a clean, standard way:
-
 ## 1) There is exactly one project-level global signal variable
 
 In `src/shell/main.c:15`:

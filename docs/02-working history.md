@@ -183,7 +183,7 @@ So our project has:
 * **session history** ✅
 * **persistent history across restarts** ❌
 
-For 42 minishell, session history is typically what “working history” means.
+In other words, for our minishell, we interpreted “working history” as "session history".
 
 ---
 
