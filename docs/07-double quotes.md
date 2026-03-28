@@ -1,4 +1,4 @@
-Yes. In your `minishell.zip`, double quotes are handled in the **lexer**, and the implementation follows the expected minishell rule:
+Double quotes are handled in the **lexer**, and the implementation follows the expected minishell rule:
 
 * inside `"..."`, characters like space, `|`, `<`, `>` are treated as **literal text**
 * but `$` is still allowed to trigger **variable expansion**
@@ -93,7 +93,7 @@ static char	*ms_collect_dq_chunk(t_shell *shell, char *str, int *idx,
 }
 ```
 
-This tells you exactly what is special inside double quotes:
+This tells us exactly what is special inside double quotes:
 
 * stop at the closing `"`
 * stop at `$` if expansion is allowed
@@ -105,7 +105,7 @@ This tells you exactly what is special inside double quotes:
   * `<`
   * `>`
   * `;`
-  * `\` (in your project it is not given special shell escaping behavior)
+  * `\` (in our project it is not given special shell escaping behavior)
 
 So inside double quotes, those characters are just copied into the current word.
 
@@ -137,7 +137,7 @@ not a pipeline or redirection.
 
 ## Why `$` is the one exception
 
-Inside double quotes, if the current character is `$`, your code does:
+Inside double quotes, if the current character is `$`, our code does:
 
 ```c
 if (str[*idx] == '$' && allow_expansion)
@@ -194,9 +194,9 @@ That is exactly the intended difference between:
 
 ## Why spaces inside double quotes do not split the argument
 
-This is a very important part of your implementation.
+This is a very important part of our implementation.
 
-After every chunk collected inside double quotes, your code does:
+After every chunk collected inside double quotes, our code does:
 
 ```c
 ms_mask_ifs(tmp);
@@ -257,7 +257,7 @@ VAR="a b"
 echo "$VAR"
 ```
 
-then `ms_expand_variable()` returns `a b`, and after that your code masks the space in that expanded value too.
+then `ms_expand_variable()` returns `a b`, and after that our code masks the space in that expanded value too.
 
 That means the expansion result stays **one argument** inside double quotes, which is correct shell behavior.
 
@@ -279,7 +279,7 @@ not two separate words `a` and `b`.
 
 ## How mixed quoted and unquoted pieces are joined
 
-Your lexer builds a full word by collecting pieces and concatenating them.
+Our lexer builds a full word by collecting pieces and concatenating them.
 
 In `ms_collect_word()`:
 
@@ -370,14 +370,14 @@ That is a separate heredoc rule, not the normal command-word rule, but your code
 
 ## Bottom line
 
-Your minishell handles double quotes by routing `"..."` into `ms_collect_double_quotes()`, which:
+Our minishell handles double quotes by routing `"..."` into `ms_collect_double_quotes()`, which:
 
 * consumes everything literally until the next `"`
 * does **not** treat `|`, `<`, `>`, or spaces as syntax inside the quotes
 * still treats `$` specially through `ms_expand_variable()`
 * masks whitespace so quoted content and quoted expansions stay in a single argument
 
-So in your implementation, double quotes correctly mean:
+So in our implementation, double quotes correctly mean:
 
 * metacharacters are neutralized inside the quotes
 * `$` is still expanded

@@ -1,4 +1,4 @@
-Yes. In your `minishell.zip`, this requirement is handled in **two different ways**:
+# Unclosed quotes and unsupported shell metacharacters
 
 1. **unclosed quotes are detected early and rejected**
 2. **unsupported shell metacharacters like `\` and `;` are never given special syntax meaning in the lexer/parser**
@@ -328,6 +328,6 @@ instead of one combined `a b`.
 
 ## 8) In one sentence
 
-Your minishell handles this requirement by **explicitly rejecting unclosed quotes before lexing**, and by **never defining unsupported characters like `\` and `;` as shell syntax at all**, so they remain ordinary word characters rather than operators.
+Our minishell handles these requirements by **explicitly rejecting unclosed quotes before lexing**, and by **never defining unsupported characters like `\` and `;` as shell syntax at all**, so they remain ordinary word characters rather than operators.
 
 There is one practical caveat: this means the shell is intentionally **less Bash-like** for those unsupported features, which is exactly what the project requirement wants.

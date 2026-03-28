@@ -1,4 +1,4 @@
-Yes. In your `minishell.zip`, `>` output redirection is implemented in the usual 3 stages:
+Output redirection is implemented in the usual 3 stages:
 
 ```text
 lexer -> parser -> executor
@@ -91,7 +91,7 @@ So after parsing:
 echo hello > out.txt
 ```
 
-you get one command roughly like:
+we get one command roughly like:
 
 ```text
 argv = ["echo", "hello", NULL]
@@ -224,7 +224,7 @@ writes into `out.txt` and not to the terminal.
 
 ## 6) Builtins run in parent: stdout is saved and restored
 
-For builtins that must run in the parent (`cd`, `export`, `unset`, `exit`), your shell still supports `>` correctly.
+For builtins that must run in the parent (`cd`, `export`, `unset`, `exit`), our shell still supports `>` correctly.
 
 In `src/builtin/builtins.c`, `ms_run_builtin_parent()` does:
 
@@ -372,7 +372,7 @@ So `echo` writes to the file through standard output.
 
 ## Bottom line
 
-Your minishell implements `>` by:
+Our minishell implements `>` by:
 
 * lexing `>` as `TOKEN_REDIR_OUT`
 * parsing the following word into a redirection node on the command
@@ -383,7 +383,5 @@ open(target, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 dup2(fd, STDOUT_FILENO);
 ```
 
-So “redirect output” in your code literally means:
+So “redirect output” in our code literally means:
 **replace file descriptor 1 with the opened target file before running the command.**
-
-I can explain `>>` next in the same way, since it is identical except it uses `O_APPEND` instead of `O_TRUNC`.

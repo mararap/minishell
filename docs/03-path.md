@@ -383,23 +383,7 @@ Search:
 
 ---
 
-### 3.8) Subtle security implication
-
-Empty PATH entries mean **current directory is searched automatically**.
-
-That’s dangerous because:
-
-```bash
-./ls   # malicious file
-```
-
-could override real `/bin/ls`.
-
-That’s why many systems avoid putting `.` in `PATH`.
-
----
-
-### 3.9) Summary
+### 3.8) Summary
 
 Our function is doing exactly this:
 
@@ -458,7 +442,7 @@ which matches standard shell behavior for an empty PATH element.
 
 ---
 
-## 4) What happens when PATH is missing or empty
+<!-- ## 4) What happens when PATH is missing or empty
 
 This part is subtle and important:
 
@@ -508,7 +492,7 @@ if (!ms_env_get_value(shell->env_list, "PATH"))
 ```
 
 So if minishell starts with no PATH in the environment, it creates one.
-But if the user later does `unset PATH` or `export PATH=""`, then `ms_find_executable()` follows the “no PATH search” behavior above.
+But if the user later does `unset PATH` or `export PATH=""`, then `ms_find_executable()` follows the “no PATH search” behavior above. -->
 
 ---
 
@@ -608,9 +592,9 @@ So once resolution is done, the kernel takes over and runs the program.
 
 ---
 
-## 8) If `execve()` fails, your shell maps the error correctly
+## 8) If `execve()` fails, our shell maps the error correctly
 
-If `execve()` returns, execution failed. Then your code captures `errno` and converts it to shell-style messages and exit codes:
+If `execve()` returns, execution failed. Then our code captures `errno` and converts it to shell-style messages and exit codes:
 
 ```c
 err_no = errno;
