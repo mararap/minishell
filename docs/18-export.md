@@ -2,35 +2,42 @@ Here’s how `export` is implemented in your `minishell.zip`.
 
 ## Why `export` is special
 
-`export` changes the shell’s environment, so it must run in the **parent shell process**, not in a child.
+`export` changes the shell’s environment, so for the change to **persist in the main shell**, it must run in the **parent shell process** when it is executed as a single builtin command.
 
 Your project handles that correctly:
 
 * `export` is recognized as a builtin in `src/builtin/builtin_is_builtin.c`
 * it is marked as a builtin that **needs the parent** in `src/builtin/builtins.c`
-* when it is a single builtin command, the executor runs it through `ms_run_builtin_parent(...)`
+* when there is a single command and it is a parent-needed builtin, the executor can run it through `ms_run_builtin_parent(...)`
 
-So changes made by `export` persist in the shell.
+So plain single-command `export ...` updates the shell state permanently.
+
+A small nuance:
+
+* if `export` appears inside a pipeline, it can still run in a child path
+* in that case, changes affect only that child process and do **not** persist in the main shell
 
 ---
 
 ## Dispatch path
 
-In `src/builtin/builtins.c`:
+`export` is recognized as a builtin by `ms_is_builtin()`.
+
+The actual builtin dispatcher is in `src/builtin/builtins.c`:
 
 ```c
 if (ft_strncmp(argv[0], "export", 7) == 0)
 	return (ms_builtin_export(shell, argv));
 ```
 
-And it is marked as parent-only here:
+And `export` is marked as a parent-needed builtin here:
 
 ```c
 if (ft_strncmp(cmd_name, "export", 7) == 0)
 	return (1);
 ```
 
-So plain `export ...` really updates `shell->env_list`.
+So for a plain single-command case, `export ...` really updates `shell->env_list` in the parent shell.
 
 ---
 
@@ -82,7 +89,7 @@ That is broader than the minimal requirement, but correct shell behavior.
 
 ---
 
-## How `export` with no arguments prints the environment
+## How `export` with no arguments prints variables
 
 This part is in `src/builtin/builtin_export_print.c`.
 
@@ -114,7 +121,7 @@ and it skips `_`:
 if (ft_strcmp(arr[i]->name, "_") != 0 && arr[i]->exported != 0)
 ```
 
-### Step 4: format
+### Step 4: output format
 
 Each line is printed like:
 
@@ -144,7 +151,7 @@ That logic is in `src/builtin/builtin_export_utils.c`, in:
 int	ms_export_one_arg(t_shell *shell, char *arg)
 ```
 
-It does 4 things:
+It does 4 things.
 
 ### 1. Split `NAME=value` if `=` exists
 
@@ -195,7 +202,7 @@ through `ms_export_error()`.
 
 ---
 
-### 3. If `NAME=value`, set/update the variable
+### 3. If `NAME=value`, set or update the variable
 
 When there is a value:
 
@@ -221,17 +228,19 @@ status = ms_export_name_only(shell, name);
 
 That function does:
 
-* look up the old value
-* if not found, use empty string fallback
-* call `ms_env_set(..., exported = 1)`
+* look up the existing variable
+* if it already exists, mark it as exported
+* if it does not exist, create it with `value == NULL`
 
 So `export NAME` means:
 
-> ensure the variable exists in the shell env list and mark it exported
+> ensure the variable exists in the shell env list and mark it exported, without assigning a string value
+
+That is an important detail: this is **not** an empty-string assignment.
 
 ---
 
-## How the environment is actually stored
+## How the environment is stored
 
 Your shell uses a linked list of `t_env_var`.
 
@@ -241,9 +250,9 @@ The actual setter is in `src/env/env_list_ops.c`:
 int	ms_env_set(t_env_var **env_list, char *name, char *value, int exported)
 ```
 
-It works like this:
+It works like this.
 
-### If variable already exists
+### If the variable already exists
 
 ```c
 if (var)
@@ -257,7 +266,7 @@ if (var)
 
 So it updates the existing node.
 
-### If variable does not exist
+### If the variable does not exist
 
 It creates a new node and appends it to the env list.
 
@@ -271,10 +280,21 @@ Each env node has an `exported` field.
 
 That is why your shell can distinguish between:
 
-* variables present in the shell
-* variables that should appear in exported output / child `envp`
+* variables present in the shell state
+* variables that should be shown by `export`
+* variables that should be included in child `envp`
 
-`export` sets that flag to `1`.
+But there is one subtle rule in your project:
+
+* `export` output prints exported names even when `value == NULL`
+* child `envp` / `env` output includes only exported variables whose value is **not** `NULL`
+
+That comes from `ms_env_to_array()` and `ms_builtin_env()`, both of which check that `value` exists.
+
+So:
+
+* `export ABC` can make `ABC` appear in `export`
+* but `ABC` will not appear in `env` until it has a real value
 
 ---
 
@@ -289,7 +309,7 @@ export TEST=hello
 your shell does:
 
 1. recognize builtin `export`
-2. run it in the parent
+2. in the plain single-command case, run it in the parent
 3. `ms_export_one_arg("TEST=hello")`
 4. split into:
 
@@ -316,9 +336,23 @@ will include something like:
 export TEST="hello"
 ```
 
+And:
+
+```bash
+env
+```
+
+can print:
+
+```text
+TEST=hello
+```
+
+because the variable is exported and has a non-`NULL` value.
+
 ---
 
-## One more example
+## Another example
 
 For:
 
@@ -331,10 +365,28 @@ your shell does:
 1. parse no `=`
 2. validate `ABC`
 3. call `ms_export_name_only()`
-4. if `ABC` did not exist, it creates it with empty-string fallback
-5. marks it exported
+4. if `ABC` did not exist, create it with `NULL` value
+5. mark it exported
 
-So `export ABC` does not assign a value, but it still creates/exports the name in your shell’s env list.
+So after that:
+
+```bash
+export
+```
+
+can include:
+
+```text
+export ABC
+```
+
+But:
+
+```bash
+env
+```
+
+will still **not** print `ABC`, because `env` only prints exported variables with a non-`NULL` value.
 
 ---
 
@@ -342,10 +394,10 @@ So `export ABC` does not assign a value, but it still creates/exports the name i
 
 Your `export` implementation works like this:
 
-* it is a **parent builtin**
-* `export` with no arguments prints the exported environment in sorted `export NAME="value"` format
-* `export NAME=value` sets or updates a variable
-* `export NAME` marks a variable as exported
+* in the plain single-command case, it behaves as a **parent builtin** so changes persist
+* `export` with no arguments prints the exported variables in sorted `export NAME="value"` / `export NAME` format
+* `export NAME=value` sets or updates a variable and marks it exported
+* `export NAME` marks a variable as exported, creating it with `NULL` value if it does not exist
 * invalid identifiers are rejected with an error
 * all updates go through `ms_env_set(...)` on `shell->env_list`
 
@@ -354,6 +406,5 @@ The most important functions are:
 * `ms_builtin_export()` — main entry point
 * `ms_print_export_format()` — `export` with no args
 * `ms_export_one_arg()` — handles one assignment/name
+* `ms_export_name_only()` — handles `export NAME`
 * `ms_env_set()` — updates the shell environment
-
-Next is `unset`.
