@@ -1,4 +1,5 @@
-Double quotes are handled in the **lexer**, and the implementation follows the expected minishell rule:
+# **Double quotes**
+are handled in the **lexer**, and the implementation follows the expected minishell rule:
 
 * inside `"..."`, characters like space, `|`, `<`, `>` are treated as **literal text**
 * but `$` is still allowed to trigger **variable expansion**

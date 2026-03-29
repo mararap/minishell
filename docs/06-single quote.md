@@ -1,4 +1,5 @@
-**Single quotes** are handled by the **lexer**.
+# **Single quotes**
+are handled by the **lexer**.
 
 ## The main idea
 

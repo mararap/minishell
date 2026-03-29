@@ -1,4 +1,5 @@
-Output redirection is implemented in the usual 3 stages:
+# Output redirection
+is implemented in the usual 3 stages:
 
 ```text
 lexer -> parser -> executor

@@ -1,4 +1,4 @@
-Yes — `>>` in your `minishell.zip` is implemented almost the same way as `>`, with one crucial difference:
+`>>` is implemented almost the same way as `>`, with one crucial difference:
 
 * `>` opens the file with **truncate**
 * `>>` opens the file with **append**

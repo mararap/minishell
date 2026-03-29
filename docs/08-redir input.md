@@ -1,4 +1,5 @@
-Input redirection is implemented in three stages:
+# Input redirection
+is implemented in three stages:
 
 ```text
 lexer  -> parser  -> executor

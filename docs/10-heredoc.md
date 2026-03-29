@@ -1,5 +1,7 @@
-Yes — `<<` is the most special redirection in your `minishell.zip`, because unlike `<`, it does **not** open an existing file.
-Instead, your shell:
+# heredoc redirection
+`<<` is the most special redirection, because unlike `<`, it does **not** open an existing file.
+
+Instead, minishell:
 
 1. parses `<< delimiter`
 2. **collects lines from the user first**
@@ -41,7 +43,7 @@ It also sets:
 lstate->expect_heredoc_delim = (type == TOKEN_HEREDOC);
 ```
 
-That matters because the **next word is the delimiter**, and your lexer treats it specially.
+That matters because the **next word is the delimiter**, and our lexer treats it specially.
 
 ---
 
@@ -114,7 +116,7 @@ the command has a heredoc redirection attached to it.
 
 ## 4) Heredocs are prepared before the pipeline executes
 
-In `src/shell/loop.c`, before `ms_execute_pipeline()` runs, your shell does:
+In `src/shell/loop.c`, before `ms_execute_pipeline()` runs, our shell does:
 
 ```c
 status = ms_prepare_heredocs(shell, commands);
@@ -134,7 +136,7 @@ hello
 EOF
 ```
 
-your shell first gathers the heredoc content, stores it, and only then starts the command pipeline.
+our shell first gathers the heredoc content, stores it, and only then starts the command pipeline.
 
 ---
 
@@ -382,7 +384,7 @@ works as if `cat` were reading from a file containing `hello\n`.
 
 ## 12) Cleanup behavior
 
-Your project also cleans up heredoc fds carefully.
+Our project also cleans up heredoc fds carefully.
 
 ### Unused heredoc fds in child processes
 
@@ -471,7 +473,7 @@ So heredoc is really:
 
 ## Bottom line
 
-Your minishell implements `<<` by:
+Our minishell implements `<<` by:
 
 * lexing it as `TOKEN_HEREDOC`
 * parsing the following word as a delimiter and recording whether expansion is allowed
@@ -484,6 +486,5 @@ Your minishell implements `<<` by:
 dup2(redir->heredoc_fd, STDIN_FILENO);
 ```
 
-So in your project, heredoc is implemented as a **temporary file-backed input redirection** that is populated by reading until the delimiter.
+So in our project, heredoc is implemented as a **temporary file-backed input redirection** that is populated by reading until the delimiter.
 
-I can also do a side-by-side comparison now of `<` vs `<<`, because that usually makes the difference much easier to remember.
